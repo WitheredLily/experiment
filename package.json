@@ -14,6 +14,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "aws-cdk-lib": "2.220.0",
+    "bootstrap": "^5.3.8",
     "constructs": "^10.4.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -51,6 +52,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.156",
+    "@types/bootstrap": "^5.2.10",
     "@types/jest": "^30.0.0",
     "@types/node": "24.9.0",
     "aws-cdk": "2.1030.0",

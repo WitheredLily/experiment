@@ -28,22 +28,6 @@ export class StuffStack extends cdk.Stack {
   }
 }
 
-export class GhastApiStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-        super(scope, id, props);
-
-        const api = new apigw.RestApi(this, `GhastApiGateway`, {
-            restApiName: `ghast-api`,
-            deployOptions: {
-                metricsEnabled: true,
-                loggingLevel: apigw.MethodLoggingLevel.INFO,
-                dataTraceEnabled: true,
-            },
-            cloudWatchRole: true,
-        });
-    }
-}
-
 const createPostFn = new lambda.NodejsFunction(this, `CreatePostFunction`, {
     entry: path.resolve(__dirname, '../src/handlers/create-post.ts'),
     functionName: `ghast-api-create-post`,

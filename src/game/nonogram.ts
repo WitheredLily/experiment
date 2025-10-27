@@ -1,3 +1,4 @@
+// src/game/nonogram.ts
 interface Grid {
     numbersX: Clues[];
     numbersY: Clues[];
@@ -13,38 +14,29 @@ enum CellState {
     Flagged,
 }
 
-function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number): Grid {
-    let grid: boolean[][] = [];
-    for (let i = 0; i < sizeX; i++) {
-        const array: boolean[] = Array.from({ length: sizeY }, () => Math.random() < 0.5);
-        grid.push(array)
-    }
+export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number): Grid {
+    const grid: boolean[][] = Array.from({ length: sizeX }, () =>
+        Array.from({ length: sizeY }, () => Math.random() < fillProbability)
+    );
 
-
-    let numbersX: number[][] = new Array<number[]>(sizeX);
-    let numbersY: number[][] = new Array<number[]>(sizeY);
-
-    grid.forEach(array => {
+    const numbersX: number[][] = grid.map(col => {
         const counts: number[] = [];
         let currentCount = 0;
-        array.forEach(value => {
+        col.forEach(value => {
             if (value) {
                 currentCount++;
             } else if (currentCount > 0) {
                 counts.push(currentCount);
                 currentCount = 0;
             }
-        })
-        if (currentCount > 0) {
-            counts.push(currentCount)
-        }
-        numbersX.push(counts)
-    })
+        });
+        if (currentCount > 0) counts.push(currentCount);
+        return counts;
+    });
 
-    for (let y = 0; y < sizeY; y++) {
+    const numbersY: number[][] = Array.from({ length: sizeY }, (_, y) => {
         const counts: number[] = [];
         let currentCount = 0;
-
         for (let x = 0; x < sizeX; x++) {
             if (grid[x][y]) {
                 currentCount++;
@@ -53,17 +45,20 @@ function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number): 
                 currentCount = 0;
             }
         }
-        if (currentCount > 0) {
-            counts.push(currentCount);
-        }
+        if (currentCount > 0) counts.push(currentCount);
+        return counts;
+    });
 
-        numbersY.push(counts);
-    }
     return createGrid(numbersX, numbersY);
-    }
+}
 
-function createGrid(numbersX: number[][], numbersY: number[][]) :Grid {
-    let cells: CellState[][] = new Array<CellState[]>(numbersX.length).fill(Array<CellState>(numbersY.length).fill(CellState.Blank));
+function createGrid(numbersX: number[][], numbersY: number[][]): Grid {
+    const cols = numbersX.length;
+    const rows = numbersY.length;
+    const cells: CellState[][] = Array.from({ length: cols }, () =>
+        Array.from({ length: rows }, () => CellState.Blank)
+    );
+
     const grid: Grid = {
         numbersX: numbersToClue(numbersX),
         numbersY: numbersToClue(numbersY),
@@ -71,6 +66,7 @@ function createGrid(numbersX: number[][], numbersY: number[][]) :Grid {
     };
     return grid;
 }
+
 function changeCellState(grid: Grid, x: number, y: number, newState: CellState): void {
     if (x < 0 || x >= grid.numbersX.length || y < 0 || y >= grid.numbersY.length) {
         throw new Error("Cell coordinates out of bounds");
@@ -78,15 +74,13 @@ function changeCellState(grid: Grid, x: number, y: number, newState: CellState):
     grid.cellStates[x][y] = newState;
 }
 
-function checkCell(grid: Grid, x: number, y: number){
-    checkClue(grid.cellStates[x], grid.numbersX[x])
-    let yArray = new Array<number>(grid.numbersY.length);
-    grid.cellStates.forEach(column => {
-        yArray.push(column[y])
-    })
-    checkClue(yArray, grid.numbersY[y])
+function checkCell(grid: Grid, x: number, y: number) {
+    checkClue(grid.cellStates[x], grid.numbersX[x]);
+    const yArray: CellState[] = grid.cellStates.map(column => column[y]);
+    checkClue(yArray, grid.numbersY[y]);
 }
-function checkClue(cells: CellState[], clue: Clues){
+
+function checkClue(cells: CellState[], clue: Clues) {
     clue.wrong = false;
     let lastFlagged = -1;
     let firstFilled = 0;
@@ -94,68 +88,61 @@ function checkClue(cells: CellState[], clue: Clues){
     let numberFound = false;
     let numbersFound: number = 0;
     let breakFlag = false;
-    for (let i = 0; (i < cells.length && numbersFound < clue.numbers.length && !breakFlag) ; i++) {
+    for (let i = 0; (i < cells.length && numbersFound < clue.numbers.length && !breakFlag); i++) {
         const cell = cells[i];
         switch (cell) {
             case CellState.Flagged:
-                if(numberFound){
+                if (numberFound) {
                     numberFound = false;
                     numbersFound++;
                 }
-                if(filledFound){
+                if (filledFound) {
                     breakFlag = true;
                     clue.wrong = true;
                     break;
                 }
-                lastFlagged = i
-                filledFound = false
+                lastFlagged = i;
+                filledFound = false;
                 break;
             case CellState.Filled:
-                if(numberFound && i-firstFilled+1 > clue.numbers[numbersFound]){
+                if (numberFound && i - firstFilled + 1 > clue.numbers[numbersFound]) {
                     breakFlag = true;
                     clue.wrong = true;
                     break;
                 }
-                if(i-lastFlagged >= clue.numbers[numbersFound]){
+                if (i - lastFlagged >= clue.numbers[numbersFound]) {
                     numbersFound++;
                     numberFound = true;
                     filledFound = false;
-                    lastFlagged = i+1;
-                }else if(!filledFound){
+                    lastFlagged = i + 1;
+                } else if (!filledFound) {
                     firstFilled = i;
                     filledFound = true;
                 }
                 break;
             case CellState.Blank:
-                if(numberFound){
+                if (numberFound) {
                     numberFound = false;
                     numbersFound++;
                 }
                 break;
-
         }
     }
     return clue.wrong;
 }
-function numbersToClue(numbers: number[][]):Clues[]{
-    let cluesSet: Clues[] = new Array<Clues>(numbers.length);
-    numbers.forEach(numberSet => {
-        cluesSet.push({
-            numbers: numberSet,
-            wrong: false,
-        })
-    })
-    return cluesSet;
+
+function numbersToClue(numbers: number[][]): Clues[] {
+    return numbers.map(numberSet => ({
+        numbers: numberSet,
+        wrong: false,
+    }));
 }
 
-function solveGrid(grid: Grid): void {
-
-}
+function solveGrid(grid: Grid): void {}
 
 function checkSolvable(grid: Grid): boolean {
     return true;
 }
 
-
-export {CellState, createGrid, changeCellState};    export type { Grid };
-
+export { CellState, createGrid, changeCellState, checkCell};
+export type { Grid };

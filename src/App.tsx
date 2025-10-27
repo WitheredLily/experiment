@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import { ClickableGrid } from "./game/board";
-import { createGrid } from "./game/nonogram";
+import { makeRandomGrid } from "./game/nonogram";
 
 export default function App() {
     const cols = 5;
     const rows = 5;
 
-    // empty clue sets produce a blank grid of the requested size
-    const numbersX = Array.from({ length: cols }, () => [] as number[]);
-    const numbersY = Array.from({ length: rows }, () => [] as number[]);
-
-    const [grid, setGrid] = useState(() => createGrid(numbersX, numbersY));
+    const [grid, setGrid] = useState(() => makeRandomGrid(cols, rows, 0.5));
 
     return (
         <div style={{ padding: "1rem" }}>

@@ -1,43 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
+import {CellState, Grid} from "./nonogram";
 
-interface GridProps {
-    rows: number;
-    cols: number;
+interface BoardProps {
+    grid: Grid;
+    onGridChange?: (newGrid: Grid) => void;
 }
 
-type CellColor = "white" | "black" | "red";
+const stateToColor = (s: CellState): "white" | "black" | "red" =>
+    s === CellState.Filled ? "black" : s === CellState.Flagged ? "red" : "white";
 
-export const ClickableGrid: React.FC<GridProps> = ({ rows, cols }) => {
-    const [grid, setGrid] = useState<CellColor[][]>(
-        Array.from({ length: rows }, () =>
-            Array.from({ length: cols }, () => "white")
-        )
-    );
+export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
+    const rows = grid.cellStates.length;
+    const cols = rows > 0 ? grid.cellStates[0].length : 0;
 
-    const handleLeftClick = (row: number, col: number) => {
-        setGrid((prev) => {
-            const newGrid = prev.map((r) => [...r]);
-            const current = newGrid[row][col];
-            if (current === "white") newGrid[row][col] = "black";
-            else if (current === "black") newGrid[row][col] = "white";
-            return newGrid;
-        });
+    const updateCell = (r: number, c: number, newState: CellState) => {
+        // make a shallow copy of rows and each row array
+        const cellStates = grid.cellStates.map(row => row.slice());
+        cellStates[r][c] = newState;
+        onGridChange?.({ ...grid, cellStates });
     };
 
-    const handleRightClick = (row: number, col: number, event: React.MouseEvent) => {
-        event.preventDefault();
-        setGrid((prev) => {
-            const newGrid = prev.map((r) => [...r]);
-            const current = newGrid[row][col];
-            if (current === "white") newGrid[row][col] = "red";
-            else if (current === "red") newGrid[row][col] = "white";
-            return newGrid;
-        });
+    const handleLeftClick = (r: number, c: number) => {
+        const current = grid.cellStates[r][c];
+        updateCell(r, c, current === CellState.Filled ? CellState.Blank : CellState.Filled);
+    };
+
+    const handleRightClick = (r: number, c: number, e: React.MouseEvent) => {
+        e.preventDefault();
+        const current = grid.cellStates[r][c];
+        updateCell(r, c, current === CellState.Flagged ? CellState.Blank : CellState.Flagged);
     };
 
     return (
         <div style={{ display: "inline-block" }}>
-            {/* Column numbers */}
             <div
                 style={{
                     display: "grid",
@@ -46,22 +41,14 @@ export const ClickableGrid: React.FC<GridProps> = ({ rows, cols }) => {
                     gap: "4px",
                 }}
             >
-                <div /> {/* empty top-left corner */}
+                <div />
                 {Array.from({ length: cols }, (_, cIdx) => (
-                    <div
-                        key={`col-${cIdx}`}
-                        style={{
-                            textAlign: "center",
-                            lineHeight: "3rem",
-                            fontWeight: "bold",
-                        }}
-                    >
-                        {cIdx + 2}
+                    <div key={`col-${cIdx}`} style={{ textAlign: "center", lineHeight: "3rem", fontWeight: "bold" }}>
+                        {cIdx + 1}
                     </div>
                 ))}
             </div>
 
-            {/* Grid with row numbers */}
             <div
                 style={{
                     display: "grid",
@@ -70,21 +57,10 @@ export const ClickableGrid: React.FC<GridProps> = ({ rows, cols }) => {
                     width: "fit-content",
                 }}
             >
-                {grid.map((row, rIdx) => (
+                {grid.cellStates.map((row, rIdx) => (
                     <React.Fragment key={`row-${rIdx}`}>
-                        {/* Row number */}
-                        <div
-                            style={{
-                                textAlign: "center",
-                                lineHeight: "3rem",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            {rIdx + 1}
-                        </div>
-
-                        {/* Row cells */}
-                        {row.map((color, cIdx) => (
+                        <div style={{ textAlign: "center", lineHeight: "3rem", fontWeight: "bold" }}>{rIdx + 1}</div>
+                        {row.map((cellState, cIdx) => (
                             <div
                                 key={`${rIdx}-${cIdx}`}
                                 onClick={() => handleLeftClick(rIdx, cIdx)}
@@ -93,7 +69,7 @@ export const ClickableGrid: React.FC<GridProps> = ({ rows, cols }) => {
                                     width: "3rem",
                                     height: "3rem",
                                     border: "1px solid #999",
-                                    backgroundColor: color,
+                                    backgroundColor: stateToColor(cellState),
                                     cursor: "pointer",
                                     transition: "background-color 0.15s",
                                 }}

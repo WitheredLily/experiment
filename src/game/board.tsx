@@ -1,7 +1,7 @@
 // typescript
 // File: `src/game/board.tsx`
 import React from "react";
-import { CellState, Grid, checkCell, isSolved} from "./nonogram";
+import { CellState, Grid} from "./nonogram";
 
 interface BoardProps {
     grid: Grid;
@@ -34,23 +34,18 @@ const renderClueRow = (nums: number[]) =>
     );
 
 export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
-    const cols = grid.numbersX.length;
-    const rows = grid.numbersY.length;
+    const [cols, rows] = grid.getSize();
 
     const updateCell = (r: number, c: number, newState: CellState) => {
-        const cellStates = grid.cellStates.map(col => col.slice());
-        cellStates[c][r] = newState;
-
-        // Build new grid and update clues before notifying parent
-        const newGrid: Grid = { ...grid, cellStates };
-        const checked = checkCell(newGrid, c, r);
-        isSolved(newGrid);
-        onGridChange?.(checked);
-        localStorage.setItem(newGrid.id, JSON.stringify(newGrid));
+        grid.updateCell(r, c, newState);
+        grid.checkClues(c, r);
+        grid.isSolved();
+        onGridChange?.(grid);
+        grid.save();
     };
 
     const handleLeftClick = (r: number, c: number) => {
-        const current = grid.cellStates[c][r];
+        const current = grid.getCellStates()[c][r];
         if (current !== CellState.Flagged) {
             updateCell(r, c, current === CellState.Filled ? CellState.Blank : CellState.Filled);
         }
@@ -58,7 +53,7 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
 
     const handleRightClick = (r: number, c: number, e: React.MouseEvent) => {
         e.preventDefault();
-        const current = grid.cellStates[c][r];
+        const current = grid.getCellStates()[c][r];
         if (current !== CellState.Filled) {
             updateCell(r, c, current === CellState.Flagged ? CellState.Blank : CellState.Flagged);
         }
@@ -67,7 +62,7 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
         return (
             <div style={{display: "inline-block"}}>
                 {/* top clues */}
-                {grid.solved && (
+                {grid.getSolved() && (
                     <div style={{
                         padding: "1rem",
                         marginBottom: "1rem",
@@ -91,7 +86,7 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
                     }}
                 >
                     <div/>
-                    {grid.numbersX.map((clue, cIdx) => (
+                    {grid.getCluesX().map((clue, cIdx) => (
                         <div
                             key={`col-${cIdx}`}
                             style={{
@@ -99,17 +94,17 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
                                 lineHeight: "1rem",
                                 fontWeight: "bold",
                                 color:
-                                    clue.state === 0 // Correct
+                                    clue.getState() === 0 // Correct
                                         ? "green"
-                                        : clue.state === 1// Wrong
+                                        : clue.getState() === 1// Wrong
                                             ? "red"
-                                            : clue.state === 2 // Unsolved
+                                            : clue.getState() === 2 // Unsolved
                                                 ? "black"
                                                 : "inherit",
                                 paddingTop: "0.25rem",
                             }}
                         >
-                            {renderClueColumn(clue.numbers)}
+                            {renderClueColumn(clue.getNumbers())}
                         </div>
                     ))}
                 </div>
@@ -132,11 +127,11 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
                                     lineHeight: "1rem",
                                     fontWeight: "bold",
                                     color:
-                                        grid.numbersY[rIdx]?.state === 0 // Correct
+                                        grid.getCluesY()[rIdx]?.getState() === 0 // Correct
                                             ? "green"
-                                            : grid.numbersY[rIdx]?.state === 1// Wrong
+                                            : grid.getCluesY()[rIdx]?.getState() === 1// Wrong
                                                 ? "red"
-                                                : grid.numbersY[rIdx]?.state === 2 // Unsolved
+                                                : grid.getCluesY()[rIdx]?.getState() === 2 // Unsolved
                                                     ? "black"
                                                     : "inherit",
                                     paddingRight: "0.25rem",
@@ -146,11 +141,11 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
                                     minWidth: "3rem",
                                 }}
                             >
-                                {renderClueRow(grid.numbersY[rIdx]?.numbers ?? [])}
+                                {renderClueRow(grid.getCluesY()[rIdx]?.getNumbers() ?? [])}
                             </div>
 
                             {Array.from({length: cols}, (_, cIdx) => {
-                                const cellState = grid.cellStates[cIdx]?.[rIdx] ?? CellState.Blank;
+                                const cellState = grid.getCellStates()[cIdx]?.[rIdx] ?? CellState.Blank;
                                 return (
                                     <div
                                         key={`${rIdx}-${cIdx}`}

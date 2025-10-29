@@ -1,16 +1,6 @@
 // typescript
 // File: `src/game/nonogram.ts`
-interface Grid {
-    numbersX: Clues[];
-    numbersY: Clues[];
-    cellStates: CellState[][];
-    solved: boolean;
-    id: string;
-}
-interface Clues {
-    numbers: number[];
-    state: ClueStates;
-}
+
 enum CellState {
     Blank,
     Filled,
@@ -21,6 +11,162 @@ enum ClueStates {
     Correct,
     Wrong,
     Unsolved,
+}
+
+const loadingErr = new Error("Invalid cell states saved");
+
+class Grid {
+    private readonly numbersX: Clues[];
+    private readonly numbersY: Clues[];
+    private readonly numbers: number[][][];
+    private cellStates: CellState[][];
+    private solved: boolean;
+    private readonly id: string;
+
+    public constructor(numbersX: number[][], numbersY: number[][], id: string, states?: CellState[][]) {
+        const cols = numbersX.length;
+        const rows = numbersY.length;
+        if (states) {
+            if (states.length !== cols) {
+                throw loadingErr;
+            }
+            for (const state of states) {
+                if (state.length !== rows) {
+                    throw loadingErr;
+                }
+            }
+            this.cellStates = states;
+        } else {
+            this.cellStates = Array.from({length: cols}, () =>
+                Array.from({length: rows}, () => CellState.Blank)
+            );
+        }
+        this.numbersX = numbersToClue(numbersX);
+        this.numbersY = numbersToClue(numbersY);
+        this.numbers = [numbersX,numbersY]
+        this.solved = false;
+        this.isSolved()
+        this.id = id;
+        localStorage.setItem(this.id, JSON.stringify(this));
+    }
+
+    public save(): void {
+        localStorage.setItem(this.id, JSON.stringify({
+            numbers: this.numbers,
+            cellStates: this.cellStates,
+        }));
+    }
+
+    public isSolved(){
+        const solved = checkSolvedAxis(this.numbersX) && checkSolvedAxis(this.numbersY);
+        this.solved = solved;
+        return solved;
+    }
+
+    public checkClues(x: number, y: number) {
+        this.numbersX[x].checkClue(this.cellStates[x]);
+        const yArray: CellState[] = this.cellStates.map(column => column[y]);
+        this.numbersY[y].checkClue(yArray);
+    }
+
+
+    public flagCell(x: number, y: number){
+        this.cellStates[x][y] = CellState.Flagged;
+    }
+    public fillCell(x: number, y: number){
+        this.cellStates[x][y] = CellState.Filled;
+    }
+    public blankCell(x: number, y: number){
+        this.cellStates[x][y] = CellState.Blank;
+    }
+
+    public updateCell(x: number, y: number, newState: CellState){
+        this.cellStates[x][y] = newState;
+    }
+
+    public getSolved(): boolean {
+        return this.solved;
+    }
+
+    public getSize(){
+        return [this.numbersX.length, this.numbersX.length];
+    }
+
+    public getCellStates(): CellState[][] {
+        return this.cellStates;
+    }
+
+    public getId(): string {
+        return this.id;
+    }
+
+    public getCluesX(): Clues[] {
+        return this.numbersX;
+    }
+
+    public getCluesY(): Clues[] {
+        return this.numbersY;
+    }
+}
+function loadGrid(id: string, cols: number, rows: number, probability: number){
+    if(localStorage.getItem(id)) {
+        let loadedGrid = JSON.parse(localStorage.getItem(id)!);
+        if (!loadedGrid.solved){
+            return new Grid(loadedGrid.numbers[0], loadedGrid.numbers[1], id, loadedGrid.cellStates);
+        }
+
+    }
+    return makeRandomGrid(cols, rows, probability, id)
+}
+
+
+class Clues {
+    private readonly numbers: number[];
+    private state: ClueStates;
+    private readonly regexSolved: RegExp;
+    private readonly regexPossible: RegExp;
+
+    public constructor(numbers: number[]) {
+        this.numbers = numbers;
+        if (numbers.length === 0) {
+            this.state = ClueStates.Correct;
+        } else {
+            this.state = ClueStates.Unsolved;
+        }
+        this.regexSolved = RegExp(`^[bc]*a{${numbers.join('}[bc]+a{') || '0'}}[bc]*$`)
+        this.regexPossible = RegExp(`^[bc]*[ab]{${numbers.join('}[bc]+[ab]{') || '0'}}[bc]*$`)
+    }
+
+    public checkClue(cells: CellState[]) {
+        let row = ""
+        for (const cell of cells) {
+            switch (cell) {
+                case CellState.Flagged:
+                    row += "c"
+                    break;
+                case CellState.Filled:
+                    row += "a"
+                    break;
+                case CellState.Blank:
+                    row += "b"
+                    break;
+            }
+        }
+        if (this.regexSolved.test(row)) {
+            this.state =  ClueStates.Correct;
+        } else if (this.regexPossible.test(row)) {
+            this.state = ClueStates.Unsolved;
+        } else {
+            this.state = ClueStates.Wrong;
+        }
+    }
+
+    public getNumbers(): number[] {
+        return this.numbers;
+    }
+    public getState(): ClueStates {
+        return this.state;
+    }
 }
 
 export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number, id: string): Grid {
@@ -58,102 +204,29 @@ export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: nu
         return counts;
     });
 
-    return createGrid(numbersX, numbersY, id);
+    return new Grid(numbersX, numbersY, id);
 }
 
-function createGrid(numbersX: number[][], numbersY: number[][], id: string): Grid {
-    const cols = numbersX.length;
-    const rows = numbersY.length;
-    const cells: CellState[][] = Array.from({ length: cols }, () =>
-        Array.from({ length: rows }, () => CellState.Blank)
-    );
-    let grid: Grid = {
-        numbersX: numbersToClue(numbersX),
-        numbersY: numbersToClue(numbersY),
-        cellStates: cells,
-        solved: false,
-        id: id,
-    }
-    localStorage.setItem(grid.id, JSON.stringify(grid));
-    return grid;
-}
-
-function changeCellState(grid: Grid, x: number, y: number, newState: CellState): void {
-    if (x < 0 || x >= grid.numbersX.length || y < 0 || y >= grid.numbersY.length) {
-        throw new Error("Cell coordinates out of bounds");
-    }
-    grid.cellStates[x][y] = newState;
-}
-
-function checkCell(grid: Grid, x: number, y: number) {
-    //let originalClueStateX = grid.numbersX[x].state;
-    checkClue(grid.cellStates[x], grid.numbersX[x]);
-    const yArray: CellState[] = grid.cellStates.map(column => column[y]);
-    //let originalClueStateY = grid.numbersY[y].state;
-    checkClue(yArray, grid.numbersY[y]);
-    return grid;
-}
-
-function checkClue(cells: CellState[], clues: Clues) {
-    let row = ""
-    cells.forEach((cell, index) => {
-        switch (cell) {
-            case CellState.Flagged:
-                row += "c"
-                break;
-                case CellState.Filled:
-                    row += "a"
-                break;
-                    case CellState.Blank:
-                        row += "b"
-                break;
-        }
-    })
-    let patternSolved = "^[bc]*";
-    let patternValid = "^[bc]*";
-    for (let i = 0; i < clues.numbers.length - 1; i++) {
-        patternSolved += `a{${clues.numbers[i]}}[bc]+`
-        patternValid += `[ab]{${clues.numbers[i]}}[bc]+`
-    }
-    if (clues.numbers.length > 0) {
-        patternSolved += `a{${clues.numbers[clues.numbers.length - 1]}}[bc]*`
-        patternValid += `[ab]{${clues.numbers[clues.numbers.length - 1]}}[bc]*`
-    }
-    patternValid += `$`
-    patternSolved += `$`
-    if (RegExp(patternSolved).test(row)) {
-        clues.state = ClueStates.Correct;
-    } else if (RegExp(patternValid).test(row)) {
-        clues.state = ClueStates.Unsolved;
-    } else {
-        clues.state = ClueStates.Wrong;
-    }
-}
-
-function isSolved(grid: Grid){
-    let solved = true;
-    for (let i = 0; i < grid.numbersX.length && solved; i++) {
-        if (grid.numbersX[i].state !== ClueStates.Correct) {
-            solved = false;
+function checkSolvedAxis(clues: Clues[]) {
+    for (const clue of clues) {
+        if (clue.getState() !== ClueStates.Correct) {
+            return false;
         }
     }
-    for (let i = 0; i < grid.numbersY.length && solved; i++) {
-        if (grid.numbersY[i].state !== ClueStates.Correct) {
-            solved = false;
-        }
-    }
-    grid.solved = solved;
-    return solved;
+    return true;
 }
 
 function numbersToClue(numbers: number[][]): Clues[] {
-    return numbers.map(numberSet => ({
-        numbers: numberSet,
-        state: ClueStates.Unsolved,
-    }));
+    return numbers.map(numberSet => (new Clues(numberSet)));
 }
 
-function solveGrid(grid: Grid): void {}
+function clueToNumbers(clues: Clues[]): Number[][] {
+    let numberSet: number[][] = [];
+    for (const clue of clues) {
+        numberSet.push(clue.getNumbers())
+    }
+    return numberSet;
+}
 
-export { CellState, createGrid, changeCellState, checkCell, isSolved};
+export { CellState, loadGrid };
 export type { Grid };

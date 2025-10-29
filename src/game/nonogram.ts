@@ -5,6 +5,7 @@ interface Grid {
     numbersY: Clues[];
     cellStates: CellState[][];
     solved: boolean;
+    id: string;
 }
 interface Clues {
     numbers: number[];
@@ -22,7 +23,7 @@ enum ClueStates {
     Unsolved,
 }
 
-export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number): Grid {
+export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number, id: string): Grid {
     const grid: boolean[][] = Array.from({ length: sizeX }, () =>
         Array.from({ length: sizeY }, () => Math.random() < fillProbability)
     );
@@ -57,22 +58,24 @@ export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: nu
         return counts;
     });
 
-    return createGrid(numbersX, numbersY);
+    return createGrid(numbersX, numbersY, id);
 }
 
-function createGrid(numbersX: number[][], numbersY: number[][]): Grid {
+function createGrid(numbersX: number[][], numbersY: number[][], id: string): Grid {
     const cols = numbersX.length;
     const rows = numbersY.length;
     const cells: CellState[][] = Array.from({ length: cols }, () =>
         Array.from({ length: rows }, () => CellState.Blank)
     );
-
-    return {
+    let grid: Grid = {
         numbersX: numbersToClue(numbersX),
         numbersY: numbersToClue(numbersY),
         cellStates: cells,
         solved: false,
-    };
+        id: id,
+    }
+    localStorage.setItem(grid.id, JSON.stringify(grid));
+    return grid;
 }
 
 function changeCellState(grid: Grid, x: number, y: number, newState: CellState): void {
@@ -150,36 +153,7 @@ function numbersToClue(numbers: number[][]): Clues[] {
     }));
 }
 
-// New: compute wrong flags for all clues based on current cellStates and return a new Grid
-export function checkAllClues(grid: Grid): Grid {
-    // clone clue objects so we return a fresh Grid
-    const numbersX = grid.numbersX.map(c => ({ numbers: c.numbers.slice(), state: ClueStates.Unsolved }));
-    const numbersY = grid.numbersY.map(c => ({ numbers: c.numbers.slice(), state: ClueStates.Unsolved }));
-
-    // check each column (x)
-    for (let x = 0; x < numbersX.length; x++) {
-        const colCells = grid.cellStates[x] ?? [];
-        checkClue(colCells, numbersX[x]);
-    }
-
-    // check each row (y)
-    for (let y = 0; y < numbersY.length; y++) {
-        const rowCells: CellState[] = grid.cellStates.map(col => col[y]);
-        checkClue(rowCells, numbersY[y]);
-    }
-
-    return {
-        ...grid,
-        numbersX,
-        numbersY,
-    };
-}
-
 function solveGrid(grid: Grid): void {}
-
-function checkSolvable(grid: Grid): boolean {
-    return true;
-}
 
 export { CellState, createGrid, changeCellState, checkCell, isSolved};
 export type { Grid };

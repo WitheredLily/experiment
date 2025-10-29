@@ -8,8 +8,8 @@ interface BoardProps {
     onGridChange?: (newGrid: Grid) => void;
 }
 
-const stateToColor = (s: CellState): "white" | "black" | "red" =>
-    s === CellState.Filled ? "black" : s === CellState.Flagged ? "red" : "white";
+const stateToColor = (s: CellState): "white" | "black" | "gray" =>
+    s === CellState.Filled ? "black" : s === CellState.Flagged ? "gray" : "white";
 
 const renderClueColumn = (nums: number[]) =>
     nums.length > 0 ? (
@@ -44,7 +44,9 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
         // Build new grid and update clues before notifying parent
         const newGrid: Grid = { ...grid, cellStates };
         const checked = checkCell(newGrid, c, r);
+        isSolved(newGrid);
         onGridChange?.(checked);
+        localStorage.setItem(newGrid.id, JSON.stringify(newGrid));
     };
 
     const handleLeftClick = (r: number, c: number) => {
@@ -61,8 +63,6 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
             updateCell(r, c, current === CellState.Flagged ? CellState.Blank : CellState.Flagged);
         }
     };
-
-    isSolved(grid);
 
         return (
             <div style={{display: "inline-block"}}>

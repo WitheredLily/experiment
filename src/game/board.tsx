@@ -1,5 +1,6 @@
 // typescript
 // File: `src/game/board.tsx`
+
 import React from "react";
 import { CellState, Grid} from "./nonogram";
 
@@ -11,7 +12,7 @@ interface BoardProps {
 const stateToColor = (s: CellState): "white" | "black" | "gray" =>
     s === CellState.Filled ? "black" : s === CellState.Flagged ? "gray" : "white";
 
-const renderClueColumn = (nums: number[]) =>
+const renderClueColumn = (nums: ReadonlyArray<number>) =>
     nums.length > 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.125rem", alignItems: "center" }}>
             {nums.map((n, i) => (
@@ -22,7 +23,7 @@ const renderClueColumn = (nums: number[]) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-const renderClueRow = (nums: number[]) =>
+const renderClueRow = (nums: ReadonlyArray<number>) =>
     nums.length > 0 ? (
         <div style={{ display: "flex", gap: "0.25rem", justifyContent: "flex-end", alignItems: "center" }}>
             {nums.map((n, i) => (

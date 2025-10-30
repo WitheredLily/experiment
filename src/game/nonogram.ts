@@ -16,10 +16,10 @@ enum ClueStates {
 const loadingErr = new Error("Invalid cell states saved");
 
 class Grid {
-    private readonly numbersX: Clues[];
-    private readonly numbersY: Clues[];
+    private readonly cluesArrayX: Clues[];
+    private readonly cluesArrayY: Clues[];
     private readonly numbers: number[][][];
-    private cellStates: CellState[][];
+    private readonly cellStates: CellState[][];
     private solved: boolean;
     private readonly id: string;
 
@@ -41,16 +41,16 @@ class Grid {
                 Array.from({length: rows}, () => CellState.Blank)
             );
         }
-        this.numbersX = numbersToClue(numbersX);
-        this.numbersY = numbersToClue(numbersY);
+        this.cluesArrayX = numbersToClue(numbersX);
+        this.cluesArrayY = numbersToClue(numbersY);
         this.numbers = [numbersX,numbersY]
         this.solved = false;
         this.isSolved()
         this.id = id;
-        this.numbersX.forEach((clue, i) => {
+        this.cluesArrayX.forEach((clue, i) => {
             clue.checkClue(this.cellStates[i])
         })
-        this.numbersY.forEach((clue, i) => {
+        this.cluesArrayY.forEach((clue, i) => {
             clue.checkClue(this.cellStates.map(column => column[i]))
         })
         this.save();
@@ -64,15 +64,15 @@ class Grid {
     }
 
     public isSolved(){
-        const solved = checkSolvedAxis(this.numbersX) && checkSolvedAxis(this.numbersY);
+        const solved = checkSolvedAxis(this.cluesArrayX) && checkSolvedAxis(this.cluesArrayY);
         this.solved = solved;
         return solved;
     }
 
     public checkClues(x: number, y: number) {
-        this.numbersX[x].checkClue(this.cellStates[x]);
+        this.cluesArrayX[x].checkClue(this.cellStates[x]);
         const yArray: CellState[] = this.cellStates.map(column => column[y]);
-        this.numbersY[y].checkClue(yArray);
+        this.cluesArrayY[y].checkClue(yArray);
     }
 
     public updateCell(x: number, y: number, newState: CellState){
@@ -84,7 +84,7 @@ class Grid {
     }
 
     public getSize(){
-        return [this.numbersX.length, this.numbersX.length];
+        return [this.cluesArrayX.length, this.cluesArrayX.length];
     }
 
     public getCellStates(): CellState[][] {
@@ -92,11 +92,11 @@ class Grid {
     }
 
     public getCluesX(): Clues[] {
-        return this.numbersX;
+        return this.cluesArrayX;
     }
 
     public getCluesY(): Clues[] {
-        return this.numbersY;
+        return this.cluesArrayY;
     }
 }
 function loadGrid(id: string, cols: number, rows: number, probability: number){
@@ -112,7 +112,7 @@ function loadGrid(id: string, cols: number, rows: number, probability: number){
 
 
 class Clues {
-    private readonly numbers: number[];
+    private readonly numbers: ReadonlyArray<number>;
     private state: ClueStates;
     private readonly regexSolved: RegExp;
     private readonly regexPossible: RegExp;
@@ -148,7 +148,7 @@ class Clues {
         }
     }
 
-    public getNumbers(): number[] {
+    public getNumbers(): ReadonlyArray<number> {
         return this.numbers;
     }
     public getState(): ClueStates {

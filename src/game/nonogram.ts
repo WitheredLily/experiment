@@ -47,7 +47,13 @@ class Grid {
         this.solved = false;
         this.isSolved()
         this.id = id;
-        localStorage.setItem(this.id, JSON.stringify(this));
+        this.numbersX.forEach((clue, i) => {
+            clue.checkClue(this.cellStates[i])
+        })
+        this.numbersY.forEach((clue, i) => {
+            clue.checkClue(this.cellStates.map(column => column[i]))
+        })
+        this.save();
     }
 
     public save(): void {
@@ -69,17 +75,6 @@ class Grid {
         this.numbersY[y].checkClue(yArray);
     }
 
-
-    public flagCell(x: number, y: number){
-        this.cellStates[x][y] = CellState.Flagged;
-    }
-    public fillCell(x: number, y: number){
-        this.cellStates[x][y] = CellState.Filled;
-    }
-    public blankCell(x: number, y: number){
-        this.cellStates[x][y] = CellState.Blank;
-    }
-
     public updateCell(x: number, y: number, newState: CellState){
         this.cellStates[x][y] = newState;
     }
@@ -94,10 +89,6 @@ class Grid {
 
     public getCellStates(): CellState[][] {
         return this.cellStates;
-    }
-
-    public getId(): string {
-        return this.id;
     }
 
     public getCluesX(): Clues[] {
@@ -128,11 +119,7 @@ class Clues {
 
     public constructor(numbers: number[]) {
         this.numbers = numbers;
-        if (numbers.length === 0) {
-            this.state = ClueStates.Correct;
-        } else {
-            this.state = ClueStates.Unsolved;
-        }
+        this.state = ClueStates.Unsolved;
         this.regexSolved = RegExp(`^[bc]*a{${numbers.join('}[bc]+a{') || '0'}}[bc]*$`)
         this.regexPossible = RegExp(`^[bc]*[ab]{${numbers.join('}[bc]+[ab]{') || '0'}}[bc]*$`)
     }
@@ -218,14 +205,6 @@ function checkSolvedAxis(clues: Clues[]) {
 
 function numbersToClue(numbers: number[][]): Clues[] {
     return numbers.map(numberSet => (new Clues(numberSet)));
-}
-
-function clueToNumbers(clues: Clues[]): Number[][] {
-    let numberSet: number[][] = [];
-    for (const clue of clues) {
-        numberSet.push(clue.getNumbers())
-    }
-    return numberSet;
 }
 
 export { CellState, loadGrid };

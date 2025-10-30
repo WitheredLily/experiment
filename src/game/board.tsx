@@ -36,26 +36,27 @@ const renderClueRow = (nums: number[]) =>
 export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
     const [cols, rows] = grid.getSize();
 
-    const updateCell = (r: number, c: number, newState: CellState) => {
-        grid.updateCell(r, c, newState);
-        grid.checkClues(c, r);
+    const updateCell = (x: number, y: number, newState: CellState) => {
+        grid.updateCell(x, y, newState);
+        grid.checkClues(x, y);
         grid.isSolved();
-        onGridChange?.(grid);
+        const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
+        onGridChange?.(cloned);
         grid.save();
     };
 
-    const handleLeftClick = (r: number, c: number) => {
-        const current = grid.getCellStates()[c][r];
+    const handleLeftClick = (x: number, y: number) => {
+        const current = grid.getCellStates()[x][y];
         if (current !== CellState.Flagged) {
-            updateCell(r, c, current === CellState.Filled ? CellState.Blank : CellState.Filled);
+            updateCell(x, y, current === CellState.Filled ? CellState.Blank : CellState.Filled);
         }
     };
 
-    const handleRightClick = (r: number, c: number, e: React.MouseEvent) => {
+    const handleRightClick = (x: number, y: number, e: React.MouseEvent) => {
         e.preventDefault();
-        const current = grid.getCellStates()[c][r];
+        const current = grid.getCellStates()[x][y];
         if (current !== CellState.Filled) {
-            updateCell(r, c, current === CellState.Flagged ? CellState.Blank : CellState.Flagged);
+            updateCell(x, y, current === CellState.Flagged ? CellState.Blank : CellState.Flagged);
         }
     };
 
@@ -119,19 +120,19 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
                         alignItems: "center",
                     }}
                 >
-                    {Array.from({length: rows}, (_, rIdx) => (
-                        <React.Fragment key={`row-${rIdx}`}>
+                    {Array.from({length: rows}, (_, yIdx) => (
+                        <React.Fragment key={`row-${yIdx}`}>
                             <div
                                 style={{
                                     textAlign: "center",
                                     lineHeight: "1rem",
                                     fontWeight: "bold",
                                     color:
-                                        grid.getCluesY()[rIdx]?.getState() === 0 // Correct
+                                        grid.getCluesY()[yIdx]?.getState() === 0 // Correct
                                             ? "green"
-                                            : grid.getCluesY()[rIdx]?.getState() === 1// Wrong
+                                            : grid.getCluesY()[yIdx]?.getState() === 1// Wrong
                                                 ? "red"
-                                                : grid.getCluesY()[rIdx]?.getState() === 2 // Unsolved
+                                                : grid.getCluesY()[yIdx]?.getState() === 2 // Unsolved
                                                     ? "black"
                                                     : "inherit",
                                     paddingRight: "0.25rem",
@@ -141,16 +142,16 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
                                     minWidth: "3rem",
                                 }}
                             >
-                                {renderClueRow(grid.getCluesY()[rIdx]?.getNumbers() ?? [])}
+                                {renderClueRow(grid.getCluesY()[yIdx]?.getNumbers() ?? [])}
                             </div>
 
-                            {Array.from({length: cols}, (_, cIdx) => {
-                                const cellState = grid.getCellStates()[cIdx]?.[rIdx] ?? CellState.Blank;
+                            {Array.from({length: cols}, (_, xIdx) => {
+                                const cellState = grid.getCellStates()[xIdx]?.[yIdx] ?? CellState.Blank;
                                 return (
                                     <div
-                                        key={`${rIdx}-${cIdx}`}
-                                        onClick={() => handleLeftClick(rIdx, cIdx)}
-                                        onContextMenu={(e) => handleRightClick(rIdx, cIdx, e)}
+                                        key={`${yIdx}-${xIdx}`}
+                                        onClick={() => handleLeftClick(xIdx, yIdx)}
+                                        onContextMenu={(e) => handleRightClick(xIdx, yIdx, e)}
                                         style={{
                                             width: "3rem",
                                             height: "3rem",

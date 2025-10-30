@@ -4,7 +4,7 @@
 enum CellState {
     Blank,
     Filled,
-    Flagged,
+    Marked,
 }
 
 enum ClueStates {
@@ -120,19 +120,20 @@ class Clues {
     public constructor(numbers: number[]) {
         this.numbers = numbers;
         this.state = ClueStates.Unsolved;
-        this.regexSolved = RegExp(`^[bc]*a{${numbers.join('}[bc]+a{') || '0'}}[bc]*$`)
-        this.regexPossible = RegExp(`^[bc]*[ab]{${numbers.join('}[bc]+[ab]{') || '0'}}[bc]*$`)
+        // m for marked, b for blank, f for filled
+        this.regexSolved = RegExp(`^[bm]*f{${numbers.join('}[bm]+f{') || '0'}}[bm]*$`)
+        this.regexPossible = RegExp(`^[bm]*[fb]{${numbers.join('}[bm]+[fb]{') || '0'}}[bm]*$`)
     }
 
     public checkClue(cells: CellState[]) {
         let row = ""
         for (const cell of cells) {
             switch (cell) {
-                case CellState.Flagged:
-                    row += "c"
+                case CellState.Marked:
+                    row += "m"
                     break;
                 case CellState.Filled:
-                    row += "a"
+                    row += "f"
                     break;
                 case CellState.Blank:
                     row += "b"

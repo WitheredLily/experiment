@@ -10,7 +10,7 @@ interface BoardProps {
 }
 
 const stateToColor = (s: CellState): "white" | "black" | "gray" =>
-    s === CellState.Filled ? "black" : s === CellState.Flagged ? "gray" : "white";
+    s === CellState.Filled ? "black" : s === CellState.Marked ? "gray" : "white";
 
 const renderClueColumn = (nums: ReadonlyArray<number>) =>
     nums.length > 0 ? (
@@ -48,7 +48,7 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
 
     const handleLeftClick = (x: number, y: number) => {
         const current = grid.getCellStates()[x][y];
-        if (current !== CellState.Flagged) {
+        if (current !== CellState.Marked) {
             updateCell(x, y, current === CellState.Filled ? CellState.Blank : CellState.Filled);
         }
     };
@@ -57,7 +57,7 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
         e.preventDefault();
         const current = grid.getCellStates()[x][y];
         if (current !== CellState.Filled) {
-            updateCell(x, y, current === CellState.Flagged ? CellState.Blank : CellState.Flagged);
+            updateCell(x, y, current === CellState.Marked ? CellState.Blank : CellState.Marked);
         }
     };
 

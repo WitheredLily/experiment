@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as apigw from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda-nodejs";
-import path from "path";
+//import path from "path";
 import {Runtime} from "aws-cdk-lib/aws-lambda";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
@@ -27,7 +27,7 @@ export class StuffStack extends cdk.Stack {
       });
   }
 }
-
+/*
 const createPostFn = new lambda.NodejsFunction(this, `CreatePostFunction`, {
     entry: path.resolve(__dirname, '../src/handlers/create-post.ts'),
     functionName: `ghast-api-create-post`,
@@ -42,3 +42,5 @@ const createPostFn = new lambda.NodejsFunction(this, `CreatePostFunction`, {
         target: 'es2020',
     }
 });
+
+ */

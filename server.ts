@@ -8,6 +8,7 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 
+process.loadEnvFile(".env")
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 const buildDir = path.join(__dirname, 'build');

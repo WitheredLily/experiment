@@ -13,6 +13,7 @@
     "@types/node": "^24.8.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@vendia/serverless-express": "^4.12.6",
     "aws-cdk-lib": "2.220.0",
     "bootstrap": "^5.3.8",
     "constructs": "^10.4.2",
@@ -27,14 +28,14 @@
   "scripts": {
     "build-pages": "node scripts/generate-page-index.mjs",
     "start": "react-scripts start",
-    "build": "npm run build-pages && react-scripts build",
+    "build": "npm run build-pages && react-scripts build && tsc -p tsconfig.json",
     "deploy-cdk": "cdk deploy --profile ted",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "test-cdk": "jest",
     "cdk": "cdk",
     "serve": "ts-node-dev --respawn --transpile-only --project tsconfig.server.json server.ts",
-    "build-server": "tsc --project tsconfig.server.json",
+    "build-server": "tsc -p tsconfig.json && tsc -p tsconfig.server.json",
     "build-app": "npm run build && npm run build-server",
     "start-app": "npm run build-app && npm run serve"
   },
@@ -57,7 +58,7 @@
     ]
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.156",
+    "@types/aws-lambda": "^8.10.157",
     "@types/bootstrap": "^5.2.10",
     "@types/jest": "^30.0.0",
     "aws-cdk": "2.1030.0",

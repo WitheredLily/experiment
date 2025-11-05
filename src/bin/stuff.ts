@@ -19,7 +19,7 @@ const app = new cdk.App();
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 //});
 
-new StuffStack(app, 'dev', {
+new StuffStack(app, 'gateway', {
     env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,//612931696237
         region: process.env.REGION

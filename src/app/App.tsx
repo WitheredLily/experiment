@@ -1,12 +1,9 @@
 import React, {JSX, useState} from "react";
 import {BrowserRouter, Link, Route, Routes, Navigate } from "react-router-dom";
-import {ClickableGrid} from "../game/board";
-import {Grid, loadGrid} from "../game/nonogram";
-
-const cols = 2;
-const rows = 2;
+import * as pages from "./pages";
 
 export default function App() {
+    const pageArray = Object.values(pages);
     function changeCurrentPage(num: number){
         if (num > maxPage) {
             setMaxPage(num);
@@ -19,53 +16,6 @@ export default function App() {
     function createLink(num: number, text: string): JSX.Element{
         return <Link to={"/page" + num} onClick={() => changeCurrentPage(num)}>{text}</Link>
     }
-
-    function Page0(){
-        return <div>
-            <h1>Home Page</h1>
-            <nav>
-                {createLink(1,"Forward")}
-            </nav>
-        </div>;
-    }
-
-    function Page1(){
-        return <div>
-            <h1>Page 1</h1>
-            <nav>
-                {createLink(2,"Forward")}
-            </nav>
-        </div>;
-    }
-
-    function Page2(){
-        const [grid, setGrid] = useState((): Grid => {
-            let gridId = "grid1";
-            return loadGrid(gridId, cols, rows, 0.5);
-        });
-        return (
-            <div style={{padding: "1rem"}}>
-                <h1>Page 2</h1>
-                <ClickableGrid grid={grid} onGridChange={setGrid}/>
-                <nav>
-                    {createLink(1,"Back")} |{" "}
-                    {createLink(3,"Forward")}
-                </nav>
-            </div>
-        );
-    }
-
-    function Page3() {
-        return <div>
-            <h1>Page 3</h1>
-            <nav>
-                {createLink(2,"Back")}
-            </nav>
-        </div>;
-    }
-
-    const pages = [Page0, Page1, Page2, Page3];
-
     const [maxPage, setMaxPage] = useState<number>(() =>
         parseInt(localStorage.getItem("maxPage") ?? "0")
     );
@@ -77,11 +27,13 @@ export default function App() {
             {/* Navigation */}
             <nav>
                 <div id={"nav-bar"}>
-                    {Array.from({ length: pages.length + 1 }, (_, i) => (
+                    {pageArray.map((_, i) => (
                         <span key={i} id={`nav${i}`} hidden={maxPage < i}>
-                            {i > 0 && " | "}
-                            <Link to={`/page${i}`}>{i}</Link>
-                        </span>
+    {i > 0 && " | "}
+                            <Link to={`/page${i}`} onClick={() => changeCurrentPage(i)}>
+      {i}
+    </Link>
+  </span>
                     ))}
                 </div>
             </nav>
@@ -89,11 +41,11 @@ export default function App() {
             {/* Routes */}
             <Routes>
                 <Route path="/" element={<Navigate to={`/page${currentPage}`} />} />
-                {pages.map((Page, i) => (
+                {pageArray.map((Page, i) => (
                     <Route
                         key={i}
                         path={`/page${i}`}
-                        element={i <= maxPage ? <Page /> : <Navigate to={`/page${maxPage}`} />}
+                        element={i <= maxPage ? <Page createLink={createLink} /> : <Navigate to={`/page${maxPage}`} />}
                     />
                 ))}
             </Routes>

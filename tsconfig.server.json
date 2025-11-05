@@ -1,12 +1,14 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "target": "ES2020",
-    "moduleResolution": "node",
-    "outDir": "./dist"
+    "module": "CommonJS",
+    "outDir": "build",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
   },
-  "include": ["server.ts"]
+  "include": ["server.ts"],
+  "exclude": ["node_modules", "build"]
 }

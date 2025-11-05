@@ -1,31 +1,31 @@
-// File: server.ts
-// Install (dev): npm i -D typescript ts-node-dev @types/express @types/node
-// Install (runtime): npm i express
-// Add to `package.json` scripts:
-// "serve": "ts-node-dev --respawn --transpile-only server.ts"
-// Or compile: "build-server": "tsc server.ts" and run the produced JS with node.
-
-import express, { Request, Response } from 'express';
+import express from 'express';
 import path from 'path';
+import dotenv from 'dotenv';
+import serverlessExpress from '@vendia/serverless-express';
 
-process.loadEnvFile(".env")
+dotenv.config({ path: '.env' });
+
 const app = express();
-const PORT = process.env.PORT ?? 3001;
 const buildDir = path.join(__dirname, 'build');
 
-// Serve static assets from `build/`
 app.use(express.static(buildDir));
 
-// API endpoint that returns the app HTML
-app.get('/api/send-app', (req: Request, res: Response) => {
+app.get('/api/send-app', (req, res) => {
     res.sendFile(path.join(buildDir, 'index.html'));
 });
 
-// Optional fallback for client-side routing
-app.get('*', (req: Request, res: Response) => {
+app.get('*', (req, res) => {
     res.sendFile(path.join(buildDir, 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`Server listening on http://localhost:${PORT}`);
-});
+// Detect whether we're running locally or in Lambda
+if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    // Running inside AWS Lambda
+    exports.handler = serverlessExpress({ app });
+} else {
+    // Running locally
+    const PORT = process.env.PORT ?? 3001;
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running locally at http://localhost:${PORT}`);
+    });
+}

@@ -1,27 +1,31 @@
 "use strict";
-// File: server.ts
-// Install (dev): npm i -D typescript ts-node-dev @types/express @types/node
-// Install (runtime): npm i express
-// Add to `package.json` scripts:
-// "serve": "ts-node-dev --respawn --transpile-only server.ts"
-// Or compile: "build-server": "tsc server.ts" and run the produced JS with node.
-var _a;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var express_1 = require("express");
-var path_1 = require("path");
-var app = (0, express_1.default)();
-var PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 3000;
-var buildDir = path_1.default.join(__dirname, 'build');
-// Serve static assets from `build/`
+const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const serverless_express_1 = __importDefault(require("@vendia/serverless-express"));
+dotenv_1.default.config({ path: '.env' });
+const app = (0, express_1.default)();
+const buildDir = path_1.default.join(__dirname, 'build');
 app.use(express_1.default.static(buildDir));
-// API endpoint that returns the app HTML
-app.get('/api/send-app', function (req, res) {
+app.get('/api/send-app', (req, res) => {
     res.sendFile(path_1.default.join(buildDir, 'index.html'));
 });
-// Optional fallback for client-side routing
-app.get('*', function (req, res) {
+app.get('*', (req, res) => {
     res.sendFile(path_1.default.join(buildDir, 'index.html'));
 });
-app.listen(PORT, function () {
-    console.log("Server listening on http://localhost:".concat(PORT));
-});
+// Detect whether we're running locally or in Lambda
+if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    // Running inside AWS Lambda
+    exports.handler = (0, serverless_express_1.default)({ app });
+}
+else {
+    // Running locally
+    const PORT = process.env.PORT ?? 3001;
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running locally at http://localhost:${PORT}`);
+    });
+}

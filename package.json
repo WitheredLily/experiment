@@ -25,10 +25,14 @@
     "zod": "^4.1.12"
   },
   "scripts": {
+    "build-lambda": "node scripts/build-lambda.mjs",
+    "local-aws-sam-deploy": "npm run build-app && cdk synth && sam local start-api -t ./cdk.out/gateway.template.json --port 3003 --env-vars env.json",
     "build-pages": "node scripts/generate-page-index.mjs",
     "start": "react-scripts start",
-    "build": "npm run build-pages && react-scripts build && tsc -p tsconfig.json",
+    "build": "react-scripts build",
+    "bootstrap": "cdk bootstrap --profile ted --force",
     "deploy-cdk": "cdk deploy --profile ted",
+    "deploy-cdk-full": "npm run build-app && npm run deploy-cdk",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "test-cdk": "jest",

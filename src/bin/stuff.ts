@@ -22,5 +22,5 @@ const app = new cdk.App();
 new StuffStack(app, 'gateway', {
     env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,//612931696237
-        region: process.env.REGION
+        region: process.env.REGION ?? 'eu-west-1'
     }});

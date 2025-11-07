@@ -1,29 +1,31 @@
 import express from 'express';
-import path from 'path';
 import dotenv from 'dotenv';
 import serverlessExpress from '@vendia/serverless-express';
 
 dotenv.config({ path: '.env' });
 
 const app = express();
-const buildDir = path.join(__dirname, 'build');
 
-app.use(express.static(buildDir));
+//const WEBSITE_BUCKET_URL = process.env.WEBSITE_BUCKET_URL!;
+const WEBSITE_BUCKET_URL = "http://my-test-bucket-612931696237.s3-website-eu-west-1.amazonaws.com";
 
-app.get('/api/send-app', (req, res) => {
-    res.sendFile(path.join(buildDir, 'index.html'));
-});
-
+// Redirect API or SPA routes to S3
 app.get('*', (req, res) => {
-    res.sendFile(path.join(buildDir, 'index.html'));
+    // If you have a real API route like /api/send-app, handle it here
+    if (req.path.startsWith('/api/')) {
+        res.status(404).send({ error: 'API route not found' });
+        return;
+    }
+
+    // Redirect everything else to S3 website
+    const redirectUrl = `${WEBSITE_BUCKET_URL}${req.path === '/' ? '/page0' : req.path}`;
+    res.redirect(302, redirectUrl);
 });
 
-// Detect whether we're running locally or in Lambda
+// Lambda vs Local
 if (process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    // Running inside AWS Lambda
     exports.handler = serverlessExpress({ app });
 } else {
-    // Running locally
     const PORT = process.env.PORT ?? 3001;
     app.listen(PORT, () => {
         console.log(`🚀 Server running locally at http://localhost:${PORT}`);

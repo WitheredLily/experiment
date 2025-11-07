@@ -6,8 +6,7 @@ dotenv.config({ path: '.env' });
 
 const app = express();
 
-//const WEBSITE_BUCKET_URL = process.env.WEBSITE_BUCKET_URL!;
-const WEBSITE_BUCKET_URL = "http://my-test-bucket-612931696237.s3-website-eu-west-1.amazonaws.com";
+const WEBSITE_BUCKET_URL = process.env.WEBSITE_BUCKET_URL!;
 
 // Redirect API or SPA routes to S3
 app.get('*', (req, res) => {

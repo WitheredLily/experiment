@@ -1,5 +1,6 @@
 {
   "name": "experiment",
+  "homepage": ".",
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
@@ -37,7 +38,7 @@
     "eject": "react-scripts eject",
     "test-cdk": "jest",
     "cdk": "cdk",
-    "serve": "ts-node-dev --respawn --transpile-only --project tsconfig.server.json server.ts",
+    "serve": "npx serve -s build",
     "build-server": "tsc -p tsconfig.json && tsc -p tsconfig.server.json",
     "build-app": "npm run build && npm run build-server",
     "start-app": "npm run build-app && npm run serve"

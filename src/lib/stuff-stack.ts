@@ -6,7 +6,6 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 
@@ -14,16 +13,16 @@ export class StuffStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
+        // --- Lambda + API Gateway ---
         const serverLambda = new lambdaNode.NodejsFunction(this, 'ServerLambda', {
-            entry: path.resolve(__dirname, '../../server.ts'), // or server.js
+            entry: path.resolve(__dirname, '../../server.ts'),
             handler: 'handler',
             runtime: Runtime.NODEJS_18_X,
             memorySize: 1024,
             timeout: cdk.Duration.seconds(15),
             bundling: {
-                externalModules: [], // include all modules
-            }
-
+                externalModules: [],
+            },
         });
 
         const api = new apigw.LambdaRestApi(this, 'ServerApi', {
@@ -31,35 +30,23 @@ export class StuffStack extends cdk.Stack {
             proxy: true,
         });
 
+        // --- Secure S3 Bucket ---
         const bucket = new s3.Bucket(this, 'WebsiteBucket', {
             bucketName: 'my-test-bucket-612931696237',
-            websiteIndexDocument: 'index.html',
-            websiteErrorDocument: 'index.html',
-            publicReadAccess: true,
-            blockPublicAccess: {
-                blockPublicPolicy: false,
-                blockPublicAcls: false,
-                ignorePublicAcls: false,
-                restrictPublicBuckets: false,
-            },
+            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+            removalPolicy: cdk.RemovalPolicy.DESTROY, // optional: auto-cleanup
+            autoDeleteObjects: true, // optional: remove files on destroy
         });
 
-        bucket.addToResourcePolicy(new iam.PolicyStatement({
-            actions: ['s3:GetObject'],
-            effect: iam.Effect.ALLOW,
-            resources: [bucket.arnForObjects('*')],
-            principals: [new iam.AnyPrincipal()],
-        }));
+        // --- CloudFront Origin Access Identity (OAI) ---
+        const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, 'OAI');
+        bucket.grantRead(originAccessIdentity);
 
-        new s3deploy.BucketDeployment(this, 'WebsiteDeployment', {
-            sources: [s3deploy.Source.asset(path.resolve(__dirname, '../../build'))],
-            destinationBucket: bucket,
-        });
-
+        // --- CloudFront Distribution ---
         const distribution = new cloudfront.Distribution(this, 'WebsiteDistribution', {
             defaultRootObject: 'index.html',
             defaultBehavior: {
-                origin: new origins.S3StaticWebsiteOrigin(bucket),
+                origin: new origins.S3Origin(bucket, { originAccessIdentity }),
                 viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             },
             errorResponses: [
@@ -78,19 +65,17 @@ export class StuffStack extends cdk.Stack {
             ],
         });
 
+        // --- Deploy build/ to S3 ---
+        new s3deploy.BucketDeployment(this, 'WebsiteDeployment', {
+            sources: [s3deploy.Source.asset(path.resolve(__dirname, '../../build'))],
+            destinationBucket: bucket,
+            distribution,
+            distributionPaths: ['/*'],
+        });
 
-
+        // --- Stack Outputs ---
         new cdk.CfnOutput(this, 'ApiUrl', { value: api.url });
-        new cdk.CfnOutput(this, 'WebsiteBucketName', { value: bucket.bucketName });
-
-        new cdk.CfnOutput(this, 'WebsiteBucketWebsiteURL', {
-            value: bucket.bucketWebsiteUrl,
-        });
-        new cdk.CfnOutput(this, 'WebsiteRESTURL', {
-            value: bucket.bucketRegionalDomainName,
-        });
-        new cdk.CfnOutput(this, 'ApiURL', {
-            value: api.url,
-        });
+        new cdk.CfnOutput(this, 'CloudFrontURL', { value: `https://${distribution.domainName}` });
+        new cdk.CfnOutput(this, 'BucketName', { value: bucket.bucketName });
     }
 }

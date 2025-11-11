@@ -1,5 +1,5 @@
 import React, {JSX, useState} from "react";
-import {BrowserRouter, Link, Route, Routes, Navigate } from "react-router-dom";
+import {HashRouter, Link, Route, Routes, Navigate } from "react-router-dom";
 import * as pages from "./pages";
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
         parseInt(localStorage.getItem("currentPage") ?? "0")
     );
     return (
-        <BrowserRouter>
+        <HashRouter>
             {/* Navigation */}
             <nav>
                 <div id={"nav-bar"}>
@@ -49,6 +49,6 @@ export default function App() {
                     />
                 ))}
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 }

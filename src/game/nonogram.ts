@@ -161,7 +161,10 @@ export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: nu
     const grid: boolean[][] = Array.from({ length: sizeX }, () =>
         Array.from({ length: sizeY }, () => Math.random() < fillProbability)
     );
+    return rowsToGrid(grid, id);
+}
 
+export function rowsToGrid(grid: boolean[][], id: string): Grid {
     const numbersX: number[][] = grid.map(col => {
         const counts: number[] = [];
         let currentCount = 0;
@@ -176,11 +179,10 @@ export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: nu
         if (currentCount > 0) counts.push(currentCount);
         return counts;
     });
-
-    const numbersY: number[][] = Array.from({ length: sizeY }, (_, y) => {
+    const numbersY: number[][] = Array.from({ length: grid[0].length }, (_, y) => {
         const counts: number[] = [];
         let currentCount = 0;
-        for (let x = 0; x < sizeX; x++) {
+        for (let x = 0; x < grid.length; x++) {
             if (grid[x][y]) {
                 currentCount++;
             } else if (currentCount > 0) {

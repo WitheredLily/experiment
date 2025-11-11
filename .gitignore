@@ -10,6 +10,7 @@
 
 # production
 /build
+/build-lambda
 /cdk.out
 /.aws-sam
 

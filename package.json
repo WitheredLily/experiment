@@ -21,7 +21,6 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
-    "react-scripts": "5.0.1",
     "web-vitals": "^5.1.0",
     "zod": "^4.1.12"
   },
@@ -29,8 +28,6 @@
     "build-lambda": "node scripts/build-lambda.mjs",
     "local-aws-sam-deploy": "npm run build-app && cdk synth && sam local start-api -t ./cdk.out/gateway.template.json --port 3003 --env-vars env.json",
     "build-pages": "node scripts/generate-page-index.mjs",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
     "bootstrap": "cdk bootstrap --profile ted --force",
     "deploy-cdk": "cdk deploy --profile ted",
     "deploy-cdk-full": "npm run build-app && npm run deploy-cdk",
@@ -43,7 +40,10 @@
     "build-app": "npm run build && npm run build-server",
     "start-app": "npm run build-app && npm run serve",
     "start-server": "ts-node-dev --respawn --transpile-only src/server/index.ts",
-    "dev": "concurrently \"npm start\" \"npm run start-server\""
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "eslintConfig": {
     "extends": [
@@ -67,11 +67,13 @@
     "@types/aws-lambda": "^8.10.157",
     "@types/bootstrap": "^5.2.10",
     "@types/jest": "^30.0.0",
+    "@vitejs/plugin-react": "^5.1.0",
     "aws-cdk": "2.1030.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2"
   }
 }

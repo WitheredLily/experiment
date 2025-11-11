@@ -41,7 +41,9 @@
     "serve": "npx serve -s build",
     "build-server": "tsc -p tsconfig.json && tsc -p tsconfig.server.json",
     "build-app": "npm run build && npm run build-server",
-    "start-app": "npm run build-app && npm run serve"
+    "start-app": "npm run build-app && npm run serve",
+    "start-server": "ts-node-dev --respawn --transpile-only src/server/index.ts",
+    "dev": "concurrently \"npm start\" \"npm run start-server\""
   },
   "eslintConfig": {
     "extends": [

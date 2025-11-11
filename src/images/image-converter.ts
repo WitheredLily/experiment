@@ -22,6 +22,7 @@ export async function imageToNonogram(
     const ctx = canvas.getContext("2d")!;
     canvas.width = width;
     canvas.height = height;
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, 0, 0, width, height);
 
     const imageData = ctx.getImageData(0, 0, width, height).data;

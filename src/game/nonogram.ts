@@ -1,6 +1,8 @@
 // typescript
 // File: `src/game/nonogram.ts`
 
+import {imageToNonogram} from "../images/image-converter";
+
 enum CellState {
     Blank,
     Filled,
@@ -84,7 +86,7 @@ class Grid {
     }
 
     public getSize(){
-        return [this.cluesArrayX.length, this.cluesArrayX.length];
+        return [this.cluesArrayX.length, this.cluesArrayY.length];
     }
 
     public getCellStates(): CellState[][] {
@@ -99,16 +101,33 @@ class Grid {
         return this.cluesArrayY;
     }
 }
-function loadGrid(id: string, cols: number, rows: number, probability: number){
-    if(localStorage.getItem(id)) {
-        let loadedGrid = JSON.parse(localStorage.getItem(id)!);
-        if (!loadedGrid.solved){
-            return new Grid(loadedGrid.numbers[0], loadedGrid.numbers[1], id, loadedGrid.cellStates);
+async function loadGrid(
+    id: string,
+    cols: number,
+    rows: number,
+    probability: number,
+    image?: string
+): Promise<Grid> {
+    const stored = localStorage.getItem(id);
+    if (stored) {
+        const loadedGrid = JSON.parse(stored);
+        if (!loadedGrid.solved) {
+            return new Grid(
+                loadedGrid.numbers[0],
+                loadedGrid.numbers[1],
+                id,
+                loadedGrid.cellStates
+            );
         }
-
     }
-    return makeRandomGrid(cols, rows, probability, id)
+
+    if (image) {
+        return imageToNonogram(image, cols, rows, id);
+    } else {
+        return makeRandomGrid(cols, rows, probability, id);
+    }
 }
+
 
 
 class Clues {

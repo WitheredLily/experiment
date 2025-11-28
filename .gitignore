@@ -12,6 +12,7 @@
 /build
 /build-lambda
 /cdk.out
+/dist
 /.aws-sam
 
 # misc

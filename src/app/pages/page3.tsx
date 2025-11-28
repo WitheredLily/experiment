@@ -5,7 +5,7 @@ import {PageProps} from "./util/page";
 
 export function Page3({ createLink }: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
-    const image = "https://images2.minutemediacdn.com/image/upload/c_fill,w_1200,ar_1:1,f_auto,q_auto,g_auto/images/voltaxMediaLibrary/mmsport/mentalfloss/01h84ks8b3kn95ybj78q.jpg"
+    const image = "https://art.pixilart.com/sr246d63ced6c5c.png"
     const gridId = "grid2";
     const cols = 10; // adjust as needed
     const rows = 10;
@@ -32,7 +32,7 @@ export function Page3({ createLink }: PageProps) {
     if (!grid) return <div>Loading grid...</div>;
 
     return (
-        <div style={{padding: "1rem"}}>
+        <div style={{padding: "1rem"}} className="tabcontent">
             <h1>Page 3</h1>
             <ClickableGrid grid={grid} onGridChange={setGrid}/>
             <br/>

@@ -1,8 +1,10 @@
 import React, {JSX, useState} from "react";
-import {HashRouter, Link, Route, Routes, Navigate } from "react-router-dom";
+import {HashRouter, Link, Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import * as pages from "./pages";
+import "./App.css";
 
 export default function App() {
+    let navigate = useNavigate();
     const pageArray = Object.values(pages);
     function changeCurrentPage(num: number){
         if (num > maxPage) {
@@ -11,10 +13,11 @@ export default function App() {
         }
         setCurrentPage(num);
         localStorage.setItem("currentPage", num.toString());
+        navigate(`/page${num}`);
     }
 
     function createLink(num: number, text: string): JSX.Element{
-        return <Link to={"/page" + num} onClick={() => changeCurrentPage(num)}>{text}</Link>
+        return <button onClick={() => changeCurrentPage(num)}>{text}</button>
     }
     const [maxPage, setMaxPage] = useState<number>(() =>
         parseInt(localStorage.getItem("maxPage") ?? "0")
@@ -23,17 +26,19 @@ export default function App() {
         parseInt(localStorage.getItem("currentPage") ?? "0")
     );
     return (
-        <HashRouter>
+        <div>
             {/* Navigation */}
             <nav>
-                <div id={"nav-bar"}>
+                <div className="tab" id="nav-bar">
                     {pageArray.map((_, i) => (
-                        <span key={i} id={`nav${i}`} hidden={maxPage < i}>
-    {i > 0 && " | "}
-                            <Link to={`/page${i}`} onClick={() => changeCurrentPage(i)}>
-      {i}
-    </Link>
-  </span>
+                        <button
+                            key={i}
+                            className={`tablinks ${currentPage === i ? "active" : ""}`}
+                            onClick={() => changeCurrentPage(i)}
+                            hidden={maxPage < i}
+                        >
+                            {i}
+                        </button>
                     ))}
                 </div>
             </nav>
@@ -49,6 +54,6 @@ export default function App() {
                     />
                 ))}
             </Routes>
-        </HashRouter>
+        </div>
     );
 }

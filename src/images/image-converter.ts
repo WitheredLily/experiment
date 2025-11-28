@@ -13,7 +13,7 @@ export async function imageToNonogram(
     width: number,
     height: number,
     id: string,
-    threshold: number = 128
+    threshold: number = 150
 ): Promise<Grid> {
     const img = await loadImage(imageSrc);
 
@@ -29,15 +29,15 @@ export async function imageToNonogram(
 
     // Convert to boolean matrix
     const grid: boolean[][] = [];
-    for (let y = 0; y < height; y++) {
-        const row: boolean[] = [];
-        for (let x = 0; x < width; x++) {
+    for (let x = 0; x < height; x++) {
+        const col: boolean[] = [];
+        for (let y = 0; y < width; y++) {
             const i = (y * width + x) * 4;
-            const [r, g, b] = [imageData[i], imageData[i + 1], imageData[i + 2]];
-            const grayscale = 0.299 * r + 0.587 * g + 0.114 * b;
-            row.push(grayscale < threshold);
+            const [r, g, b, a] = [imageData[i], imageData[i + 1], imageData[i + 2], imageData[i + 3]];
+            const grayscale = r + g + b;
+            col.push(grayscale < threshold && a > 0);
         }
-        grid.push(row);
+        grid.push(col);
     }
     return rowsToGrid(grid, id);
 }

@@ -30,7 +30,7 @@ export function Page2({ createLink }: PageProps) {
     if (!grid) return <div>Loading grid...</div>;
 
     return (
-        <div style={{ padding: "1rem" }}>
+        <div style={{ padding: "1rem" }} className="tabcontent">
             <h1>Page 2</h1>
             <ClickableGrid grid={grid} onGridChange={setGrid} />
             <nav>

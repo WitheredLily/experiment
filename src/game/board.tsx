@@ -3,10 +3,12 @@
 
 import React from "react";
 import { CellState, Grid} from "./nonogram";
+import {BacktrackSolve} from "./solver";
 
 interface BoardProps {
     grid: Grid;
     onGridChange?: (newGrid: Grid) => void;
+    selfSolving?: boolean;
 }
 
 const stateToColor = (s: CellState): "white" | "black" | "gray" =>
@@ -34,7 +36,7 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
+export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving }) => {
     const [cols, rows] = grid.getSize();
 
     const updateCell = (x: number, y: number, newState: CellState) => {
@@ -45,6 +47,13 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
         onGridChange?.(cloned);
         grid.save();
     };
+
+    const solve = () => {
+        BacktrackSolve(grid);
+        const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
+        onGridChange?.(cloned);
+        grid.save();
+    }
 
     const handleLeftClick = (x: number, y: number) => {
         const current = grid.getCellStates()[x][y];
@@ -167,6 +176,15 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange }) => {
                         </React.Fragment>
                     ))}
                 </div>
+                <br/>
+                {selfSolving && (
+                    <button
+                        style={{ marginTop: "1rem", width: "100%" }}
+                        onClick={() => solve()}
+                    >
+                        Solve
+                    </button>
+                )}
             </div>
         );
 };

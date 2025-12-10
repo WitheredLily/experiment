@@ -72,9 +72,10 @@ class Grid {
     }
 
     public checkClues(x: number, y: number) {
-        this.cluesArrayX[x].checkClue(this.cellStates[x]);
-        const yArray: CellState[] = this.cellStates.map(column => column[y]);
-        this.cluesArrayY[y].checkClue(yArray);
+        let xValid = this.cluesArrayX[x].checkClue(this.cellStates[x]);
+        const yArray: CellState[] = this.getYCellStates(y);
+        let yValid = this.cluesArrayY[y].checkClue(yArray);
+        return xValid && yValid;
     }
 
     public updateCell(x: number, y: number, newState: CellState){
@@ -99,6 +100,10 @@ class Grid {
 
     public getCluesY(): Clues[] {
         return this.cluesArrayY;
+    }
+
+    public getYCellStates(y: number): CellState[] {
+        return this.cellStates.map(column => column[y]);
     }
 }
 async function loadGrid(
@@ -165,7 +170,9 @@ class Clues {
             this.state = ClueStates.Unsolved;
         } else {
             this.state = ClueStates.Wrong;
+            return false
         }
+        return true;
     }
 
     public getNumbers(): ReadonlyArray<number> {
@@ -229,5 +236,5 @@ function numbersToClue(numbers: number[][]): Clues[] {
     return numbers.map(numberSet => (new Clues(numberSet)));
 }
 
-export { CellState, loadGrid };
-export type { Grid };
+export { CellState, loadGrid, checkSolvedAxis };
+export type { Grid, Clues };

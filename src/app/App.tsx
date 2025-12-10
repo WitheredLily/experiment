@@ -19,6 +19,7 @@ export default function App() {
     function createLink(num: number, text: string): JSX.Element{
         return <button onClick={() => changeCurrentPage(num)}>{text}</button>
     }
+
     const [maxPage, setMaxPage] = useState<number>(() =>
         parseInt(localStorage.getItem("maxPage") ?? "0")
     );
@@ -50,7 +51,7 @@ export default function App() {
                     <Route
                         key={i}
                         path={`/page${i}`}
-                        element={i <= maxPage ? <Page createLink={createLink} /> : <Navigate to={`/page${maxPage}`} />}
+                        element={i <= maxPage ? <Page createLink={createLink} navigate={changeCurrentPage}/> : <Navigate to={`/page${maxPage}`} />}
                     />
                 ))}
             </Routes>

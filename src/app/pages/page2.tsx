@@ -6,8 +6,8 @@ import {PageProps} from "./util/page";
 export function Page2({ createLink }: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
     const gridId = "grid1";
-    const cols = 10; // adjust as needed
-    const rows = 10;
+    const cols = 5; // adjust as needed
+    const rows = 4;
 
     useEffect(() => {
         localStorage.removeItem(gridId); // optional: reset grid
@@ -32,7 +32,8 @@ export function Page2({ createLink }: PageProps) {
     return (
         <div style={{ padding: "1rem" }} className="tabcontent">
             <h1>Page 2</h1>
-            <ClickableGrid grid={grid} onGridChange={setGrid} />
+            <ClickableGrid grid={grid} onGridChange={setGrid} selfSolving={true} />
+            <br/>
             <nav>
                 {createLink(1, "Back")} | {createLink(3, "Forward")}
             </nav>

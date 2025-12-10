@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { ClickableGrid } from "../../game/board";
 import { Grid, loadGrid } from "../../game/nonogram";
-import {PageProps} from "./util/page";
+import {PageProps, loadingGrid} from "./util/page";
 
 export function Page3({ createLink }: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
@@ -10,24 +10,7 @@ export function Page3({ createLink }: PageProps) {
     const cols = 10; // adjust as needed
     const rows = 10;
 
-    useEffect(() => {
-        localStorage.removeItem(gridId); // optional: reset grid
-        const load = async () => {
-            try {
-                const g = await loadGrid(
-                    gridId,
-                    cols,
-                    rows,
-                    0.5,
-                    image
-                );
-                setGrid(g);
-            } catch (err) {
-                console.error("Failed to load grid:", err);
-            }
-        };
-        load();
-    }, []);
+    loadingGrid(gridId, cols, rows, setGrid, 0.5)
 
     if (!grid) return <div>Loading grid...</div>;
 

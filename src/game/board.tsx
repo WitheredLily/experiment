@@ -3,12 +3,16 @@
 
 import React from "react";
 import { CellState, Grid} from "./nonogram";
-import {BacktrackSolve} from "./solver";
+import {BacktrackSolve, getBacktrackSolution} from "./solver";
+
+let incorrectInput = false;
 
 interface BoardProps {
     grid: Grid;
     onGridChange?: (newGrid: Grid) => void;
     selfSolving?: boolean;
+    nonInteractive?: boolean;
+    inputOrder?: [number, number, CellState][][]
 }
 
 const stateToColor = (s: CellState): "white" | "black" | "gray" =>
@@ -36,7 +40,8 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving }) => {
+export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder }) => {
+    let inputNumber = 0;
     const [cols, rows] = grid.getSize();
 
     const updateCell = (x: number, y: number, newState: CellState) => {
@@ -55,18 +60,34 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSo
         grid.save();
     }
 
+    const checkInput = (x: number, y: number, state: CellState):boolean => {
+        if (inputOrder) {
+            for (let input of inputOrder[inputNumber]) {
+                if (input[0] === x && input[1] === y && input[2] === state) {
+                    inputNumber++;
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
     const handleLeftClick = (x: number, y: number) => {
+        if (nonInteractive) return;
         const current = grid.getCellStates()[x][y];
         if (current !== CellState.Marked) {
             updateCell(x, y, current === CellState.Filled ? CellState.Blank : CellState.Filled);
+            incorrectInput = !checkInput(x, y, CellState.Filled)
         }
     };
 
     const handleRightClick = (x: number, y: number, e: React.MouseEvent) => {
+        if (nonInteractive) return;
         e.preventDefault();
         const current = grid.getCellStates()[x][y];
         if (current !== CellState.Filled) {
             updateCell(x, y, current === CellState.Marked ? CellState.Blank : CellState.Marked);
+            incorrectInput = !checkInput(x, y, CellState.Marked)
         }
     };
 
@@ -184,6 +205,9 @@ export const ClickableGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSo
                     >
                         Solve
                     </button>
+                )}
+                {inputOrder && (
+                    <div hidden={!incorrectInput}>Mistake</div>
                 )}
             </div>
         );

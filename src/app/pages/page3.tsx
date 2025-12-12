@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
-import { ClickableGrid } from "../../game/board";
-import { Grid, loadGrid } from "../../game/nonogram";
-import {PageProps, loadingGrid} from "./util/page";
+import React, {useState} from "react";
+import {loadingGrid, PageProps} from "./util/page";
+import {VisualGrid} from "../../game/board";
+import {Grid} from "../../game/nonogram";
 
 export function Page3({ createLink }: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
@@ -17,11 +17,11 @@ export function Page3({ createLink }: PageProps) {
     return (
         <div style={{padding: "1rem"}} className="tabcontent">
             <h1>Page 3</h1>
-            <ClickableGrid grid={grid} onGridChange={setGrid}/>
+            <VisualGrid grid={grid} onGridChange={setGrid}/>
             <br/>
             <img src={image} alt="Cat" width="500" height="600"/>
             <nav>
-                {createLink(2, "Back")}
+                {createLink(2, "Back")} | {createLink(4, "Forward")}
             </nav>
         </div>
     );

@@ -58,6 +58,10 @@ class Grid {
         this.save();
     }
 
+    public clone(newId: string): Grid {
+        return new Grid(this.numbers[0], this.numbers[1], newId);
+    }
+
     public save(): void {
         localStorage.setItem(this.id, JSON.stringify({
             numbers: this.numbers,
@@ -236,5 +240,5 @@ function numbersToClue(numbers: number[][]): Clues[] {
     return numbers.map(numberSet => (new Clues(numberSet)));
 }
 
-export { CellState, loadGrid, checkSolvedAxis };
-export type { Grid, Clues };
+export { CellState, loadGrid, checkSolvedAxis, Grid };
+export type { Clues };

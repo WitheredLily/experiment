@@ -23,9 +23,9 @@ class Grid {
     private readonly numbers: number[][][];
     private readonly cellStates: CellState[][];
     private solved: boolean;
-    private readonly id: string;
+    private readonly id?: string;
 
-    public constructor(numbersX: number[][], numbersY: number[][], id: string, states?: CellState[][]) {
+    public constructor(numbersX: number[][], numbersY: number[][], id?: string, states?: CellState[][]) {
         const cols = numbersX.length;
         const rows = numbersY.length;
         if (states) {
@@ -58,11 +58,14 @@ class Grid {
         this.save();
     }
 
-    public clone(newId: string): Grid {
-        return new Grid(this.numbers[0], this.numbers[1], newId);
+    public clone(newId?: string): Grid {
+        return new Grid(this.numbers[0], this.numbers[1], newId, Object.assign([], this.cellStates.map(function(arr) {
+            return arr.slice();
+        })))
     }
 
     public save(): void {
+        if (!this.id) return;
         localStorage.setItem(this.id, JSON.stringify({
             numbers: this.numbers,
             cellStates: this.cellStates,

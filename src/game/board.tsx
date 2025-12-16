@@ -13,6 +13,7 @@ interface BoardProps {
     selfSolving?: boolean;
     nonInteractive?: boolean;
     inputOrder?: [number, number, CellState][][]
+    inputGraphic?: [number, number, CellState][][]
 }
 
 const stateToColor = (s: CellState): "white" | "black" | "gray" =>
@@ -40,9 +41,20 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder }) => {
+export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic }) => {
+    async function sleep(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
     let inputNumber = 0;
     const [cols, rows] = grid.getSize();
+
+    const handlePlayGraphic = async (playSpeed: number) => {
+        if (!inputGraphic) return;
+        for (let input of inputGraphic){
+            updateCell(input[0][0], input[0][1], input[0][2])
+            await sleep(playSpeed * 1000);
+        }
+    };
 
     const updateCell = (x: number, y: number, newState: CellState) => {
         grid.updateCell(x, y, newState);
@@ -72,6 +84,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
         }
         return true;
     }
+
     const handleLeftClick = (x: number, y: number) => {
         if (nonInteractive) return;
         const current = grid.getCellStates()[x][y];
@@ -208,6 +221,14 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                 )}
                 {inputOrder && (
                     <div hidden={!incorrectInput}>Mistake</div>
+                )}
+                {inputGraphic && (
+                    <button
+                        style={{ marginTop: "1rem", width: "100%" }}
+                        onClick={() => handlePlayGraphic(1)}
+                    >
+                        Play
+                    </button>
                 )}
             </div>
         );

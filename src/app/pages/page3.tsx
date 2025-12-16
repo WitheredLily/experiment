@@ -2,24 +2,30 @@ import React, {useState} from "react";
 import {loadingGrid, PageProps} from "./util/page";
 import {VisualGrid} from "../../game/board";
 import {Grid} from "../../game/nonogram";
+import {getBacktrackSolution} from "../../game/solver";
 
 export function Page3({ createLink }: PageProps) {
-    const [grid, setGrid] = useState<Grid | null>(null);
-    const image = "https://art.pixilart.com/sr246d63ced6c5c.png"
-    const gridId = "grid2";
-    const cols = 10; // adjust as needed
-    const rows = 10;
+    const [grid1, setGrid1] = useState<Grid | null>(null);
+    const [grid2, setGrid2] = useState<Grid | null>(null);
 
-    loadingGrid(gridId, cols, rows, setGrid, 0.5)
+    const cols1 = 10;
+    const rows1 = 10;
+    const cols2 = 2;
+    const rows2 = 3;
 
-    if (!grid) return <div>Loading grid...</div>;
+    loadingGrid("grid2", cols1, rows1, setGrid1, 0.5);
+    loadingGrid("gridGraphic", cols2, rows2, setGrid2, 0.5);
+
+    if (!grid1 || !grid2) {
+        return <div>Loading grid...</div>;
+    }
 
     return (
         <div style={{padding: "1rem"}} className="tabcontent">
             <h1>Page 3</h1>
-            <VisualGrid grid={grid} onGridChange={setGrid}/>
-            <br/>
-            <img src={image} alt="Cat" width="500" height="600"/>
+            <VisualGrid grid={grid1} onGridChange={setGrid1} />
+            <br />
+            <VisualGrid grid={grid2} onGridChange={setGrid2} nonInteractive={true} inputGraphic={getBacktrackSolution(grid2)} selfSolving={true}/>
             <nav>
                 {createLink(2, "Back")} | {createLink(4, "Forward")}
             </nav>

@@ -22,7 +22,6 @@ function recursiveSolve(grid: Grid, cellNumber: number, sizeX: number,sizeY: num
     return false
 }
 
-
 function BacktrackSolve(grid: Grid): boolean {
     let updateGrid  = (grid:Grid, x:number, y:number, state:CellState) => {
         grid.updateCell(x, y, state)
@@ -36,18 +35,17 @@ function BacktrackSolve(grid: Grid): boolean {
 }
 
 function getBacktrackSolution(inputGrid: Grid): [number, number, CellState][][] {
-    let newGrid = inputGrid.clone("temp")
+    let newGrid = inputGrid.clone()
     let steps: [number, number, CellState][][] = []
     let updateGrid  = (grid:Grid, x:number, y:number, state:CellState) => {
         grid.updateCell(x, y, state)
         steps.push([[x,y,state]])
     }
-    let [x,y] = inputGrid.getSize()
+    let [x,y] = newGrid.getSize()
     let solved = recursiveSolve(newGrid,0,x,y,updateGrid)
     if (!solved){
         console.log("No solution found")
     }
-    localStorage.removeItem("temp")
     return steps
 }
 

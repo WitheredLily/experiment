@@ -10,7 +10,7 @@ let incorrectInput = false;
 interface BoardProps {
     grid: Grid;
     onGridChange?: (newGrid: Grid) => void;
-    selfSolving?: boolean;
+    selfSolving?: (grid: Grid) => boolean;
     nonInteractive?: boolean;
     inputOrder?: [number, number, CellState][][]
     inputGraphic?: [number, number, CellState][][]
@@ -66,10 +66,13 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
     };
 
     const solve = () => {
-        BacktrackSolve(grid);
-        const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
-        onGridChange?.(cloned);
-        grid.save();
+        if (selfSolving) {
+            selfSolving(grid);
+            grid.checkAllClues();
+            const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
+            onGridChange?.(cloned);
+            grid.save();
+        }
     }
 
     const checkInput = (x: number, y: number, state: CellState):boolean => {

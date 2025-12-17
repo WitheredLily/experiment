@@ -49,13 +49,17 @@ class Grid {
         this.solved = false;
         this.isSolved()
         this.id = id;
+        this.checkAllClues();
+        this.save();
+    }
+
+    public checkAllClues(): void {
         this.cluesArrayX.forEach((clue, i) => {
             clue.checkClue(this.cellStates[i])
         })
         this.cluesArrayY.forEach((clue, i) => {
             clue.checkClue(this.cellStates.map(column => column[i]))
         })
-        this.save();
     }
 
     public clone(newId?: string): Grid {

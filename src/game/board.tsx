@@ -3,7 +3,7 @@
 
 import React from "react";
 import { CellState, Grid} from "./nonogram";
-import {BacktrackSolve, getBacktrackSolution} from "./solver";
+import {BacktrackSolve, getBacktrackSolution} from "./solvers/backtracking-solver";
 
 let incorrectInput = false;
 

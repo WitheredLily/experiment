@@ -2,7 +2,8 @@ import React, {useState} from "react";
 import {loadingGrid, PageProps} from "./util/page";
 import {VisualGrid} from "../../game/board";
 import {Grid} from "../../game/nonogram";
-import {getBacktrackSolution, BacktrackSolve, constraintPropagationSolve} from "../../game/solver";
+import {getBacktrackSolution, BacktrackSolve} from "../../game/solvers/backtracking-solver";
+import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
 
 export function Page3({ createLink }: PageProps) {
     const [grid1, setGrid1] = useState<Grid | null>(null);

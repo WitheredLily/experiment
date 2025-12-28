@@ -113,6 +113,10 @@ class Grid {
         return this.cluesArrayY;
     }
 
+    public getClueNumbers(): [ReadonlyArray<number>[], ReadonlyArray<number>[]] {
+        return [this.cluesArrayX.map(clue => clue.getNumbers()), this.cluesArrayY.map(clue => clue.getNumbers())]
+    }
+
     public getYCellStates(y: number): CellState[] {
         return this.cellStates.map(column => column[y]);
     }
@@ -140,7 +144,7 @@ async function loadGrid(
     if (image) {
         return imageToNonogram(image, cols, rows, id);
     } else {
-        return makeRandomGrid(cols, rows, probability, id);
+        return rowsToGrid(makeRandomGrid(cols, rows, probability), id);
     }
 }
 
@@ -194,11 +198,10 @@ class Clues {
     }
 }
 
-export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number, id: string): Grid {
-    const grid: boolean[][] = Array.from({ length: sizeX }, () =>
+export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number): boolean[][] {
+    return Array.from({ length: sizeX }, () =>
         Array.from({ length: sizeY }, () => Math.random() < fillProbability)
     );
-    return rowsToGrid(grid, id);
 }
 
 export function rowsToGrid(grid: boolean[][], id: string): Grid {

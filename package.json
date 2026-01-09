@@ -19,6 +19,7 @@
     "bootstrap": "^5.3.8",
     "constructs": "^10.4.2",
     "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "genetic-search": "^13.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

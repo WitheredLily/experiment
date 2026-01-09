@@ -121,6 +121,7 @@ class Grid {
         return this.cellStates.map(column => column[y]);
     }
 }
+
 async function loadGrid(
     id: string,
     cols: number,

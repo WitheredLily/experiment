@@ -85,7 +85,8 @@ function mutate(grid: TestGrid): void {
 // -------------------------------
 // MAIN GA LOOP
 // -------------------------------
-function geneticAlgorithm(grid:Grid) {
+function geneticAlgorithm(grid:Grid): [TestGrid, TestGrid[]] {
+    let bestGrids: TestGrid[] = [];
     const [cols, rows] = grid.getSize();
     // Initialize population
     let population: TestGrid[] = [];
@@ -99,11 +100,12 @@ function geneticAlgorithm(grid:Grid) {
         // Check for solution
         const maxFitness = Math.max(...fitnesses);
         const bestIndex = fitnesses.indexOf(maxFitness);
+        bestGrids.push(population[bestIndex]);
         console.log(`Gen ${generation}: Best fitness = ${maxFitness}`);
         if (maxFitness === cols + rows) {
             console.log("Solution found:");
             console.table(population[bestIndex]);
-            return population[bestIndex];
+            return [population[bestIndex], bestGrids];
         }
 
         // Create next generation
@@ -117,19 +119,41 @@ function geneticAlgorithm(grid:Grid) {
         }
         population = newPopulation;
     }
+    const finalBestIndex = population.map(testGrid => fitness(testGrid, grid.getCluesX(), grid.getCluesY()))
+        .indexOf(Math.max(...population.map(testGrid => fitness(testGrid, grid.getCluesX(), grid.getCluesY()))));
+    return [population[finalBestIndex], bestGrids];
 }
 
-function geneticSolve(grid: Grid): boolean {
+function geneticSolve(grid: Grid) {
     let solution = geneticAlgorithm(grid)
     if (solution) {
-        solution.forEach((col, x) => {
-            col.forEach((cell, y) => {
-                grid.updateCell(x, y, cell)
+        if (solution[0]) {
+            solution[0].forEach((col, x) => {
+                col.forEach((cell, y) => {
+                    grid.updateCell(x, y, cell)
+                })
             })
-        })
+        }
     }
     return solution !== undefined
 }
 
+async function geneticSolveSteps(grid: Grid) {
+    async function sleep(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+    let solution = geneticAlgorithm(grid)
+    for (let i = 0; i < solution[1].length; i++) {
+        if (solution[1][i]) {
+            solution[1][i].forEach((col, x) => {
+                col.forEach((cell, y) => {
+                    grid.updateCell(x, y, cell)
+                })
+            })
+        }
+        await sleep(1000)
+    }
+}
 
-export {geneticSolve}
+
+export {geneticSolve, geneticSolveSteps}

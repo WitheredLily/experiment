@@ -8,7 +8,7 @@ export function Page1({ createLink }: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
     const cols1 = 13;
     const rows1 = 13;
-
+    //TODO: swap to using build function
     const grid1 = new Grid(
         [[0],[3],[2,2],[2,1,2],[8],[8],[8],[8],[8],[7],[5],[3],[0]],
         [[0],[2,2],[4,4],[2,8],[1,9],[2,8],[9],[7],[5],[3],[1]],

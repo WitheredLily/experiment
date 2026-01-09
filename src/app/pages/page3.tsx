@@ -4,6 +4,7 @@ import {VisualGrid} from "../../game/board";
 import {Grid} from "../../game/nonogram";
 import {getBacktrackSolution, BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
+import {geneticSolveSteps} from "../../game/solvers/genetic-solver";
 
 export function Page3({ createLink }: PageProps) {
     const [grid1, setGrid1] = useState<Grid | null>(null);
@@ -24,7 +25,8 @@ export function Page3({ createLink }: PageProps) {
     return (
         <div style={{padding: "1rem"}} className="tabcontent">
             <h1>Page 3</h1>
-            <VisualGrid grid={grid1} onGridChange={setGrid1} selfSolving={constraintPropagationSolve} />
+            <VisualGrid grid={grid1} onGridChange={setGrid1} />
+            <button onClick={() => geneticSolveSteps(grid1)}>Solve</button>
             <br />
             <VisualGrid grid={grid2} onGridChange={setGrid2} nonInteractive={true} inputGraphic={getBacktrackSolution(grid2)} selfSolving={BacktrackSolve}/>
             <nav>

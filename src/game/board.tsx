@@ -14,6 +14,8 @@ interface BoardProps {
     nonInteractive?: boolean;
     inputOrder?: [number, number, CellState][][]
     inputGraphic?: [number, number, CellState][][]
+    hideClueColumn?: boolean;
+    hideClueRow?: boolean;
 }
 
 const stateToColor = (s: CellState): "white" | "black" | "gray" =>
@@ -41,7 +43,7 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic }) => {
+export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow }) => {
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
@@ -124,7 +126,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                         Puzzle solved! Congratulations!
                     </div>
                 )}
-                <div
+                {!hideClueColumn && (<div
                     style={{
                         display: "grid",
                         gridTemplateColumns: `3rem repeat(${cols}, 3rem)`,
@@ -155,7 +157,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                             {renderClueColumn(clue.getNumbers())}
                         </div>
                     ))}
-                </div>
+                </div>)}
 
                 {/* grid with left clues (rows show horizontal clues) */}
                 <div
@@ -189,7 +191,8 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                                     minWidth: "3rem",
                                 }}
                             >
-                                {renderClueRow(grid.getCluesY()[yIdx]?.getNumbers() ?? [])}
+                                {!hideClueRow &&
+                                    renderClueRow(grid.getCluesY()[yIdx]?.getNumbers() ?? [])}
                             </div>
 
                             {Array.from({length: cols}, (_, xIdx) => {

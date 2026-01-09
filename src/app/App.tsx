@@ -4,7 +4,7 @@ import * as pages from "./pages";
 import "./App.css";
 
 export default function App() {
-    localStorage.clear();
+    //localStorage.clear();
     let navigate = useNavigate();
     const pageArray = Object.values(pages);
     function changeCurrentPage(num: number){

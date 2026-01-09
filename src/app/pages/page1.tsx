@@ -1,10 +1,34 @@
-import {PageProps} from "./util/page";
-import React from "react";
+import {loadingGrid, PageProps} from "./util/page";
+import React, {useState} from "react";
+import {Grid, makeRandomGrid} from "../../game/nonogram";
+import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
+import {VisualGrid} from "../../game/board";
 
 export function Page1({ createLink }: PageProps) {
+    const [grid, setGrid] = useState<Grid | null>(null);
+    const cols1 = 13;
+    const rows1 = 13;
+
+    const grid1 = new Grid(
+        [[0],[3],[2,2],[2,1,2],[8],[8],[8],[8],[8],[7],[5],[3],[0]],
+        [[0],[2,2],[4,4],[2,8],[1,9],[2,8],[9],[7],[5],[3],[1]],
+        "gridA1"
+    );
+
+    loadingGrid("gridA1", cols1, rows1, setGrid, 0.5, grid1);
+
+
+
+    if (!grid) {
+        return <div>Loading grid...</div>;
+    }
+
+    BacktrackSolve(grid)
     return (
         <div className="tabcontent">
-            <h1>Hi this section explains what a nonogram is</h1>
+            <h1>What is a nonogram?</h1>
+            <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
+            <VisualGrid grid={grid} nonInteractive={true}/>
             <nav>
                 {createLink(2,"Forward")}
             </nav>

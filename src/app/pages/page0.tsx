@@ -11,19 +11,24 @@ export function Page0({ navigate }: PageProps) {
     const [grid2, setGrid2] = useState<Grid | null>(null);
     const [grid3, setGrid3] = useState<Grid | null>(null);
 
-    const cols1 = 20;
-    const rows1 = 20;
+    const cols1 = 10;
+    const rows1 = 10;
 
     loadingGrid("gridA1", cols1, rows1, setGrid1, 0.5);
     loadingGrid("gridA2", cols1, rows1, setGrid2, 0.75);
     loadingGrid("gridA3", cols1, rows1, setGrid3, 0.75);
 
+
+
     if (!grid1 || !grid2 || !grid3) {
         return <div>Loading grid...</div>;
     }
+
+    BacktrackSolve(grid1)
     return (
         <div className="tabcontent">
             <h1>Home Page</h1>
+            <VisualGrid grid={grid1} nonInteractive={true}/>
             <p>Constraint</p>
             <VisualGrid grid={grid1} onGridChange={setGrid1} selfSolving={constraintPropagationSolve} />
             <p>Backtracking</p>

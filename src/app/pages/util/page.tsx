@@ -1,14 +1,19 @@
 import {JSX, useEffect} from "react";
-import {loadGrid} from "../../../game/nonogram";
+import {Grid, loadGrid} from "../../../game/nonogram";
 
 interface PageProps {
     createLink: (num: number, text: string) => JSX.Element;
     navigate: (num: number) => void;
 }
 
-function loadingGrid(gridId:string, cols:number, rows:number, setGrid: (g: any) => void, probability: number) {
+function loadingGrid(gridId:string, cols:number, rows:number, setGrid: (g: any) => void, probability: number, grid?: Grid) {
+
     useEffect(() => {
-        localStorage.removeItem(gridId); // optional: reset grid
+        //localStorage.removeItem(gridId); // optional: reset grid
+        if (grid) {
+            setGrid(grid)
+            return
+        }
         const load = async () => {
             try {
                 const g = await loadGrid(

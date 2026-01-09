@@ -110,7 +110,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
         return (
             <div style={{display: "inline-block"}}>
                 {/* top clues */}
-                {grid.getSolved() && (
+                {grid.getSolved() && !nonInteractive && (
                     <div style={{
                         padding: "1rem",
                         marginBottom: "1rem",

@@ -10,6 +10,7 @@ import {
     DescendingSortingStrategy,
     RandomSelectionStrategy,
 } from "genetic-search";
+import {i} from "vite/dist/node/chunks/moduleRunnerTransport";
 
 function fillArray(array:any[],firstNumber: number, lastNumber: number, value: any) {
     for (let i = firstNumber; i <= lastNumber; i++) {
@@ -59,8 +60,8 @@ function constraintPropagationSolve(grid: Grid): boolean {
     }
     // Placeholder for constraint propagation solver
     console.log("Constraint propagation solver not implemented yet")
-    simpleBox(grid, updateGrid)
-    //simpleSpace(grid, updateGrid)
+    //simpleBox(grid, updateGrid)
+    simpleSpace(grid, updateGrid)
     return false
 }
 
@@ -112,30 +113,73 @@ function simpleBox(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, st
     return applyFunctionToAll(grid, updateGrid, simpleBoxLine)
 }
 
-export function simpleSpace(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, state: CellState) => void): boolean {
+function simpleSpace(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, state: CellState) => void): boolean {
     function simpleSpaceLine(clues: readonly number[], line: CellState[]): number[] {
-        let markedArray:[number, CellState][] = []
-        for (let cell of line){
-            let lastCell = markedArray[markedArray.length-1] ?? [0,-1]
-            if (lastCell[1] === cell){
-                lastCell[0]++;
-            } else {
-                markedArray.push([1,cell])
+        function simpleSpaceDirection(clues: readonly number[], line: CellState[]): CellState[] {
+            let solution:CellState[] = new Array(line.length).fill(CellState.Blank)
+            let lastMarked = 0
+            let lastFilled = -1
+            let firstFilled = -1
+            let possible = 0
+            let filledFound = false
+            let clueNumber = 0
+            line.forEach((state, index) => {
+                switch (state) {
+                    case CellState.Blank:
+                        possible++;
+                        if (filledFound && possible - firstFilled >= clues[clueNumber]) {
+                            for (let i = lastFilled + 1; i < index; i++) {
+                                solution[i] = CellState.Marked;
+                            }
+                        }
+                        break;
+                    case CellState.Filled:
+                        possible++;
+                        filledFound = true;
+                        lastFilled = index;
+                        if (firstFilled === -1) firstFilled = index;
+                        break;
+                    case CellState.Marked:
+                        if (possible < clues[clueNumber]) {
+                            if (!filledFound) {
+                                for (let i = lastMarked; i <= index; i++) {
+                                    solution[i] = CellState.Marked;
+                                }
+                            } else {
+                                console.log("Error in simple box solver, filled found but not possible")
+                                return solution
+                            }
+                        } else if (filledFound) {
+                            for (let i = lastMarked; i <= index - clues[clueNumber]; i++) {
+                                solution[i] = CellState.Marked;
+                            }
+                        } else {
+                            return solution
+                        }
+                        possible = 0;
+                        lastMarked = index;
+                        break;
+                }
+            })
+            return solution
+        }
+        let leftSolution = simpleSpaceDirection(clues, line)
+        let rightSolution = simpleSpaceDirection(clues.toReversed(), line.toReversed()).toReversed()
+        let finalSolution: CellState[] = new Array(line.length).fill(CellState.Blank)
+        for (let i = 0; i < leftSolution.length; i++) {
+            if (leftSolution[i] != CellState.Blank) {
+                if (rightSolution[i] != CellState.Blank) {
+                    if (leftSolution[i] != rightSolution[i]) {
+                        console.log("Error in simple box solver, left and right solution differ")
+                        return finalSolution
+                    }
+                }
+                finalSolution[i] = leftSolution[i]
+            } else if (rightSolution[i] != CellState.Blank) {
+                finalSolution[i] = rightSolution[i]
             }
         }
-        let runningSpace = 0;
-        let finalArray:number[] = new Array(line.length).fill(0)
-        let cellNumber = 0
-        let lastMarked = -1
-        let requiredSpace = [0,0]
-        let lastRequiredSpace = [0,0]
-        let potential = 1
-        for (let clue of clues){
-            while (true){
-
-            }
-        }
-        return finalArray
+        return finalSolution
     }
 
     return applyFunctionToAll(grid, updateGrid, simpleSpaceLine)

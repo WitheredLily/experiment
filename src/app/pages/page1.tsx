@@ -4,7 +4,7 @@ import {Grid, makeRandomGrid} from "../../game/nonogram";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 
-export function Page1({ createLink }: PageProps) {
+export function Page1({ createLink, createLockableLink}: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
     const cols1 = 13;
     const rows1 = 13;
@@ -16,6 +16,8 @@ export function Page1({ createLink }: PageProps) {
     );
 
     loadingGrid("gridA1", cols1, rows1, setGrid, 0.5, grid1);
+
+    let [lockedLink, lock] = createLockableLink(2,"Forward", false, "LinkA1");
 
 
 
@@ -29,8 +31,10 @@ export function Page1({ createLink }: PageProps) {
             <h1>What is a nonogram?</h1>
             <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
             <VisualGrid grid={grid} nonInteractive={true}/>
+            <button onClick={() => lock.lock = false}>Unlock</button>
+            <button onClick={() => lock.lock = true}>Lock</button>
             <nav>
-                {createLink(2,"Forward")}
+                {lockedLink}
             </nav>
         </div>
     );

@@ -2,7 +2,8 @@ import {JSX, useEffect} from "react";
 import {Grid, loadGrid} from "../../../game/nonogram";
 
 interface PageProps {
-    createLink: (num: number, text: string) => JSX.Element;
+    createLink: (num: number, text: string, id?: string) => JSX.Element;
+    createLockableLink: (num: number, text: string, locked: boolean, id: string) => [JSX.Element, {lock: boolean; }];
     navigate: (num: number) => void;
 }
 

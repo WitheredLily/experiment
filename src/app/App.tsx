@@ -4,7 +4,7 @@ import * as pages from "./pages";
 import "./App.css";
 
 export default function App() {
-    //localStorage.clear();
+    localStorage.clear();
     let navigate = useNavigate();
     const pageArray = Object.values(pages);
     function changeCurrentPage(num: number){
@@ -17,7 +17,32 @@ export default function App() {
         navigate(`/page${num}`);
     }
 
-    function createLink(num: number, text: string): JSX.Element{
+    function createLockableLink(num: number, text: string, locked: boolean, id: string):[JSX.Element, {lock: boolean;}] {
+            const lock = {
+                lock: locked,
+            };
+
+            const pLock = new Proxy(lock, {
+                set: (target, prop, value) => {
+                    target[prop as keyof typeof target] = value;
+                    let element = document.getElementById(id);
+                    if (element) {
+                        if (target.lock) {
+                            element.setAttribute('disabled', '');
+                        } else {
+                            element.removeAttribute('disabled');
+                        }
+                    }
+                    return true;
+                },
+
+            });
+
+            return [<button id={id} disabled={locked} onClick={() => changeCurrentPage(num)}>{text}</button>, pLock]
+    }
+
+    function createLink(num: number, text: string, id?: string): JSX.Element{
+        if (id) {return <button id={id} onClick={() => changeCurrentPage(num)}>{text}</button>}
         return <button onClick={() => changeCurrentPage(num)}>{text}</button>
     }
 
@@ -52,7 +77,7 @@ export default function App() {
                     <Route
                         key={i}
                         path={`/page${i}`}
-                        element={i <= maxPage ? <Page createLink={createLink} navigate={changeCurrentPage}/> : <Navigate to={`/page${maxPage}`} />}
+                        element={i <= maxPage ? <Page createLink={createLink} navigate={changeCurrentPage} createLockableLink={createLockableLink}/> : <Navigate to={`/page${maxPage}`} />}
                     />
                 ))}
             </Routes>

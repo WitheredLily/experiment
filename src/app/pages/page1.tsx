@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {Grid, makeRandomGrid} from "../../game/nonogram";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
+import {ChoiceQuestion, CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
 export function Page1({ createLink, createLockableLink}: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
@@ -17,7 +18,11 @@ export function Page1({ createLink, createLockableLink}: PageProps) {
 
     loadingGrid("gridA1", cols1, rows1, setGrid, 0.5, grid1);
 
-    let [lockedLink, lock] = createLockableLink(2,"Forward", false, "LinkA1");
+    let [lockedLink, lock] = createLockableLink(2,"Forward", true, "LinkA1");
+
+    let question: QuestionProps = CreateQuestionProps("A, B, or C", ["A","B","C"],[1])
+
+    let questionSect1 = QuestionSection([lock], [question])
 
 
 
@@ -33,6 +38,7 @@ export function Page1({ createLink, createLockableLink}: PageProps) {
             <VisualGrid grid={grid} nonInteractive={true}/>
             <button onClick={() => lock.lock = false}>Unlock</button>
             <button onClick={() => lock.lock = true}>Lock</button>
+            {questionSect1[0]}
             <nav>
                 {lockedLink}
             </nav>

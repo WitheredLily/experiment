@@ -1,10 +1,12 @@
 import {loadingGrid, PageProps} from "./util/page";
+import {ChoiceQuestion} from "./util/question";
 import React, {useState} from "react";
 import {Grid} from "../../game/nonogram";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
 import {geneticSolve} from "../../game/solvers/genetic-solver";
+import {number} from "zod";
 
 export function Page0({ navigate }: PageProps) {
     const [grid1, setGrid1] = useState<Grid | null>(null);
@@ -17,8 +19,6 @@ export function Page0({ navigate }: PageProps) {
     loadingGrid("gridA1", cols1, rows1, setGrid1, 0.5);
     loadingGrid("gridA2", cols1, rows1, setGrid2, 0.75);
     loadingGrid("gridA3", cols1, rows1, setGrid3, 0.75);
-
-
 
     if (!grid1 || !grid2 || !grid3) {
         return <div>Loading grid...</div>;

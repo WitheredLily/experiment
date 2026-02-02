@@ -1,5 +1,6 @@
 import React, {JSX, useState} from "react";
 import {HashRouter, Link, Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import {pageLock} from "./pages/util/page";
 import * as pages from "./pages";
 import "./App.css";
 
@@ -17,9 +18,9 @@ export default function App() {
         navigate(`/page${num}`);
     }
 
-    function createLockableLink(num: number, text: string, locked: boolean, id: string):[JSX.Element, {lock: boolean;}] {
-            const lock = {
-                lock: locked,
+    function createLockableLink(num: number, text: string, locked: boolean, id: string):[JSX.Element, pageLock] {
+            const lock: pageLock ={
+                lock: locked
             };
 
             const pLock = new Proxy(lock, {

@@ -1,10 +1,15 @@
 import {JSX, useEffect} from "react";
 import {Grid, loadGrid} from "../../../game/nonogram";
+import {boolean} from "zod";
 
 interface PageProps {
     createLink: (num: number, text: string, id?: string) => JSX.Element;
-    createLockableLink: (num: number, text: string, locked: boolean, id: string) => [JSX.Element, {lock: boolean; }];
+    createLockableLink: (num: number, text: string, locked: boolean, id: string) => [JSX.Element, pageLock];
     navigate: (num: number) => void;
+}
+
+export type pageLock = {
+    lock: boolean;
 }
 
 function loadingGrid(gridId:string, cols:number, rows:number, setGrid: (g: any) => void, probability: number, grid?: Grid) {

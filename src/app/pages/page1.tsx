@@ -5,7 +5,7 @@ import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 import {ChoiceQuestion, CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
-export function Page1({ createLink, createLockableLink}: PageProps) {
+export function Page1({ createLink, useLockableLink}: PageProps) {
     const [grid, setGrid] = useState<Grid | null>(null);
     const cols1 = 13;
     const rows1 = 13;
@@ -18,11 +18,11 @@ export function Page1({ createLink, createLockableLink}: PageProps) {
 
     loadingGrid("gridA1", cols1, rows1, setGrid, 0.5, grid1);
 
-    let [lockedLink, lock] = createLockableLink(2,"Forward", true, "LinkA1");
+    //let [lockedLink, lock] = createLockableLink(2,"Forward", true, "LinkA1");
 
-    let question: QuestionProps = CreateQuestionProps("A, B, or C", ["A","B","C"],[1])
+    //let question: QuestionProps = CreateQuestionProps("A, B, or C", ["A","B","C"],[1])
 
-    let questionSect1 = QuestionSection([lock], [question])
+    //let questionSect1 = QuestionSection([lock], [question])
 
 
 
@@ -32,15 +32,12 @@ export function Page1({ createLink, createLockableLink}: PageProps) {
 
     BacktrackSolve(grid)
     return (
-        <div className="tabcontent">
+        <div className="tabContent">
             <h1>What is a nonogram?</h1>
             <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
             <VisualGrid grid={grid} nonInteractive={true}/>
-            <button onClick={() => lock.lock = false}>Unlock</button>
-            <button onClick={() => lock.lock = true}>Lock</button>
-            {questionSect1[0]}
             <nav>
-                {lockedLink}
+                {createLink(2,"Forward")}
             </nav>
         </div>
     );

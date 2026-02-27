@@ -23,7 +23,7 @@ export function Page3({ createLink }: PageProps) {
     }
 
     return (
-        <div style={{padding: "1rem"}} className="tabcontent">
+        <div style={{padding: "1rem"}} className="tabContent">
             <h1>Page 3</h1>
             <VisualGrid grid={grid1} onGridChange={setGrid1} />
             <button onClick={() => geneticSolveSteps(grid1)}>Solve</button>

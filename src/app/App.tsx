@@ -18,28 +18,23 @@ export default function App() {
         navigate(`/page${num}`);
     }
 
-    function createLockableLink(num: number, text: string, locked: boolean, id: string):[JSX.Element, pageLock] {
-            const lock: pageLock ={
-                lock: locked
-            };
+    function useLockableLink(
+        num: number,
+        text: string,
+        initialLocked: boolean,
+    ): [JSX.Element, (locked: boolean) => void] {
 
-            const pLock = new Proxy(lock, {
-                set: (target, prop, value) => {
-                    target[prop as keyof typeof target] = value;
-                    let element = document.getElementById(id);
-                    if (element) {
-                        if (target.lock) {
-                            element.setAttribute('disabled', '');
-                        } else {
-                            element.removeAttribute('disabled');
-                        }
-                    }
-                    return true;
-                },
+        const [locked, setLocked] = useState(initialLocked);
+        const button = (
+            <button
+                disabled={locked}
+                onClick={() => changeCurrentPage(num)}
+            >
+                {text}
+            </button>
+        );
 
-            });
-
-            return [<button id={id} disabled={locked} onClick={() => changeCurrentPage(num)}>{text}</button>, pLock]
+        return [button, setLocked];
     }
 
     function createLink(num: number, text: string, id?: string): JSX.Element{
@@ -54,34 +49,37 @@ export default function App() {
         parseInt(localStorage.getItem("currentPage") ?? "0")
     );
     return (
-        <div>
+        <div className="App">
             {/* Navigation */}
-            <nav>
                 <div className="tab" id="nav-bar">
+                    <nav>
                     {pageArray.map((_, i) => (
-                        <button
-                            key={i}
-                            className={`tablinks ${currentPage === i ? "active" : ""}`}
-                            onClick={() => changeCurrentPage(i)}
-                            hidden={maxPage < i}
-                        >
-                            {i}
-                        </button>
+                        maxPage >= i && (
+                            <button
+                                key={i}
+                                className={`tablinks ${currentPage === i ? "active" : ""}`}
+                                onClick={() => changeCurrentPage(i)}
+                            >
+                                {i}
+                            </button>
+                        )
                     ))}
+                    </nav>
                 </div>
-            </nav>
 
             {/* Routes */}
+            <div className="tabContentContainer">
             <Routes>
                 <Route path="/" element={<Navigate to={`/page${currentPage}`} />} />
                 {pageArray.map((Page, i) => (
                     <Route
                         key={i}
                         path={`/page${i}`}
-                        element={i <= maxPage ? <Page createLink={createLink} navigate={changeCurrentPage} createLockableLink={createLockableLink}/> : <Navigate to={`/page${maxPage}`} />}
+                        element={i <= maxPage ? <Page createLink={createLink} navigate={changeCurrentPage} useLockableLink={useLockableLink}/> : <Navigate to={`/page${maxPage}`} />}
                     />
                 ))}
             </Routes>
+            </div>
         </div>
     );
 }

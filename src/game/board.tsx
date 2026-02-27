@@ -4,6 +4,7 @@
 import React from "react";
 import { CellState, Grid} from "./nonogram";
 import {BacktrackSolve, getBacktrackSolution} from "./solvers/backtracking-solver";
+import {pageLock} from "../app/pages/util/page";
 
 let incorrectInput = false;
 
@@ -16,6 +17,7 @@ interface BoardProps {
     inputGraphic?: [number, number, CellState][][]
     hideClueColumn?: boolean;
     hideClueRow?: boolean;
+    lock?: (locked: boolean) => void
 }
 
 const stateToColor = (s: CellState): "white" | "black" | "gray" =>
@@ -43,7 +45,7 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow }) => {
+export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow, lock }) => {
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
@@ -61,7 +63,9 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
     const updateCell = (x: number, y: number, newState: CellState) => {
         grid.updateCell(x, y, newState);
         grid.checkClues(x, y);
-        grid.isSolved();
+        if (lock != undefined) {
+            lock(grid.getSolved());
+        }
         const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
         onGridChange?.(cloned);
         grid.save();

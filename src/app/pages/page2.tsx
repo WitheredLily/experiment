@@ -5,7 +5,7 @@ import {BacktrackSolve, getBacktrackSolution} from "../../game/solvers/backtrack
 import {VisualGrid} from "../../game/board";
 import {boolean} from "zod";
 
-export function Page2({ createLink }: PageProps) {
+export function Page2({ createLink, useLockableLink }: PageProps) {
     const [gridExample, setGrid1] = useState<Grid | null>(null);
     const [gridSolution, setGrid2] = useState<Grid | null>(null);
 
@@ -66,6 +66,8 @@ export function Page2({ createLink }: PageProps) {
 
     loadingGrid("backtracking", 4, 4, setGridBacktrack, 0.5);
 
+    let [lockedButton, setLock] = useLockableLink(3,"Forward", true);
+
 
 
     if (!gridSolution || !gridExample || !gridQuiz || !gridQuizSolution || !gridBacktrack) {
@@ -77,10 +79,10 @@ export function Page2({ createLink }: PageProps) {
 
     BacktrackSolve(gridQuiz)
     return (
-        <div style={{ padding: "1rem" }} className="tabcontent">
+        <div style={{ padding: "1rem" }} className="tabContent">
             <h1>Hi, this section talks about how to solve a nonogram</h1>
 
-            <h2>Simple Spaces</h2>
+            <h2>Simple Boxes</h2>
 
             <p>By considering the overlap of the same cell groups in the leftmost and rightmost solutions you can determine that some cells have to be filled</p>
             <VisualGrid grid={gridExample} nonInteractive={true} hideClueColumn={true} />
@@ -96,13 +98,34 @@ export function Page2({ createLink }: PageProps) {
             <br/>
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Eo_circle_green_arrow-down.svg/2048px-Eo_circle_green_arrow-down.svg.png" width="5%" alt="arrow"></img>
             <br/>
-            <VisualGrid grid={gridQuizSolution} onGridChange={setGridQuizSolution} hideClueColumn={true} hideClueRow={true}/>
+            <VisualGrid grid={gridQuizSolution} onGridChange={setGridQuizSolution} hideClueColumn={true} hideClueRow={true} lock={setLock}/>
+
+            <h2>Simple Spaces</h2>
+            <p>This method involves finding which cells are out of range for being possible</p>
+
+            <h2>Glue</h2>
+            <p>When a filled cell is near to an edge either the edge of the board or a cell marked as can't be filled you may be able to determine a minium amount of cells that have to be filled</p>
+
+            <h2>Joining and splitting</h2>
+            <p>When marked cells have a single space between them you may be able to determine whether they must be connected or if they cannot be based on the clue size.</p>
+
+            <h2>Punctuating</h2>
+            <p>This is simply once you have determined a group filled cells is as big as it can get either side of it should be marked</p>
+
+            <h2>Contradictions</h2>
+            <p>This is when you try a possible cell and seeing if you continue filling based on that does it reach a point with contradictions if it does you know that the initial cell is wrong</p>
+
+            <h2>Mathematical approach</h2>
+            <p></p>
+
+
             <h2>Back Tracking</h2>
             <p>This method involves trying possible solutions and every time you encounter an incorrect solution you take a step back and try the other path. This method is difficult and time consuming for humans to do by hand though certain nonograms may require it. Here is an example of backtracking being used.</p>
             <VisualGrid grid={gridBacktrack} onGridChange={setGridBacktrack} nonInteractive={true} inputGraphic={getBacktrackSolution(gridBacktrack)}/>
+            <button onClick={() => {setLock(false)}}>Unlock</button>
 
             <nav>
-                {createLink(1, "Back")} | {createLink(3, "Forward")}
+                {createLink(1, "Back")} | {lockedButton} {createLink(3, "")}
             </nav>
         </div>
     );

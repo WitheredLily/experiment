@@ -1,5 +1,7 @@
 .App {
-  text-align: center;
+    display: flex;
+    align-items: flex-start;
+    min-height: 100%
 }
 
 .App-logo {
@@ -40,20 +42,29 @@
 
 /* Style the tab */
 .tab {
-    overflow: hidden;
+    position: sticky;
+    top: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    align-self: flex-start;
+    width: max-content;
+
     border: 1px solid #ccc;
     background-color: #f1f1f1;
+    height: 100vh;
 }
 
 /* Style the buttons that are used to open the tab content */
 .tab button {
     background-color: inherit;
-    float: left;
     border: none;
     outline: none;
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
+    display: block;
 }
 
 /* Change background color of buttons on hover */
@@ -67,8 +78,11 @@
 }
 
 /* Style the tab content */
-.tabcontent {
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-top: none;
+.tabContentContainer {
+    flex: 1;
+    padding: 16px;
+}
+
+.tabContent {
+
 }

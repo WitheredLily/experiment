@@ -3,8 +3,9 @@ import { VisualGrid } from "../../game/board";
 import {loadingGrid, PageProps} from "./util/page";
 import {Grid} from "../../game/nonogram";
 import {getBacktrackSolution} from "../../game/solvers/backtracking-solver";
+import {CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
-export function Page4({ createLink }: PageProps) {
+export function Page5({ createLink, useLockableLink }: PageProps) {
     localStorage.removeItem("gridGuide1");
     const [grid, setGrid] = useState<Grid | null>(null);
     const gridId = "gridGuide1";
@@ -12,13 +13,20 @@ export function Page4({ createLink }: PageProps) {
         setGrid(new Grid([[1,1],[1,1]], [[1],[1],[1],[1]], gridId));
     }, []);
 
+    let [lockedLink, lock] = useLockableLink(2,"Forward", true);
+
+    let question: QuestionProps = CreateQuestionProps("A, B, or C", ["A","B","C"],[1])
+
+    let questionSect1 = QuestionSection([lock], [question])
+
     if (!grid) return <div>Loading grid...</div>;
     return (
         <div style={{padding: "1rem"}} className="tabContent">
-            <h1>Hi, this section tests your back tracking</h1>
-            <VisualGrid grid={grid} onGridChange={setGrid} inputOrder={getBacktrackSolution(grid)}/>
+            <h1>Algorithms</h1>
+            <p></p>
+            {questionSect1}
             <nav>
-                {createLink(3, "Back")} | {createLink(5, "Forward")}
+                {createLink(4, "Back")}
             </nav>
         </div>
     );

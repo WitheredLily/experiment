@@ -31,7 +31,7 @@ export function CreateQuestionProps(question: string, choices: string[], answers
     return {question, choices, answers, onSelect: onSelect};
 }
 
-export function QuestionSection(locks: pageLock[], questions: QuestionProps[]){
+export function QuestionSection(locks: ((locked: boolean) => void)[], questions: QuestionProps[]){
     let incorrect: boolean[] = []
     let elements: JSX.Element[] = [];
     for (let i = 0; i < questions.length; i++){
@@ -45,13 +45,13 @@ export function QuestionSection(locks: pageLock[], questions: QuestionProps[]){
                 for (let j of incorrect) {
                     if (j) {
                         for (let lock of locks) {
-                            lock.lock = true;
+                            lock(true);
                         }
                         return true
                     }
                 }
                 for (let lock of locks) {
-                    lock.lock = false;
+                    lock(false);
                 }
                 return true;
             },

@@ -4,7 +4,7 @@ import {boolean} from "zod";
 
 interface PageProps {
     createLink: (num: number, text: string, id?: string) => JSX.Element;
-    createLockableLink: (num: number, text: string, locked: boolean, id: string) => [JSX.Element, pageLock];
+    useLockableLink: (num: number, text: string, initialLocked: boolean) => [JSX.Element, (locked: boolean) => void]
     navigate: (num: number) => void;
 }
 

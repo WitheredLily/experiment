@@ -26,7 +26,7 @@ export function Page0({ navigate }: PageProps) {
 
     BacktrackSolve(grid1)
     return (
-        <div className="tabcontent">
+        <div className="tabContent">
             <h1>Home Page</h1>
             <VisualGrid grid={grid1} nonInteractive={true}/>
             <p>Constraint</p>

@@ -8,7 +8,7 @@ import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
 import {geneticSolve} from "../../game/solvers/genetic-solver";
 import {number} from "zod";
 
-export function Page0({ navigate }: PageProps) {
+export function Page0({ createLink }: PageProps) {
     const [grid1, setGrid1] = useState<Grid | null>(null);
     const [grid2, setGrid2] = useState<Grid | null>(null);
     const [grid3, setGrid3] = useState<Grid | null>(null);
@@ -26,16 +26,23 @@ export function Page0({ navigate }: PageProps) {
 
     BacktrackSolve(grid1)
     return (
-        <div className="tabContent">
-            <h1>Home Page</h1>
-            <VisualGrid grid={grid1} nonInteractive={true}/>
-            <p>Constraint</p>
-            <VisualGrid grid={grid1} onGridChange={setGrid1} selfSolving={constraintPropagationSolve} />
-            <p>Backtracking</p>
-            <VisualGrid grid={grid2} onGridChange={setGrid2} selfSolving={BacktrackSolve} />
-            <p>Genetic</p>
-            <VisualGrid grid={grid3} onGridChange={setGrid3} selfSolving={geneticSolve} />
-            <button onClick={() => navigate(1)}>Start</button>
+        <div>
+            <div className="tabContent-header">
+                <h1>Hello</h1>
+            </div>
+            <div className="tabContent">
+                <h1>Home Page</h1>
+                <VisualGrid grid={grid1} nonInteractive={true}/>
+                <p>Constraint</p>
+                <VisualGrid grid={grid1} onGridChange={setGrid1} selfSolving={constraintPropagationSolve} />
+                <p>Backtracking</p>
+                <VisualGrid grid={grid2} onGridChange={setGrid2} selfSolving={BacktrackSolve} />
+                <p>Genetic</p>
+                <VisualGrid grid={grid3} onGridChange={setGrid3} selfSolving={geneticSolve} />
+            </div>
+            <nav className={"navButton"}>
+                {createLink(1,"Start")}
+            </nav>
         </div>
     );
 }

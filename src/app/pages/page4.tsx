@@ -14,10 +14,15 @@ export function Page4({ createLink }: PageProps) {
 
     if (!grid) return <div>Loading grid...</div>;
     return (
+        <div>
+            <div className="tabContent-header">
+                <h1>Hello</h1>
+            </div>
         <div style={{padding: "1rem"}} className="tabContent">
             <h1>Hi, this section tests your back tracking</h1>
             <VisualGrid grid={grid} onGridChange={setGrid} inputOrder={getBacktrackSolution(grid)}/>
-            <nav>
+        </div>
+            <nav className={"navButton"}>
                 {createLink(3, "Back")} | {createLink(5, "Forward")}
             </nav>
         </div>

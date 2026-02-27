@@ -23,15 +23,20 @@ export function Page3({ createLink }: PageProps) {
     }
 
     return (
+        <div>
+            <div className="tabContent-header">
+                <h1>Hello</h1>
+            </div>
         <div style={{padding: "1rem"}} className="tabContent">
             <h1>Page 3</h1>
             <VisualGrid grid={grid1} onGridChange={setGrid1} />
             <button onClick={() => geneticSolveSteps(grid1)}>Solve</button>
             <br />
             <VisualGrid grid={grid2} onGridChange={setGrid2} nonInteractive={true} inputGraphic={getBacktrackSolution(grid2)} selfSolving={BacktrackSolve}/>
-            <nav>
+            <nav className={"navButton"}>
                 {createLink(2, "Back")} | {createLink(4, "Forward")}
             </nav>
+        </div>
         </div>
     );
 }

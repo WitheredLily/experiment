@@ -79,6 +79,10 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
 
     BacktrackSolve(gridQuiz)
     return (
+        <div>
+            <div className="tabContent-header">
+                <h1>Hello</h1>
+            </div>
         <div style={{ padding: "1rem" }} className="tabContent">
             <h1>Hi, this section talks about how to solve a nonogram</h1>
 
@@ -124,9 +128,10 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
             <VisualGrid grid={gridBacktrack} onGridChange={setGridBacktrack} nonInteractive={true} inputGraphic={getBacktrackSolution(gridBacktrack)}/>
             <button onClick={() => {setLock(false)}}>Unlock</button>
 
-            <nav>
-                {createLink(1, "Back")} | {lockedButton} {createLink(3, "")}
+            <nav className={"navButton"}>
+                {createLink(1, "Back")} | {lockedButton}
             </nav>
+        </div>
         </div>
     );
 }

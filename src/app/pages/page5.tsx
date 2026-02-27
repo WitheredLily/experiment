@@ -21,13 +21,18 @@ export function Page5({ createLink, useLockableLink }: PageProps) {
 
     if (!grid) return <div>Loading grid...</div>;
     return (
+        <div>
+            <div className="tabContent-header">
+                <h1>Hello</h1>
+            </div>
         <div style={{padding: "1rem"}} className="tabContent">
             <h1>Algorithms</h1>
             <p></p>
             {questionSect1}
-            <nav>
+            <nav className={"navButton"}>
                 {createLink(4, "Back")}
             </nav>
+        </div>
         </div>
     );
 }

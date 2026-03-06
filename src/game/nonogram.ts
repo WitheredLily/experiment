@@ -53,6 +53,18 @@ class Grid {
         this.save();
     }
 
+    public setStates(states: CellState[][]) {
+        if (states.length !== this.cellStates.length || states[0].length !== this.cellStates[0].length) {
+            return false;
+        }
+        for (let i = 0; i < states.length; i++) {
+            for (let j = 0; j < states[i].length; j++) {
+                this.cellStates[i][j] = states[i][j];
+            }
+        }
+        this.checkAllClues();
+    }
+
     public checkAllClues(): void {
         this.cluesArrayX.forEach((clue, i) => {
             clue.checkClue(this.cellStates[i])

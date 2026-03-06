@@ -1,228 +1,264 @@
 import {Grid, CellState, Clues, makeRandomGrid} from "../nonogram"
 
-// -------------------------------
-// CONFIGURATION
-// -------------------------------
-const POPULATION_SIZE = 100;
-const MUTATION_RATE = 0.05;
-const NUM_GENERATIONS = 100000;
+const POPULATION_SIZE = 200;
+const MUTATION_RATE = 0.03;
+const NUM_GENERATIONS = 10000;
+const ELITE_COUNT = 1;
 
-type TestGrid = CellState[][];
+export type TestGrid = CellState[][];
 
-// -------------------------------
-// UTILITY FUNCTIONS
-// -------------------------------
+type Chromosome = number[];
 
-function cloneGrid(grid: TestGrid, ): TestGrid {
-    return grid.map(row => [...row]);
-}
+function generateValidPatterns(
+    clue: readonly number[],
+    length: number
+): CellState[][] {
 
-// -------------------------------
-// FITNESS FUNCTION
-// -------------------------------
-function fitness(testGrid: TestGrid, cluesX: Clues[], cluesY: Clues[]): number {
-    let score = 0;
+    const results: CellState[][] = [];
 
-    // Rows
-    for (let r = 0; r < testGrid.length; r++) {
-        const runs = getRuns(testGrid[r]);
-        score += runFitness(runs, cluesX[r].getNumbers());
+    function backtrack(
+        clueIndex: number,
+        position: number,
+        current: CellState[]
+    ) {
+        // If all clues placed
+        if (clueIndex === clue.length) {
+            // Fill remainder with empty
+            if (position <= length) {
+                const row = [
+                    ...current,
+                    ...Array(length - position).fill(CellState.Marked)
+                ];
+                results.push(row);
+            }
+            return;
+        }
+
+        const runLength = clue[clueIndex];
+
+        // Calculate minimum required space remaining after this run
+        const remainingRuns = clue.length - clueIndex - 1;
+        const minRemainingLength =
+            clue
+                .slice(clueIndex + 1)
+                .reduce((a, b) => a + b, 0)
+            + remainingRuns; // spaces between remaining runs
+
+        // Try all valid start positions
+        for (
+            let start = position;
+            start <= length - runLength - minRemainingLength;
+            start++
+        ) {
+            const newRow = [...current];
+
+            // Fill gap before run
+            for (let i = position; i < start; i++) {
+                newRow.push(CellState.Marked);
+            }
+
+            // Fill run
+            for (let i = 0; i < runLength; i++) {
+                newRow.push(CellState.Filled);
+            }
+
+            let nextPos = start + runLength;
+
+            // Add required space after run (if not last run)
+            if (clueIndex < clue.length - 1) {
+                newRow.push(CellState.Marked);
+                nextPos++;
+            }
+
+            backtrack(clueIndex + 1, nextPos, newRow);
+        }
     }
 
-    // Columns
-    for (let c = 0; c < testGrid[0].length; c++) {
-        const column = testGrid.map(row => row[c]);
-        const runs = getRuns(column);
-        score += runFitness(runs, cluesY[c].getNumbers());
+    // Special case: empty clue
+    if (clue.length === 0) {
+        return [Array(length).fill(CellState.Marked)];
     }
 
-    return score;
+    backtrack(0, 0, []);
+    return results;
 }
 
-// -------------------------------
-// SELECTION
-// -------------------------------
-function selectParent(population: TestGrid[], fitnesses: number[]): TestGrid {
-    // Simple roulette-wheel selection
-    const totalFitness = fitnesses.reduce((a, b) => a + b, 0);
-    let pick = Math.random() * totalFitness;
-    for (let i = 0; i < population.length; i++) {
-        pick -= fitnesses[i];
-        if (pick <= 0) return cloneGrid(population[i]);
+function chromosomeToGrid(
+    chromosome: Chromosome,
+    rowOptions: CellState[][][]
+): CellState[][] {
+    return chromosome.map((gene, r) =>
+        [...rowOptions[r][gene]]
+    );
+}
+
+function columnDistance(
+    column: CellState[],
+    validPatterns: CellState[][]
+): number {
+
+    let best = Infinity;
+
+    for (const pattern of validPatterns) {
+        let dist = 0;
+        for (let i = 0; i < column.length; i++) {
+            if (column[i] !== pattern[i]) dist++;
+        }
+        best = Math.min(best, dist);
     }
-    return cloneGrid(population[population.length - 1]);
+
+    return best;
 }
 
-// -------------------------------
-// CROSSOVER
-// -------------------------------
-function crossover(parent1: TestGrid, parent2: TestGrid): TestGrid {
-    const rows = parent1.length;
-    const cols = parent1[0].length;
-    const child: TestGrid = [];
+function fitness(
+    chromosome: Chromosome,
+    rowOptions: CellState[][][],
+    colOptions: CellState[][][]
+): number {
 
-    for (let r = 0; r < rows; r++) {
-        // Simple row-based crossover
-        child.push(Math.random() < 0.5 ? [...parent1[r]] : [...parent2[r]]);
+    const grid = chromosomeToGrid(chromosome, rowOptions);
+    let totalPenalty = 0;
+
+    for (let c = 0; c < grid[0].length; c++) {
+        const column = grid.map(row => row[c]);
+        totalPenalty += columnDistance(column, colOptions[c]);
+    }
+
+    for (let c = 0; c < grid[0].length; c++) {
+        const row = grid[c];
+        totalPenalty += columnDistance(row, rowOptions[c]);
+    }
+
+    return -totalPenalty; // 0 is perfect
+}
+
+function tournamentSelect(
+    population: Chromosome[],
+    fitnesses: number[],
+    k = 3
+): Chromosome {
+
+    let bestIndex = -1;
+
+    for (let i = 0; i < k; i++) {
+        const idx = Math.floor(Math.random() * population.length);
+        if (bestIndex === -1 || fitnesses[idx] > fitnesses[bestIndex]) {
+            bestIndex = idx;
+        }
+    }
+
+    return [...population[bestIndex]];
+}
+
+function crossover(p1: Chromosome, p2: Chromosome): Chromosome {
+    const child: Chromosome = [];
+
+    for (let r = 0; r < p1.length; r++) {
+        child[r] = Math.random() < 0.5 ? p1[r] : p2[r];
     }
 
     return child;
 }
 
-// -------------------------------
-// MUTATION
-// -------------------------------
-function mutate(grid: TestGrid): void {
-    const rows = grid.length;
-    const cols = grid[0].length;
-
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            if (Math.random() < MUTATION_RATE) {
-                grid[r][c] = grid[r][c] === 2 ? 1 : 2; // flip cell
-            }
+function mutate(
+    chromosome: Chromosome,
+    rowOptions: CellState[][][]
+) {
+    for (let r = 0; r < chromosome.length; r++) {
+        if (Math.random() < MUTATION_RATE) {
+            chromosome[r] =
+                Math.floor(Math.random() * rowOptions[r].length);
         }
     }
 }
 
-// -------------------------------
-// MAIN GA LOOP
-// -------------------------------
+function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[]] {
+    let bestGrids: TestGrid[] = []
+    const [cols, rows] = grid.getSize();
 
-function getRuns(line: CellState[]): number[] {
-    const runs: number[] = [];
-    let current = 0;
+    const cluesX = grid.getCluesX();
+    const cluesY = grid.getCluesY();
 
-    for (const cell of line) {
-        if (cell === CellState.Filled) {
-            current++;
-        } else if (current > 0) {
-            runs.push(current);
-            current = 0;
-        }
+    // Precompute valid row/column patterns
+    const rowOptions = cluesX.map(clue =>
+        generateValidPatterns(clue.getNumbers(), cols)
+    );
+
+    const colOptions = cluesY.map(clue =>
+        generateValidPatterns(clue.getNumbers(), rows)
+    );
+
+    // Initialize population
+    let population: Chromosome[] = [];
+
+    for (let i = 0; i < POPULATION_SIZE; i++) {
+        population.push(
+            rowOptions.map(options =>
+                Math.floor(Math.random() * options.length)
+            )
+        );
     }
-    if (current > 0) runs.push(current);
 
-    return runs;
+    for (let generation = 0; generation < NUM_GENERATIONS; generation++) {
+
+        const fitnesses = population.map(ch =>
+            fitness(ch, rowOptions, colOptions)
+        );
+
+        const bestFitness = Math.max(...fitnesses);
+        const bestIndex = fitnesses.indexOf(bestFitness);
+
+        console.log(`Gen ${generation}: Best = ${bestFitness}`);
+
+        if (generation % 100 === 0) {
+            //console.log(`Gen ${generation}: Best = ${bestFitness}`);
+            bestGrids.push(chromosomeToGrid(population[bestIndex], rowOptions))
+        }
+
+        if (bestFitness === 0) {
+            console.log("Solved at generation", generation);
+            return [chromosomeToGrid(population[bestIndex], rowOptions),bestGrids];
+        }
+
+        const newPopulation: Chromosome[] = [];
+
+        // Elitism
+        for (let i = 0; i < ELITE_COUNT; i++) {
+            newPopulation.push([...population[bestIndex]]);
+        }
+
+        while (newPopulation.length < POPULATION_SIZE) {
+            const p1 = tournamentSelect(population, fitnesses);
+            const p2 = tournamentSelect(population, fitnesses);
+            const child = crossover(p1, p2);
+            mutate(child, rowOptions);
+            newPopulation.push(child);
+        }
+
+        population = newPopulation;
+    }
+
+    return [null, bestGrids];
 }
 
-function runFitness(runs: number[], clue: readonly number[]): number {
-    let score = 0;
+function geneticSolve(grid: Grid): boolean {
+    const solution = geneticAlgorithm(grid);
+    if (!solution[0]) return false;
 
-    // Penalize run count mismatch
-    score -= Math.abs(runs.length - clue.length) * 2;
-
-    // Penalize run length mismatch
-    const min = Math.min(runs.length, clue.length);
-    for (let i = 0; i < min; i++) {
-        score -= Math.abs(runs[i] - clue[i]);
-    }
-
-    return score;
-}
-
-function isSolved(
-    grid: TestGrid,
-    cluesX: Clues[],
-    cluesY: Clues[]
-): boolean {
-
-    // Check all rows
-    for (let r = 0; r < grid.length; r++) {
-        if (!cluesX[r].checkClue(grid[r])) {
-            return false;
-        }
-    }
-
-    // Check all columns
-    for (let c = 0; c < grid[0].length; c++) {
-        const column = grid.map(row => row[c]);
-        if (!cluesY[c].checkClue(column)) {
-            return false;
-        }
-    }
+    solution[0].forEach((row, x) => {
+        row.forEach((cell, y) => {
+            grid.updateCell(x, y, cell);
+        });
+    });
 
     return true;
 }
 
 
-function geneticAlgorithm(grid:Grid): [TestGrid, TestGrid[]] {
-    let bestGrids: TestGrid[] = [];
-    const [cols, rows] = grid.getSize();
-    // Initialize population
-    let population: TestGrid[] = [];
-    for (let i = 0; i < POPULATION_SIZE; i++) {
-        population.push(makeRandomGrid(cols, rows, 0.5).map(col => col.map(cell => cell ? CellState.Filled : CellState.Marked)));
-    }
 
-    for (let generation = 0; generation < NUM_GENERATIONS; generation++) {
-        const rawFitnesses = population.map(testGrid =>
-            fitness(testGrid, grid.getCluesX(), grid.getCluesY())
-        );
-        const minFitness = Math.min(...rawFitnesses);
-        const fitnesses = rawFitnesses.map(f => f - minFitness + 1);
-
-        // Check for solution
-        const maxFitness = Math.max(...fitnesses);
-        const bestIndex = fitnesses.indexOf(maxFitness);
-        bestGrids.push(cloneGrid(population[bestIndex]));
-        if (generation % 100 === 0) {
-            console.log(`Gen ${generation}: Best fitness = ${maxFitness}`);
-        }
-        for (let i = 0; i < population.length; i++) {
-            if (isSolved(population[i], grid.getCluesX(), grid.getCluesY())) {
-                console.log("Solved at generation", generation);
-                return [population[i], bestGrids];
-            }
-        }
-
-
-        // Create next generation
-        const newPopulation: TestGrid[] = [];
-        while (newPopulation.length < POPULATION_SIZE) {
-            const parent1 = selectParent(population, fitnesses);
-            const parent2 = selectParent(population, fitnesses);
-            const child = crossover(parent1, parent2);
-            mutate(child);
-            newPopulation.push(child);
-            newPopulation.push(cloneGrid(population[bestIndex]));
-        }
-        population = newPopulation;
-    }
-    const finalBestIndex = population.map(testGrid => fitness(testGrid, grid.getCluesX(), grid.getCluesY()))
-        .indexOf(Math.max(...population.map(testGrid => fitness(testGrid, grid.getCluesX(), grid.getCluesY()))));
-    return [population[finalBestIndex], bestGrids];
-}
-
-function geneticSolve(grid: Grid) {
+function geneticSolveSteps(grid: Grid):TestGrid[] {
     let solution = geneticAlgorithm(grid)
-    if (solution) {
-        if (solution[0]) {
-            solution[0].forEach((col, x) => {
-                col.forEach((cell, y) => {
-                    grid.updateCell(x, y, cell)
-                })
-            })
-        }
-    }
-    return solution !== undefined
-}
-
-async function geneticSolveSteps(grid: Grid) {
-    async function sleep(ms: number): Promise<void> {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-    let solution = geneticAlgorithm(grid)
-    for (let i = 0; i < solution[1].length; i++) {
-        if (solution[1][i]) {
-            solution[1][i].forEach((col, x) => {
-                col.forEach((cell, y) => {
-                    grid.updateCell(x, y, cell)
-                })
-            })
-        }
-        await sleep(1000)
-    }
+    return solution[1]
 }
 
 

@@ -10,5 +10,5 @@ test('renders learn react link', () => {
 
 test('updating lock works', () =>{
   render(<App />);
-  jest.mock()
+  //jest.mock()
 })

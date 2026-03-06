@@ -5,6 +5,7 @@ import React from "react";
 import { CellState, Grid} from "./nonogram";
 import {BacktrackSolve, getBacktrackSolution} from "./solvers/backtracking-solver";
 import {pageLock} from "../app/pages/util/page";
+import {geneticSolveSteps, TestGrid} from "./solvers/genetic-solver";
 
 let incorrectInput = false;
 
@@ -15,6 +16,8 @@ interface BoardProps {
     nonInteractive?: boolean;
     inputOrder?: [number, number, CellState][][]
     inputGraphic?: [number, number, CellState][][]
+    geneticGraphic?: boolean;
+    graphicSpeed?: number;
     hideClueColumn?: boolean;
     hideClueRow?: boolean;
     lock?: (locked: boolean) => void
@@ -45,18 +48,30 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow, lock }) => {
+export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow, lock, geneticGraphic, graphicSpeed = 0.1 }) => {
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
     let inputNumber = 0;
     const [cols, rows] = grid.getSize();
 
-    const handlePlayGraphic = async (playSpeed: number) => {
+    const handlePlayGraphic = async () => {
         if (!inputGraphic) return;
         for (let input of inputGraphic){
             updateCell(input[0][0], input[0][1], input[0][2])
-            await sleep(playSpeed * 1000);
+            await sleep(graphicSpeed * 1000);
+        }
+    };
+
+    const handlePlayGeneticGraphic = async () => {
+        if (!geneticGraphic) return;
+        let grids = geneticSolveSteps(grid.clone());
+        for (let exampleGrid of grids){
+            grid.setStates(exampleGrid)
+            const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
+            onGridChange?.(cloned);
+            grid.save();
+            await sleep(graphicSpeed * 1000);
         }
     };
 
@@ -235,7 +250,15 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                 {inputGraphic && (
                     <button
                         style={{ marginTop: "1rem", width: "100%" }}
-                        onClick={() => handlePlayGraphic(1)}
+                        onClick={() => handlePlayGraphic()}
+                    >
+                        Play
+                    </button>
+                )}
+                {geneticGraphic && (
+                    <button
+                        style={{ marginTop: "1rem", width: "100%" }}
+                        onClick={() => handlePlayGeneticGraphic()}
                     >
                         Play
                     </button>

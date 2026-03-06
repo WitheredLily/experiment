@@ -5,7 +5,7 @@ import {Grid} from "../../game/nonogram";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
-import {geneticSolve} from "../../game/solvers/genetic-solver";
+import {geneticSolve, geneticSolveSteps} from "../../game/solvers/genetic-solver";
 import {number} from "zod";
 
 export function Page0({ createLink }: PageProps) {
@@ -13,8 +13,8 @@ export function Page0({ createLink }: PageProps) {
     const [grid2, setGrid2] = useState<Grid | null>(null);
     const [grid3, setGrid3] = useState<Grid | null>(null);
 
-    const cols1 = 10;
-    const rows1 = 10;
+    const cols1 = 8;
+    const rows1 = 8;
 
     loadingGrid("gridA1", cols1, rows1, setGrid1, 0.5);
     loadingGrid("gridA2", cols1, rows1, setGrid2, 0.75);
@@ -38,7 +38,7 @@ export function Page0({ createLink }: PageProps) {
                 <p>Backtracking</p>
                 <VisualGrid grid={grid2} onGridChange={setGrid2} selfSolving={BacktrackSolve} />
                 <p>Genetic</p>
-                <VisualGrid grid={grid3} onGridChange={setGrid3} selfSolving={geneticSolve} />
+                <VisualGrid grid={grid3} onGridChange={setGrid3} selfSolving={geneticSolve} geneticGraphic={true} />
             </div>
             <nav className={"navButton"}>
                 {createLink(1,"Start")}

@@ -37,6 +37,26 @@ function loadingGrid(gridId:string, cols:number, rows:number, setGrid: (g: any) 
     }, []);
 }
 
+export async function setData(baseUrl: string, id: string, data: unknown) {
+    const response = await fetch(`${baseUrl}/api/set`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            id,
+            data,
+        }),
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Request failed: ${response.status} ${text}`);
+    }
+
+    return response.json();
+}
+
 export {loadingGrid}
 export type { PageProps}
 /*

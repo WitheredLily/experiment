@@ -8,6 +8,8 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import {AttributeType, Table} from "aws-cdk-lib/aws-dynamodb";
+import {RemovalPolicy} from "aws-cdk-lib";
 
 export class StuffStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -30,6 +32,11 @@ export class StuffStack extends cdk.Stack {
             proxy: true,
         });
 
+        const apiDomain = cdk.Fn.select(2, cdk.Fn.split('/', api.url));
+        const apiOrigin = new origins.HttpOrigin(apiDomain, {
+            originPath: '',
+        });
+
         // --- Secure S3 Bucket ---
         const bucket = new s3.Bucket(this, 'WebsiteBucket', {
             bucketName: 'my-test-bucket-612931696237',
@@ -45,25 +52,68 @@ export class StuffStack extends cdk.Stack {
         // --- CloudFront Distribution ---
         const distribution = new cloudfront.Distribution(this, 'WebsiteDistribution', {
             defaultRootObject: 'index.html',
+
             defaultBehavior: {
                 origin: new origins.S3Origin(bucket, { originAccessIdentity }),
                 viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             },
+
+            additionalBehaviors: {
+                'api/*': {
+                    origin: apiOrigin,
+                    viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                    allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+                    cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+                    originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+                },
+            },
+
             errorResponses: [
                 {
                     httpStatus: 403,
                     responseHttpStatus: 200,
                     responsePagePath: '/index.html',
-                    ttl: cdk.Duration.minutes(5),
                 },
                 {
                     httpStatus: 404,
                     responseHttpStatus: 200,
                     responsePagePath: '/index.html',
-                    ttl: cdk.Duration.minutes(5),
                 },
             ],
         });
+
+        // --- DynamoDB Table ---
+        const tableName = 'data';
+
+        const table = new Table(this, 'DataTable', {
+            partitionKey: {
+                name: 'id',
+                type: AttributeType.STRING,
+            },
+
+            sortKey: {
+                name: 'createdAt',
+                type: AttributeType.NUMBER,
+            },
+
+            removalPolicy: RemovalPolicy.DESTROY,
+        });
+
+        table.addGlobalSecondaryIndex({
+            indexName: 'userIndex',
+            partitionKey: {
+                name: 'userId',
+                type: AttributeType.STRING,
+            },
+            sortKey: {
+                name: 'createdAt',
+                type: AttributeType.NUMBER,
+            },
+        });
+
+        table.grantReadWriteData(serverLambda);
+
+        serverLambda.addEnvironment('DYNAMO_TABLE', table.tableName);
 
         // --- Deploy build/ to S3 ---
         new s3deploy.BucketDeployment(this, 'WebsiteDeployment', {

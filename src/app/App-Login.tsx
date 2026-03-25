@@ -2,9 +2,11 @@ import React, {JSX, useState} from "react";
 import {HashRouter, Link, Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import {pageLock} from "./pages/util/page";
 import * as pages from "./pages";
-import "./App.css";
+import "./App-Login.css";
+import {v4 as uuidv4} from "uuid";
 
-export default function App() {
+export default function AppStudent() {
+
     localStorage.clear();
     let navigate = useNavigate();
     const pageArray = Object.values(pages);
@@ -50,35 +52,23 @@ export default function App() {
     );
     return (
         <div className="App">
-            {/* Navigation */}
-                <div className="tab" id="nav-bar">
-                    <nav>
-                    {pageArray.map((_, i) => (
-                        maxPage >= i && (
-                            <button
-                                key={i}
-                                className={`tablinks ${currentPage === i ? "active" : ""}`}
-                                onClick={() => changeCurrentPage(i)}
-                            >
-                                {i}
-                            </button>
-                        )
-                    ))}
-                    </nav>
-                </div>
+            <div className="title" >
+                <h1>Welcome to Nonogram</h1>
 
-            {/* Routes */}
-            <div className="tabContentContainer">
-            <Routes>
-                <Route path="/" element={<Navigate to={`/page${currentPage}`} />} />
-                {pageArray.map((Page, i) => (
-                    <Route
-                        key={i}
-                        path={`/page${i}`}
-                        element={i <= maxPage ? <Page createLink={createLink} navigate={changeCurrentPage} useLockableLink={useLockableLink}/> : <Navigate to={`/page${maxPage}`} />}
-                    />
-                ))}
-            </Routes>
+            </div>
+            <div className="login">
+                <div className="login-form">
+                    <p>Teacher Login</p>
+                    <a href="http://localhost:3005/">
+                        <button>Login</button>
+                    </a>
+                </div>
+                <div className="login-form">
+                    <p>Student Login</p>
+                    <a href="http://localhost:3000/">
+                        <button>Login</button>
+                    </a>
+                </div>
             </div>
         </div>
     );

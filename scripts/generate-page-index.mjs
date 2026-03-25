@@ -7,7 +7,7 @@ function capitalizeFirstLetter(string) {
 
 const pagesDir = path.resolve("src/app/pages");
 const files = readdirSync(pagesDir)
-    .filter((f) => f.endsWith(".tsx") && f.toLowerCase() !== "index.tsx");
+    .filter((f) => f.endsWith(".tsx") && f.toLowerCase() !== "index-student.tsx");
 
 const exports = files
     .map((f) => {

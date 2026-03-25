@@ -20,9 +20,11 @@
     "aws-cdk-lib": "2.220.0",
     "bootstrap": "^5.3.8",
     "constructs": "^10.4.2",
+    "dom-to-image": "^2.6.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "genetic-search": "^13.5.0",
+    "puppeteer": "^24.40.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
@@ -36,6 +38,7 @@
     "build-pages": "node scripts/generate-page-index.mjs",
     "bootstrap": "cdk bootstrap --profile ted --force",
     "deploy-cdk": "cdk deploy --profile ted",
+    "deploy-force": "cdk deploy --profile ted --force",
     "deploy-cdk-full": "npm run build-app && npm run deploy-cdk",
     "test": "jest",
     "eject": "react-scripts eject",
@@ -47,11 +50,14 @@
     "start-app1": "npm run build-app && npm run serve",
     "start-app": "npm run build-app && npm run dev",
     "start-server": "ts-node-dev --respawn --transpile-only src/server/index.ts",
-    "dev": "vite",
-    "dev-teacher": "vite --port 3005",
-    "build": "vite build",
+    "dev": "concurrently \"npm run dev-login\" \"npm run dev-student\" \"npm run dev-teacher\"",
+    "dev-login": "vite --config vite.config.login.ts --open index-login.html",
+    "dev-student": "vite --config vite.config.student.ts --open index-student.html",
+    "dev-teacher": "vite --config vite.config.teacher.ts --open index-teacher.html",
+    "build": "vite build --config vite.config.student.ts && vite build --config vite.config.teacher.ts && vite build --config vite.config.login.ts",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "generate-images": "npm start  scripts/images/my-react-app/src/generate-images.jsx"
   },
   "eslintConfig": {
     "extends": [
@@ -72,11 +78,13 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.28.5",
     "@types/aws-lambda": "^8.10.157",
     "@types/bootstrap": "^5.2.10",
     "@types/jest": "^30.0.0",
     "@vitejs/plugin-react": "^5.1.4",
     "aws-cdk": "2.1030.0",
+    "concurrently": "^9.2.1",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "ts-jest": "^29.4.5",

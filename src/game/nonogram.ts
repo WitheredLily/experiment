@@ -250,6 +250,43 @@ export function rowsToGrid(grid: boolean[][], id: string): Grid {
     return new Grid(numbersX, numbersY, id);
 }
 
+export function boolToStates(grid: boolean[][]): CellState[][] {
+    return grid.map(col => col.map(value => (value ? CellState.Filled : CellState.Blank)));
+}
+
+export function makeGrid(grid: boolean[][]): Grid {
+    const numbersX: number[][] = grid.map(col => {
+        const counts: number[] = [];
+        let currentCount = 0;
+        col.forEach(value => {
+            if (value) {
+                currentCount++;
+            } else if (currentCount > 0) {
+                counts.push(currentCount);
+                currentCount = 0;
+            }
+        });
+        if (currentCount > 0) counts.push(currentCount);
+        return counts;
+    });
+    const numbersY: number[][] = Array.from({ length: grid[0].length }, (_, y) => {
+        const counts: number[] = [];
+        let currentCount = 0;
+        for (let x = 0; x < grid.length; x++) {
+            if (grid[x][y]) {
+                currentCount++;
+            } else if (currentCount > 0) {
+                counts.push(currentCount);
+                currentCount = 0;
+            }
+        }
+        if (currentCount > 0) counts.push(currentCount);
+        return counts;
+    });
+    return new Grid(numbersX, numbersY, undefined, boolToStates(grid));
+}
+
+
 function checkSolvedAxis(clues: Clues[]) {
     for (const clue of clues) {
         if (clue.getState() !== ClueStates.Correct) {

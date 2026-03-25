@@ -34,10 +34,9 @@ export function Page1({ createLink, useLockableLink}: PageProps) {
     return (
         <div>
             <div className="tabContent-header">
-                <h1>Hello</h1>
+                <h1>What is a nonogram?</h1>
             </div>
         <div className="tabContent">
-            <h1>What is a nonogram?</h1>
             <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
             <VisualGrid grid={grid} nonInteractive={true}/>
             <nav className={"navButton"}>

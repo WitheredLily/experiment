@@ -13,8 +13,7 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
     const [gridQuizSolution, setGridQuizSolution] = useState<Grid | null>(null);
 
     const [gridBacktrack, setGridBacktrack] = useState<Grid | null>(null);
-
-
+    // Simple squares
     function leftRightMost(clues: number[], size: number): boolean[][] {
         const left = Array(size).fill(false);
         const right = Array(size).fill(false);
@@ -45,24 +44,19 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
         return left.map((_, i) => [left[i], right[i]]);
     }
 
-    gridBacktrack
+    const gridSimpleSquare1 = rowsToGrid([[true,false],[true,false],[true,true],[true,true],[false,true],[true,true],[true,false],[true,true],[false,true],[false,true]],"simpleSquares")
+    const gridSimpleSquare2 = rowsToGrid([[false],[false],[true],[true],[false],[false],[false],[true],[false],[false]],"simpleSquaresSolution")
+    const [cols1,rows1] = gridSimpleSquare1.getSize();
 
-    const grid1 = rowsToGrid([[true,false],[true,false],[true,true],[true,true],[false,true],[true,true],[true,false],[true,true],[false,true],[false,true]],"simpleSquares")
-    const grid2 = rowsToGrid([[false],[false],[true],[true],[false],[false],[false],[true],[false],[false]],"simpleSquaresSolution")
+    const simpleSquareQuiz = rowsToGrid(leftRightMost([3,4,5], 16),"simpleSquaresQuiz")
+    const simpleSquareQuizSolution = rowsToGrid([[false],[false],[true],[false],[false],[false],[true],[true],[false],[false],[false],[true],[true],[true],[false],[false]],"simpleSquaresSolution")
+    const [cols2,rows2] = gridSimpleSquare1.getSize();
 
-    const [cols1,rows1] = grid1.getSize();
+    loadingGrid("simpleSquares", cols1, rows1, setGrid1, 0.5, gridSimpleSquare1);
+    loadingGrid("simpleSquaresSolution", 1, rows1, setGrid2, 0.5, gridSimpleSquare2);
 
-
-    const quiz = rowsToGrid(leftRightMost([3,4,5], 16),"simpleSquaresQuiz")
-    const quizSolution = rowsToGrid([[false],[false],[true],[false],[false],[false],[true],[true],[false],[false],[false],[true],[true],[true],[false],[false]],"simpleSquaresSolution")
-
-    const [cols2,rows2] = grid1.getSize();
-
-    loadingGrid("simpleSquares", cols1, rows1, setGrid1, 0.5, grid1);
-    loadingGrid("simpleSquaresSolution", 1, rows1, setGrid2, 0.5, grid2);
-
-    loadingGrid("simpleSquaresQuiz", cols2, rows2, setGridQuiz, 0.5, quiz);
-    loadingGrid("simpleSquaresQuizSolution", 1, rows2, setGridQuizSolution, 0.5, quizSolution);
+    loadingGrid("simpleSquaresQuiz", cols2, rows2, setGridQuiz, 0.5, simpleSquareQuiz);
+    loadingGrid("simpleSquaresQuizSolution", 1, rows2, setGridQuizSolution, 0.5, simpleSquareQuizSolution);
 
     loadingGrid("backtracking", 4, 4, setGridBacktrack, 0.5);
 
@@ -81,52 +75,86 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
     return (
         <div>
             <div className="tabContent-header">
-                <h1>Hello</h1>
+                <h1>How to solve a nonogram</h1>
             </div>
         <div style={{ padding: "1rem" }} className="tabContent">
-            <h1>Hi, this section talks about how to solve a nonogram</h1>
+            <div className="learning-section">
+                <h2>Simple Boxes</h2>
 
-            <h2>Simple Boxes</h2>
+                <p>By considering the overlap of the same cell groups in the leftmost and rightmost solutions you can determine that some cells have to be filled</p>
+                <div className="shrink-wrap-container">
+                    <VisualGrid grid={gridExample} nonInteractive={true} hideClueColumn={true} />
+                    <br/>
+                    <span className="arrow-symbol">&#8595;</span>
+                    <br/>
+                    <VisualGrid grid={gridSolution} nonInteractive={true} hideClueColumn={true} />
+                    <br/>
+                </div>
+                <div className="question-container">
+                    <div className="shrink-wrap-container">
+                        <p>here is one to test yourself with</p>
+                        <VisualGrid grid={gridQuiz} nonInteractive={true} hideClueColumn={true} />
+                        <br/>
+                        <span className="arrow-symbol">&#8595;</span>
+                        <br/>
+                        <VisualGrid grid={gridQuizSolution} onGridChange={setGridQuizSolution} hideClueColumn={true} hideClueRow={true} lock={setLock}/>
+                    </div>
+                </div>
+            </div>
 
-            <p>By considering the overlap of the same cell groups in the leftmost and rightmost solutions you can determine that some cells have to be filled</p>
-            <VisualGrid grid={gridExample} nonInteractive={true} hideClueColumn={true} />
-            <br/>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Eo_circle_green_arrow-down.svg/2048px-Eo_circle_green_arrow-down.svg.png" width="5%" alt="arrow"></img>
-            <br/>
-            <VisualGrid grid={gridSolution} nonInteractive={true} hideClueColumn={true} />
-            <br/>
+            <div className="learning-section">
+                <h2>Simple Spaces</h2>
+                <p>This method involves finding which cells are out of range for being possible</p>
+                <div className="shrink-wrap-container">
+                    <VisualGrid grid={gridExample} nonInteractive={true} hideClueColumn={true} />
+                    <br/>
+                    <span className="arrow-symbol">&#8595;</span>
+                    <br/>
+                    <VisualGrid grid={gridSolution} nonInteractive={true} hideClueColumn={true} />
+                    <br/>
+                </div>
+                <div className="question-container">
+                    <div className="shrink-wrap-container">
+                        <p>here is one to test yourself with</p>
+                        <VisualGrid grid={gridQuiz} nonInteractive={true} hideClueColumn={true} />
+                        <br/>
+                        <span className="arrow-symbol">&#8595;</span>
+                        <br/>
+                        <VisualGrid grid={gridQuizSolution} onGridChange={setGridQuizSolution} hideClueColumn={true} hideClueRow={true} lock={setLock}/>
+                    </div>
+                </div>
+            </div>
 
+            <div className="learning-section">
+                <h2>Glue</h2>
+                <p>When a filled cell is near to an edge either the edge of the board or a cell marked as can't be filled you may be able to determine a minium amount of cells that have to be filled</p>
+            </div>
 
-            <p>here is one to test yourself with</p>
-            <VisualGrid grid={gridQuiz} nonInteractive={true} hideClueColumn={true} />
-            <br/>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Eo_circle_green_arrow-down.svg/2048px-Eo_circle_green_arrow-down.svg.png" width="5%" alt="arrow"></img>
-            <br/>
-            <VisualGrid grid={gridQuizSolution} onGridChange={setGridQuizSolution} hideClueColumn={true} hideClueRow={true} lock={setLock}/>
+            <div className="learning-section">
+                <h2>Joining and splitting</h2>
+                <p>When marked cells have a single space between them you may be able to determine whether they must be connected or if they cannot be based on the clue size.</p>
+            </div>
 
-            <h2>Simple Spaces</h2>
-            <p>This method involves finding which cells are out of range for being possible</p>
+            <div className="learning-section">
+                <h2>Punctuating</h2>
+                <p>This is simply once you have determined a group filled cells is as big as it can get either side of it should be marked</p>
+            </div>
 
-            <h2>Glue</h2>
-            <p>When a filled cell is near to an edge either the edge of the board or a cell marked as can't be filled you may be able to determine a minium amount of cells that have to be filled</p>
+            <div className="learning-section">                <h2>Contradictions</h2>
+                <p>This is when you try a possible cell and seeing if you continue filling based on that does it reach a point with contradictions if it does you know that the initial cell is wrong</p>
+            </div>
 
-            <h2>Joining and splitting</h2>
-            <p>When marked cells have a single space between them you may be able to determine whether they must be connected or if they cannot be based on the clue size.</p>
+            <div className="learning-section">                <h2>Mathematical approach</h2>
+                <p></p>
+            </div>
 
-            <h2>Punctuating</h2>
-            <p>This is simply once you have determined a group filled cells is as big as it can get either side of it should be marked</p>
-
-            <h2>Contradictions</h2>
-            <p>This is when you try a possible cell and seeing if you continue filling based on that does it reach a point with contradictions if it does you know that the initial cell is wrong</p>
-
-            <h2>Mathematical approach</h2>
-            <p></p>
-
-
-            <h2>Back Tracking</h2>
-            <p>This method involves trying possible solutions and every time you encounter an incorrect solution you take a step back and try the other path. This method is difficult and time consuming for humans to do by hand though certain nonograms may require it. Here is an example of backtracking being used.</p>
-            <VisualGrid grid={gridBacktrack} onGridChange={setGridBacktrack} nonInteractive={true} inputGraphic={getBacktrackSolution(gridBacktrack)}/>
-            <button onClick={() => {setLock(false)}}>Unlock</button>
+            <div className="learning-section">                <h2>Back Tracking</h2>
+                <p>This method involves trying possible solutions and every time you encounter an incorrect solution you take a step back and try the other path. This method is difficult and time consuming for humans to do by hand though certain nonograms may require it. Here is an example of backtracking being used.</p>
+                <div className="graphic-container">
+                    <VisualGrid grid={gridBacktrack} onGridChange={setGridBacktrack} nonInteractive={true} inputGraphic={getBacktrackSolution(gridBacktrack)}/>
+                    <button onClick={() => {setLock(false)}}>Unlock</button>
+                </div>
+            </div>
 
             <nav className={"navButton"}>
                 {createLink(1, "Back")} | {lockedButton}

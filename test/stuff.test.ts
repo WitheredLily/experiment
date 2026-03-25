@@ -5,7 +5,7 @@
 // example test. To run these tests, uncomment this file along with the
 // example resource in lib/stuff-stack.ts
 test('SQS Queue Created', () => {
-//   const app = new cdk.App();
+//   const app = new cdk.AppStudent();
 //     // WHEN
 //   const stack = new Stuff.StuffStack(app, 'MyTestStack');
 //     // THEN

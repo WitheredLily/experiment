@@ -39,3 +39,23 @@ test("Genetic Solver", () => {
         expect(gridCheck(grid)).toBe(true);
     }
 });
+
+test("Genetic Solver Success Rate", () => {
+    let gridNum = 100
+    let solveRates = new Map<number, [number,number]>()
+    for (let n=3; n<=20; n+=1) {
+        let solvedGrids = 0
+        let solvedIterations = 0
+        for (let i = 0; i < gridNum; i++) {
+            let grid: Grid = rowsToGrid(makeRandomGrid(n, n, 0.5), "genetic")
+            const [solved,gens] = geneticSolve(grid);
+            if (solved !== null) {
+                solvedGrids += 1
+                solvedIterations += gens
+            }
+        }
+        solveRates.set(n, [solvedGrids / gridNum, solvedIterations / solvedGrids])
+        console.log(`Solved ${solvedGrids} out of ${gridNum} grids with ${n}x${n} grid. Average solved in ${solvedIterations / solvedGrids} generations.`)
+    }
+    console.log(solveRates)
+});

@@ -1,9 +1,11 @@
 import {Grid, CellState, Clues, makeRandomGrid} from "../nonogram"
 
 const POPULATION_SIZE = 200;
-const MUTATION_RATE = 0.03;
+const BASE_MUTATION_RATE = 0.02;
+let MUTATION_RATE = BASE_MUTATION_RATE;
 const NUM_GENERATIONS = 10000;
 const ELITE_COUNT = 1;
+const STAGNATION_LIMIT = 500;
 
 export type TestGrid = CellState[][];
 
@@ -110,26 +112,26 @@ function columnDistance(
     return best;
 }
 
-function fitness(
-    chromosome: Chromosome,
-    rowOptions: CellState[][][],
+function fitness(chromosome: Chromosome, rowOptions: CellState[][][],
     colOptions: CellState[][][]
 ): number {
-
-    const grid = chromosomeToGrid(chromosome, rowOptions);
     let totalPenalty = 0;
 
-    for (let c = 0; c < grid[0].length; c++) {
-        const column = grid.map(row => row[c]);
+    // Columns
+    for (let c = 0; c < colOptions.length; c++) {
+        const column = chromosome.map((gene, r) =>
+            rowOptions[r][gene][c]
+        );
         totalPenalty += columnDistance(column, colOptions[c]);
     }
 
-    for (let c = 0; c < grid[0].length; c++) {
-        const row = grid[c];
-        totalPenalty += columnDistance(row, rowOptions[c]);
-    }
+    // // Rows
+    // for (let r = 0; r < grid.length; r++) {
+    //     const row = grid[r];
+    //     totalPenalty += columnDistance(row, rowOptions[r]);
+    // }
 
-    return -totalPenalty; // 0 is perfect
+    return -totalPenalty;
 }
 
 function tournamentSelect(
@@ -151,28 +153,131 @@ function tournamentSelect(
 }
 
 function crossover(p1: Chromosome, p2: Chromosome): Chromosome {
-    const child: Chromosome = [];
+    const point = Math.floor(Math.random() * p1.length);
+    return [
+        ...p1.slice(0, point),
+        ...p2.slice(point)
+    ];
+}
 
-    for (let r = 0; r < p1.length; r++) {
-        child[r] = Math.random() < 0.5 ? p1[r] : p2[r];
+function rowsConflictingWithBestPattern(
+    chromosome: Chromosome,
+    rowOptions: CellState[][][],
+    colOptions: CellState[][][],
+    columnIndex: number
+): number[] {
+
+    const column = chromosome.map((gene, r) =>
+        rowOptions[r][gene][columnIndex]
+    );
+
+    let bestPattern = colOptions[columnIndex][0];
+    let bestDist = Infinity;
+
+    for (const pattern of colOptions[columnIndex]) {
+        let dist = 0;
+        for (let i = 0; i < column.length; i++) {
+            if (column[i] !== pattern[i]) dist++;
+        }
+
+        if (dist < bestDist) {
+            bestDist = dist;
+            bestPattern = pattern;
+        }
     }
 
-    return child;
+    const conflictingRows: number[] = [];
+
+    for (let r = 0; r < column.length; r++) {
+        if (column[r] !== bestPattern[r]) {
+            conflictingRows.push(r);
+        }
+    }
+
+    return conflictingRows;
 }
 
 function mutate(
     chromosome: Chromosome,
-    rowOptions: CellState[][][]
+    rowOptions: CellState[][][],
+    colOptions: CellState[][][]
 ) {
-    for (let r = 0; r < chromosome.length; r++) {
-        if (Math.random() < MUTATION_RATE) {
-            chromosome[r] =
-                Math.floor(Math.random() * rowOptions[r].length);
+
+    const penalties = computeColumnPenalties(
+        chromosome,
+        rowOptions,
+        colOptions
+    );
+
+    const worstColumn =
+        penalties.indexOf(Math.max(...penalties));
+
+    if (penalties[worstColumn] === 0) return;
+
+    const conflictingRows =
+        rowsConflictingWithBestPattern(
+            chromosome,
+            rowOptions,
+            colOptions,
+            worstColumn
+        );
+
+    if (conflictingRows.length === 0) return;
+
+    // Mutate ONE conflicting row
+    const r =
+        conflictingRows[
+            Math.floor(Math.random() * conflictingRows.length)
+            ];
+
+    let bestGene = chromosome[r];
+    let bestScore = penalties[worstColumn];
+
+    for (let i = 0; i < rowOptions[r].length; i++) {
+
+        if (i === chromosome[r]) continue;
+
+        chromosome[r] = i;
+
+        const newColumn = chromosome.map((gene, rr) =>
+            rowOptions[rr][gene][worstColumn]
+        );
+
+        const score = columnDistance(
+            newColumn,
+            colOptions[worstColumn]
+        );
+
+        if (score < bestScore) {
+            bestScore = score;
+            bestGene = i;
         }
     }
+
+    chromosome[r] = bestGene;
 }
 
-function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[]] {
+function computeColumnPenalties(
+    chromosome: Chromosome,
+    rowOptions: CellState[][][],
+    colOptions: CellState[][][]
+): number[] {
+
+    const penalties: number[] = [];
+
+    for (let c = 0; c < colOptions.length; c++) {
+
+        const column = chromosome.map((gene, r) =>
+            rowOptions[r][gene][c]
+        );
+
+        penalties[c] = columnDistance(column, colOptions[c]);
+    }
+
+    return penalties;
+}
+
+function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[], number] {
     let bestGrids: TestGrid[] = []
     const [cols, rows] = grid.getSize();
 
@@ -199,8 +304,11 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[]] {
         );
     }
 
-    for (let generation = 0; generation < NUM_GENERATIONS; generation++) {
+    let bestEverFitness = -Infinity;
+    let stagnationCounter = 0;
 
+    for (let generation = 0; generation < NUM_GENERATIONS; generation++) {
+        MUTATION_RATE = BASE_MUTATION_RATE * (1 - generation / NUM_GENERATIONS);
         const fitnesses = population.map(ch =>
             fitness(ch, rowOptions, colOptions)
         );
@@ -208,16 +316,29 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[]] {
         const bestFitness = Math.max(...fitnesses);
         const bestIndex = fitnesses.indexOf(bestFitness);
 
-        console.log(`Gen ${generation}: Best = ${bestFitness}`);
-
-        if (generation % 100 === 0) {
-            //console.log(`Gen ${generation}: Best = ${bestFitness}`);
-            bestGrids.push(chromosomeToGrid(population[bestIndex], rowOptions))
+        if (bestFitness > bestEverFitness) {
+            bestEverFitness = bestFitness;
+            stagnationCounter = 0;
+        } else {
+            stagnationCounter++;
         }
 
+        let forceInjectDiversity = false;
+
+        if (stagnationCounter >= STAGNATION_LIMIT) {
+            forceInjectDiversity = true;
+            stagnationCounter = 0;
+        }
+
+        //console.log(`Gen ${generation}: Best = ${bestFitness}`);
+
+        let bestGrid = chromosomeToGrid(population[bestIndex], rowOptions)
+        if (JSON.stringify(bestGrids[bestGrids.length - 1]) != JSON.stringify(bestGrid)) {
+            bestGrids.push(chromosomeToGrid(population[bestIndex], rowOptions))
+        }
         if (bestFitness === 0) {
-            console.log("Solved at generation", generation);
-            return [chromosomeToGrid(population[bestIndex], rowOptions),bestGrids];
+            //console.log("Solved at generation: ", generation, chromosomeToGrid(population[bestIndex], rowOptions), bestGrids);
+            return [chromosomeToGrid(population[bestIndex], rowOptions),bestGrids, generation];
         }
 
         const newPopulation: Chromosome[] = [];
@@ -228,30 +349,44 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[]] {
         }
 
         while (newPopulation.length < POPULATION_SIZE) {
-            const p1 = tournamentSelect(population, fitnesses);
-            const p2 = tournamentSelect(population, fitnesses);
+
+            if (forceInjectDiversity && newPopulation.length > ELITE_COUNT) {
+                newPopulation.push(
+                    rowOptions.map(options =>
+                        Math.floor(Math.random() * options.length)
+                    )
+                );
+                continue;
+            }
+
+            const p1 = tournamentSelect(population, fitnesses, 3 + Math.floor(generation / 2000));
+            const p2 = tournamentSelect(population, fitnesses, 3 + Math.floor(generation / 2000));
             const child = crossover(p1, p2);
-            mutate(child, rowOptions);
+            if (Math.random() < MUTATION_RATE) {
+                mutate(child, rowOptions, colOptions);
+            }
             newPopulation.push(child);
         }
 
         population = newPopulation;
     }
-
-    return [null, bestGrids];
+    //console.log("No solution found");
+    return [null, bestGrids, NUM_GENERATIONS];
 }
 
-function geneticSolve(grid: Grid): boolean {
-    const solution = geneticAlgorithm(grid);
-    if (!solution[0]) return false;
+function geneticSolve(grid: Grid): [Grid | null, number] {
+    const [solution, a, gens] = geneticAlgorithm(grid);
+    if (!solution) return [null,gens];
 
-    solution[0].forEach((row, x) => {
+    const newGrid = grid.clone(); // You need a clone method
+
+    solution.forEach((row, x) => {
         row.forEach((cell, y) => {
-            grid.updateCell(x, y, cell);
+            newGrid.updateCell(x, y, cell);
         });
     });
 
-    return true;
+    return [newGrid,gens];
 }
 
 

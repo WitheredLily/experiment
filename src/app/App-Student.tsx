@@ -1,17 +1,17 @@
 import React, {JSX, useState} from "react";
 import {HashRouter, Link, Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import {pageLock} from "./pages/util/page";
-import * as pages from "./pages";
+import {pageList} from "./pages";
 import "./App-Student.css";
 
 export default function AppStudent() {
     localStorage.clear();
     let navigate = useNavigate();
-    const pageArray = Object.values(pages);
     function changeCurrentPage(num: number){
         if (num > maxPage) {
             setMaxPage(num);
             localStorage.setItem("maxPage", num.toString());
+            window.scrollTo(0, 0);
         }
         setCurrentPage(num);
         localStorage.setItem("currentPage", num.toString());
@@ -21,10 +21,32 @@ export default function AppStudent() {
     function useLockableLink(
         num: number,
         text: string,
-        initialLocked: boolean,
-    ): [JSX.Element, (locked: boolean) => void] {
+        puzzleKeys: string[], // <-- pass identifiers from page
+    ): [JSX.Element, (key: string, solved: boolean) => void] {
 
-        const [locked, setLocked] = useState(initialLocked);
+        const [solvedStates, setSolvedStates] = React.useState<Record<string, boolean>>(
+            Object.fromEntries(puzzleKeys.map(k => [k, false]))
+        );
+
+        const [locked, setLocked] = React.useState(true);
+
+        const reportSolved = (key: string, solved: boolean) => {
+            if (key === "all") {
+                // Unlock everything immediately for testing
+                setSolvedStates(Object.fromEntries(puzzleKeys.map(k => [k, true])));
+                setLocked(false);
+                return;
+            }
+            setSolvedStates(prev => {
+                const updated = { ...prev, [key]: solved };
+
+                const allSolved = Object.values(updated).every(Boolean);
+                setLocked(!allSolved);
+
+                return updated;
+            });
+        };
+
         const button = (
             <button
                 disabled={locked}
@@ -34,7 +56,7 @@ export default function AppStudent() {
             </button>
         );
 
-        return [button, setLocked];
+        return [button, reportSolved];
     }
 
     function createLink(num: number, text: string, id?: string): JSX.Element{
@@ -53,7 +75,7 @@ export default function AppStudent() {
             {/* Navigation */}
                 <div className="tab" id="nav-bar">
                     <nav>
-                    {pageArray.map((_, i) => (
+                    {pageList.map((_, i) => (
                         maxPage >= i && (
                             <button
                                 key={i}
@@ -71,7 +93,7 @@ export default function AppStudent() {
             <div className="tabContentContainer">
             <Routes>
                 <Route path="/" element={<Navigate to={`/page${currentPage}`} />} />
-                {pageArray.map((Page, i) => (
+                {pageList.map((Page, i) => (
                     <Route
                         key={i}
                         path={`/page${i}`}

@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {loadingGrid, PageProps} from "./util/page";
 import {Grid} from "../../game/nonogram";
-import {VisualGrid} from "../../game/board";
-import {geneticSolve} from "../../game/solvers/genetic-solver";
-import {BacktrackSolve, getBacktrackSolution} from "../../game/solvers/backtracking-solver";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
-export function Page5({ createLink, useLockableLink }: PageProps) {
+export function Page7({ createLink, useLockableLink }: PageProps) {
     localStorage.removeItem("gridGuide1");
     const [grid, setGrid] = useState<Grid | null>(null);
     const gridId = "gridGuide1";
@@ -14,7 +11,6 @@ export function Page5({ createLink, useLockableLink }: PageProps) {
         setGrid(new Grid([[1,1],[1,1]], [[1],[1],[1],[1]], gridId));
     }, []);
     let [lockedButton, setLock] = useLockableLink(3,"Forward", true);
-
     let question1: QuestionProps = CreateQuestionProps(
         "Which of the following best describes the difference between a state-space search algorithm and a typical search algorithm?",
         [
@@ -61,21 +57,21 @@ export function Page5({ createLink, useLockableLink }: PageProps) {
         ],
         [1])
 
+
     if (!grid) return <div>Loading grid...</div>;
     return (
         <div>
             <div className="tabContent-header">
-                <h1>Algorithm Quiz</h1>
+                <h1>Constraint Satisfaction Quiz</h1>
             </div>
             <div style={{padding: "1rem"}} className="tabContent">
-                <h1>Page 3</h1>
-                <br/>
                 <QuestionSection
                     locks={[setLock]}
                     questions={[question1, question2, question3, question4, question5]}
                 />
+                <p>A genetic algorithm is a problem-solving method inspired by natural evolution. It starts with a group of possible solutions and tests how well each one works (this is called “fitness”). The best solutions are then combined and slightly changed (like reproduction and mutation in biology) to create a new generation of solutions. Over many generations, the solutions improve and get closer to the best possible answer. Genetic algorithms are often used to solve complex problems where trying every possible solution would take too long.</p>
                 <nav className={"navButton"}>
-                    {createLink(4, "Back")} | {createLink(6, "Forward")}
+                    {createLink(6, "Back")} | {createLink(8, "Forward")}
                 </nav>
             </div>
         </div>

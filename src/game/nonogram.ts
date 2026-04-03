@@ -7,6 +7,7 @@ enum CellState {
     Blank,
     Filled,
     Marked,
+    Special
 }
 
 enum ClueStates {
@@ -24,6 +25,7 @@ class Grid {
     private readonly cellStates: CellState[][];
     private solved: boolean;
     private readonly id?: string;
+    private alternateSolution?: CellState[][][];
 
     public constructor(numbersX: number[][], numbersY: number[][], id?: string, states?: CellState[][]) {
         const cols = numbersX.length;
@@ -66,12 +68,34 @@ class Grid {
     }
 
     public checkAllClues(): void {
+        if (this.alternateSolution) {
+            this.checkAlternateSolution()
+            return
+        }
         this.cluesArrayX.forEach((clue, i) => {
             clue.checkClue(this.cellStates[i])
         })
         this.cluesArrayY.forEach((clue, i) => {
             clue.checkClue(this.cellStates.map(column => column[i]))
         })
+    }
+
+    public checkAlternateSolution(){
+        if (this.alternateSolution) {
+            for (let i = 0; i < this.alternateSolution.length; i++) {
+                for (let j = 0; j < this.alternateSolution[i].length; j++) {
+                    if (!this.alternateSolution[i][j].includes(this.cellStates[i][j])) {
+                        return
+                    }
+                }
+            }
+            this.solved=true;
+        }
+    }
+
+    public setAlternateSolution(solution: CellState[][][]) {
+        this.alternateSolution = solution;
+        this.checkAllClues();
     }
 
     public clone(newId?: string): Grid {
@@ -90,11 +114,13 @@ class Grid {
 
     public isSolved(){
         const solved = checkSolvedAxis(this.cluesArrayX) && checkSolvedAxis(this.cluesArrayY);
+        this.checkAlternateSolution()
         this.solved = solved;
         return solved;
     }
 
     public checkClues(x: number, y: number) {
+        this.checkAlternateSolution()
         let xValid = this.cluesArrayX[x].checkClue(this.cellStates[x]);
         const yArray: CellState[] = this.getYCellStates(y);
         let yValid = this.cluesArrayY[y].checkClue(yArray);
@@ -190,6 +216,9 @@ class Clues {
                 case CellState.Blank:
                     row += "b"
                     break;
+                case CellState.Special:
+                    row += "b"
+                    break;
             }
         }
         if (this.regexSolved.test(row)) {
@@ -217,7 +246,7 @@ export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: nu
     );
 }
 
-export function rowsToGrid(grid: boolean[][], id: string): Grid {
+export function rowsToGrid(grid: boolean[][], id?: string): Grid {
     const numbersX: number[][] = grid.map(col => {
         const counts: number[] = [];
         let currentCount = 0;

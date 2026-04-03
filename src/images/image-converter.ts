@@ -17,28 +17,37 @@ export async function imageToNonogram(
 ): Promise<Grid> {
     const img = await loadImage(imageSrc);
 
-    // Draw to canvas and resize
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d")!;
     canvas.width = width;
     canvas.height = height;
+
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, 0, 0, width, height);
 
     const imageData = ctx.getImageData(0, 0, width, height).data;
 
-    // Convert to boolean matrix
     const grid: boolean[][] = [];
-    for (let x = 0; x < height; x++) {
-        const col: boolean[] = [];
-        for (let y = 0; y < width; y++) {
-            const i = (y * width + x) * 4;
-            const [r, g, b, a] = [imageData[i], imageData[i + 1], imageData[i + 2], imageData[i + 3]];
-            const grayscale = r + g + b;
-            col.push(grayscale < threshold && a > 0);
+
+    for (let row = 0; row < height; row++) {
+        const rowData: boolean[] = [];
+
+        for (let col = 0; col < width; col++) {
+            const i = (row * width + col) * 4;
+
+            const r = imageData[i];
+            const g = imageData[i + 1];
+            const b = imageData[i + 2];
+            const a = imageData[i + 3];
+
+            const grayscale = 0.299 * r + 0.587 * g + 0.114 * b;
+
+            rowData.push(grayscale < threshold && a > 0);
         }
-        grid.push(col);
+
+        grid.push(rowData);
     }
+
     return rowsToGrid(grid, id);
 }
 

@@ -1,12 +1,11 @@
 import {loadingGrid, PageProps} from "./util/page";
 import React, {useState} from "react";
-import {Grid, makeRandomGrid} from "../../game/nonogram";
+import {Grid, loadGrid, makeGrid, makeRandomGrid, rowsToGrid} from "../../game/nonogram";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 import {ChoiceQuestion, CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
 export function Page1({ createLink, useLockableLink}: PageProps) {
-    const [grid, setGrid] = useState<Grid | null>(null);
     const cols1 = 13;
     const rows1 = 13;
     //TODO: swap to using build function
@@ -15,8 +14,139 @@ export function Page1({ createLink, useLockableLink}: PageProps) {
         [[0],[2,2],[4,4],[2,8],[1,9],[2,8],[9],[7],[5],[3],[1]],
         "gridA1"
     );
+    let grid2A = makeGrid([
+        [
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false
+        ],
+        [
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false
+        ],
+        [
+            false, false, false,
+            false, false, true,
+            true,  true,  true,
+            true,  true,  false,
+            false, false, false,
+            false
+        ],
+        [
+            false, false, false,
+            false, true,  true,
+            false, false, false,
+            false, false, true,
+            false, false, false,
+            false
+        ],
+        [
+            false, false, true, true,
+            true,  true,  true, true,
+            true,  true,  true, true,
+            true,  true,  true, true
+        ],
+        [
+            false, true,  true,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            true
+        ],
+        [
+            false, true,  false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            true
+        ],
+        [
+            false, true,  false,
+            false, false, true,
+            true,  false, false,
+            false, false, false,
+            true,  true,  true,
+            true
+        ],
+        [
+            false, true,  false,
+            false, true,  false,
+            false, true,  false,
+            false, false, false,
+            true,  false, false,
+            false
+        ],
+        [
+            false, true,  false,
+            false, true,  false,
+            false, true,  false,
+            false, false, false,
+            true,  false, false,
+            false
+        ],
+        [
+            false, true,  false,
+            false, true,  false,
+            false, true,  false,
+            false, false, false,
+            true,  true,  true,
+            true
+        ],
+        [
+            false, true,  false,
+            false, true,  false,
+            false, true,  false,
+            false, false, false,
+            false, false, false,
+            true
+        ],
+        [
+            false, false, true,
+            false, true,  false,
+            false, true,  false,
+            false, false, false,
+            false, false, false,
+            true
+        ],
+        [
+            false, false, false, true,
+            true,  true,  true,  true,
+            true,  true,  true,  true,
+            true,  true,  true,  true
+        ],
+        [
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false
+        ],
+        [
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false, false, false,
+            false
+        ]])
 
-    loadingGrid("gridA1", cols1, rows1, setGrid, 0.5, grid1);
+    const [grid, setGrid1] = loadingGrid("gridA1", cols1, rows1, 0.5, grid1);
+    const [grid2, setGrid2] = loadingGrid("gridA2", cols1, rows1, 0.5, grid2A);
+
+
+
+    loadingGrid("gridA1", cols1, rows1, 0.5, grid1);
+    loadingGrid("gridA2", cols1, rows1, 0.5, grid2A);
 
     //let [lockedLink, lock] = createLockableLink(2,"Forward", true, "LinkA1");
 
@@ -26,7 +156,7 @@ export function Page1({ createLink, useLockableLink}: PageProps) {
 
 
 
-    if (!grid) {
+    if (!grid || !grid2) {
         return <div>Loading grid...</div>;
     }
 
@@ -39,6 +169,7 @@ export function Page1({ createLink, useLockableLink}: PageProps) {
         <div className="tabContent">
             <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
             <VisualGrid grid={grid} nonInteractive={true}/>
+            <VisualGrid grid={grid2} nonInteractive={true}/>
             <nav className={"navButton"}>
                 {createLink(2,"Forward")}
             </nav>

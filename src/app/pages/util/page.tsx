@@ -1,10 +1,10 @@
-import {JSX, useEffect} from "react";
-import {Grid, loadGrid} from "../../../game/nonogram";
+import {JSX, useEffect, useState} from "react";
+import {Clues, Grid, loadGrid} from "../../../game/nonogram";
 import {boolean} from "zod";
 
 interface PageProps {
     createLink: (num: number, text: string, id?: string) => JSX.Element;
-    useLockableLink: (num: number, text: string, initialLocked: boolean) => [JSX.Element, (locked: boolean) => void]
+    useLockableLink: (num: number, text: string, puzzleKeys: string[]) => [JSX.Element, (key: string, solved: boolean) => void]
     navigate: (num: number) => void;
 }
 
@@ -12,30 +12,61 @@ export type pageLock = {
     lock: boolean;
 }
 
-function loadingGrid(gridId:string, cols:number, rows:number, setGrid: (g: any) => void, probability: number, grid?: Grid) {
+function loadingGrid(gridId: string, cols: number, rows: number, probability: number, initialGrid?: Grid, image?: string) {
+    const [grid, setGrid] = useState<Grid | null>(null);
 
     useEffect(() => {
-        //localStorage.removeItem(gridId); // optional: reset grid
-        if (grid) {
-            setGrid(grid)
-            return
+        if (initialGrid) {
+            setGrid(initialGrid);
+            return;
         }
+
         const load = async () => {
-            try {
-                const g = await loadGrid(
-                    gridId,
-                    cols,
-                    rows,
-                    probability
-                );
-                setGrid(g);
-            } catch (err) {
-                console.error("Failed to load grid:", err);
-            }
+            const g = await loadGrid(gridId, cols, rows, probability, image);
+            setGrid(g);
         };
+
         load();
     }, []);
+
+    return [grid, setGrid] as const;
 }
+
+function leftRightMost(clues: number[], size: number): boolean[][] {
+    const left = Array(size).fill(false);
+    const right = Array(size).fill(false);
+
+    // LEFTMOST
+    let pos = 0;
+    for (let c = 0; c < clues.length; c++) {
+        const len = clues[c];
+        for (let i = 0; i < len; i++) {
+            left[pos + i] = true;
+        }
+        pos += len;
+        if (c < clues.length - 1) pos += 1; // gap
+    }
+
+    // RIGHTMOST
+    pos = size;
+    for (let c = clues.length - 1; c >= 0; c--) {
+        const len = clues[c];
+        pos -= len;
+        for (let i = 0; i < len; i++) {
+            right[pos + i] = true;
+        }
+        if (c > 0) pos -= 1; // gap
+    }
+
+    // COMBINE
+    return left.map((_, i) => [left[i], right[i]]);
+}
+
+function blankRow(clues: number[][], size: number){
+    const yClues = Array(size).fill([1]);
+    return new Grid(yClues, clues);
+}
+
 
 export async function setData(baseUrl: string, id: string, data: unknown) {
     const response = await fetch(`${baseUrl}/api/set`, {
@@ -57,7 +88,7 @@ export async function setData(baseUrl: string, id: string, data: unknown) {
     return response.json();
 }
 
-export {loadingGrid}
+export {loadingGrid, leftRightMost, blankRow}
 export type { PageProps}
 /*
  export function Page3({ createLink }: PageProps) {

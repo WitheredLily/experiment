@@ -31,39 +31,37 @@ export function CreateQuestionProps(question: string, choices: string[], answers
     return {question, choices, answers, onSelect: onSelect};
 }
 
-export function QuestionSection(locks: ((locked: boolean) => void)[], questions: QuestionProps[]){
-    let incorrect: boolean[] = []
-    let elements: JSX.Element[] = [];
-    for (let i = 0; i < questions.length; i++){
-        const lock: pageLock ={
-            lock: false
-        };
-        questions[i].solved = new Proxy(lock, {
-            set: (target, prop, value) => {
-                target[prop as keyof typeof target] = value;
-                incorrect[i] = target.lock;
-                for (let j of incorrect) {
-                    if (j) {
-                        for (let lock of locks) {
-                            lock(true);
-                        }
-                        return true
-                    }
-                }
-                for (let lock of locks) {
-                    lock(false);
-                }
-                return true;
-            },
+export function QuestionSection({ locks, questions }: { locks: ((locked: boolean) => void)[], questions: QuestionProps[] }) {
+    const [incorrect, setIncorrect] = useState<boolean[]>(questions.map(() => true));
 
-        });
-        incorrect.push(true);
-        elements.push(ChoiceQuestion(questions[i]));
-    }
-    return elements;
+    const handleAnswerChange = (index: number, isCorrect: boolean) => {
+        const newIncorrect = [...incorrect];
+        newIncorrect[index] = !isCorrect;
+        setIncorrect(newIncorrect);
+
+        locks.forEach(lock => lock(newIncorrect.some(x => x)));
+    };
+
+    return (
+        <>
+            {questions.map((q, i) => (
+                <ChoiceQuestion
+                    key={i}
+                    question={q}
+                    onAnswerChange={(isCorrect) => handleAnswerChange(i, isCorrect)}
+                />
+            ))}
+        </>
+    );
 }
 
-export function ChoiceQuestion(question: QuestionProps): JSX.Element {
+export function ChoiceQuestion({
+                                   question,
+                                   onAnswerChange,
+                               }: {
+    question: QuestionProps,
+    onAnswerChange?: (isCorrect: boolean) => void
+}): JSX.Element {
     const [selected, setSelected] = useState<number[]>([]);
 
     function toggle(i: number) {
@@ -73,14 +71,14 @@ export function ChoiceQuestion(question: QuestionProps): JSX.Element {
                 : [...prev, i];
 
             question.onSelect?.(i);
+
+            const isCorrect = arraysEqual(next, question.answers);
+            onAnswerChange?.(isCorrect); // notify parent about correctness
             return next;
         });
     }
 
     const correct = arraysEqual(selected, question.answers);
-    if (question.solved) {
-        question.solved.lock = !correct;
-    }
 
     return (
         <div className="choice-question">

@@ -1,7 +1,7 @@
 // typescript
 // File: `src/game/board.tsx`
 
-import React from "react";
+import React, {useState} from "react";
 import { CellState, Grid} from "./nonogram";
 import {BacktrackSolve, getBacktrackSolution} from "./solvers/backtracking-solver";
 import {pageLock} from "../app/pages/util/page";
@@ -48,10 +48,12 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow, lock, geneticGraphic, graphicSpeed = 0.1 }) => {
+export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow, lock, geneticGraphic, graphicSpeed = 1 }) => {
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
+    const [highlightedCells, setHighlightedCells] = useState<Set<string>>(new Set());
+    const [playing, setPlaying] = useState(false);
     let inputNumber = 0;
     const [cols, rows] = grid.getSize();
 
@@ -64,22 +66,46 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
     };
 
     const handlePlayGeneticGraphic = async () => {
-        if (!geneticGraphic) return;
+        if (!geneticGraphic || playing) return;
+
+        setPlaying(true);
+        await new Promise(resolve => setTimeout(resolve, 0));
+
         let grids = geneticSolveSteps(grid.clone());
-        for (let exampleGrid of grids){
-            grid.setStates(exampleGrid)
-            const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
-            onGridChange?.(cloned);
+
+        for (let exampleGrid of grids) {
+            const previousStates = grid.getCellStates();
+            const newStates = exampleGrid;
+
+            const changed = new Set<string>();
+
+            for (let x = 0; x < cols; x++) {
+                for (let y = 0; y < rows; y++) {
+                    if (previousStates[x][y] !== newStates[x][y]) {
+                        changed.add(`${x}-${y}`);
+                    }
+                }
+            }
+
+            setHighlightedCells(changed);
+
+            grid.setStates(exampleGrid);
+            onGridChange?.(grid.clone());
             grid.save();
+
             await sleep(graphicSpeed * 1000);
+
+            setHighlightedCells(new Set()); // remove highlight after step
         }
+
+        setPlaying(false);
     };
 
     const updateCell = (x: number, y: number, newState: CellState) => {
         grid.updateCell(x, y, newState);
         grid.checkClues(x, y);
         if (lock != undefined) {
-            lock(grid.getSolved());
+            lock(!grid.getSolved());
         }
         const cloned = Object.create(Object.getPrototypeOf(grid), Object.getOwnPropertyDescriptors(grid)) as Grid;
         onGridChange?.(cloned);
@@ -216,26 +242,41 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
 
                             {Array.from({length: cols}, (_, xIdx) => {
                                 const cellState = grid.getCellStates()[xIdx]?.[yIdx] ?? CellState.Blank;
+                                const key = `${xIdx}-${yIdx}`;
+                                const isHighlighted = highlightedCells.has(key);
                                 return (
                                     <div
-                                        key={`${yIdx}-${xIdx}`}
+                                        key={key}
                                         onClick={() => handleLeftClick(xIdx, yIdx)}
                                         onContextMenu={(e) => handleRightClick(xIdx, yIdx, e)}
                                         style={{
                                             width: "3rem",
                                             height: "3rem",
-                                            border: "1px solid #999",
+                                            border: isHighlighted ? "5px solid #2196f3" : "1px solid #999",
+                                            boxSizing: "border-box",
                                             backgroundColor: stateToColor(cellState),
                                             cursor: "pointer",
-                                            transition: "background-color 0.15s",
+                                            transition: "background-color 0.15s, border 0.15s",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            display: "flex",
+                                            fontSize: "1.5rem",
+                                            fontWeight: "bold",
                                         }}
-                                    />
+                                    >{cellState === CellState.Marked && (
+                                        <span>X</span>
+                                    )}{cellState === CellState.Special && (
+                                        <span>&#9733;</span>
+                                    )}</div>
                                 );
                             })}
                         </React.Fragment>
                     ))}
                 </div>
                 <br/>
+                {playing && (
+                    <div><p>Playing</p></div>
+                )}
                 {selfSolving && (
                     <button
                         style={{ marginTop: "1rem", width: "100%" }}

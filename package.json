@@ -19,6 +19,7 @@
     "@vendia/serverless-express": "^4.12.6",
     "aws-cdk-lib": "2.220.0",
     "bootstrap": "^5.3.8",
+    "canvas": "^3.2.2",
     "constructs": "^10.4.2",
     "dom-to-image": "^2.6.0",
     "dotenv": "^17.2.3",
@@ -29,6 +30,7 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
     "uuid": "^13.0.0",
+    "wait-on": "^9.0.4",
     "web-vitals": "^5.1.0",
     "zod": "^4.1.12"
   },
@@ -57,7 +59,7 @@
     "build": "vite build --config vite.config.student.ts && vite build --config vite.config.teacher.ts && vite build --config vite.config.login.ts",
     "preview": "vite preview",
     "lint": "eslint .",
-    "generate-images": "npm start  scripts/images/my-react-app/src/generate-images.jsx"
+    "generate-images": "npm start  scripts/images/my-react-app/src/generate-images.js"
   },
   "eslintConfig": {
     "extends": [

@@ -1,41 +1,50 @@
-import {loadingGrid, PageProps} from "./util/page";
+import { PageProps } from "./util/page";
 import React from "react";
-import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
-import {VisualGrid} from "../../game/board";
-import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
 
 export function Page0({ createLink }: PageProps) {
-    const cols1 = 9;
-    const rows1 = 9;
-
-    const [grid1, setGrid1] = loadingGrid("gridA1", cols1, rows1, 0.25)
-    const [grid2, setGrid2] = loadingGrid("gridA2", cols1, rows1, 0.75)
-    const [grid3, setGrid3] = loadingGrid("gridA3", cols1, rows1, 0.5)
-
-    if (!grid1 || !grid2 || !grid3) {
-        return <div>Loading grid...</div>;
-    }
-
     return (
         <div>
             <div className="tabContent-header">
-                <h1>Hello</h1>
+                <h1>Explore Algorithms Through Nonograms</h1>
             </div>
-
             <div className="tabContent">
-                <h1>Home Page</h1>
+                <p className="sub-header">
+                    Learn key computer science concepts by solving interactive puzzles.
+                    Observe how algorithms like backtracking, constraint satisfaction,
+                    and heuristics tackle the same problem in different ways.
+                </p>
+                <div className="learning-section">
+                    <h2>What You Can Do</h2>
+                    <div className="features-cards">
+                        <div className="feature-card">
+                            <h3>Interactive Tutorials</h3>
+                            <p>Step-by-step guides to learn how to solve nonograms efficiently.</p>
+                        </div>
+                        <div className="feature-card">
+                            <h3>Algorithm Visualizations</h3>
+                            <p>See different solving strategies in action.</p>
+                        </div>
+                        <div className="feature-card">
+                            <h3>Custom Exercises</h3>
+                            <p>Experiment with puzzles of varying complexity to understand problem-solving time.</p>
+                        </div>
+                    </div>
+                </div>
 
-                <VisualGrid grid={grid1} nonInteractive={true}/>
-                <p>Constraint</p>
-                <VisualGrid grid={grid1} onGridChange={setGrid1} selfSolving={constraintPropagationSolve} />
-                <p>Backtracking</p>
-                <VisualGrid grid={grid2} onGridChange={setGrid2} selfSolving={BacktrackSolve} />
-                <p>Genetic</p>
-                <VisualGrid grid={grid3} onGridChange={setGrid3} geneticGraphic={true} graphicSpeed={2} />
+                <div className="learning-section">
+                    <h2>What will be covered</h2>
+                    <ul>
+                        <li>Nonograms</li>
+                        <li>Introduction to Algorithms</li>
+                        <li>Backtracking</li>
+                        <li>State-space Algorithms</li>
+                        <li>Genetic Algorithms</li>
+                        <li>Search Algorithms</li>
+                    </ul>
+                </div>
             </div>
-
-            <nav className={"navButton"}>
-                {createLink(1,"Start")}
+            <nav className="navButton">
+                {createLink(1, "Start")}
             </nav>
         </div>
     );

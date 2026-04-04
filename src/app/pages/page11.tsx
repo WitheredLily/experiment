@@ -41,15 +41,6 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             "It checks every element sequentially"
         ],
         [2])
-    const question5: QuestionProps = CreateQuestionProps(
-        "!",
-        [
-            "!",
-            "!",
-            "!",
-            "!"
-        ],
-        [1])
     return (
         <div>
             <div className="tabContent-header">
@@ -58,7 +49,7 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             <div style={{padding: "1rem"}} className="tabContent">
                 <QuestionSection
                     locks={[(locked) => reportSolved("quiz1", !locked)]}
-                    questions={[question1, question2, question3, question4, question5]}
+                    questions={[question1, question2, question3, question4]}
                 />
                 <button onClick={() => {reportSolved("all", true)}}>Unlock</button>
                 <nav className={"navButton"}>

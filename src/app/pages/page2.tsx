@@ -71,8 +71,13 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
                 <div className="shrink-wrap-container">
                     <img src="/images/SimpleSquareExample.svg" alt="Simple Square Example" />
                     <div className="learning-section">
-                        <h2>Mathematical approach</h2>
-                        <p></p>
+                        <h3>Mathematical approach</h3>
+                        <p>You can determine which rows or columns will benefit from this approach by using this formula:</p>
+                        <ol>
+                            <li>Add all the clues together and add 1 for each space between the clues. For example, if the clues are 4 and 3 the total is 8.</li>
+                            <li>Take the free space and subtract your number. So for 10x10 given the previous 10-8=2</li>
+                            <li>If a individual number in the clue is larger than this you know it will a number of cells you can fill in equal to the difference. In our example 4-2=2 and 3-2=1</li>
+                        </ol>
                     </div>
                 </div>
                 <div className="question-container">

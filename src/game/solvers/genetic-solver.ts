@@ -375,7 +375,7 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[], number] {
 }
 
 function geneticSolve(grid: Grid): [Grid | null, number] {
-    const [solution, a, gens] = geneticAlgorithm(grid);
+    const [solution, , gens] = geneticAlgorithm(grid);
     if (!solution) return [null,gens];
 
     const newGrid = grid.clone(); // You need a clone method

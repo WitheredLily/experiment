@@ -1,7 +1,7 @@
 import React from "react";
 import { PageProps} from "./util/page";
 
-export function Page6({ createLink, useLockableLink }: PageProps) {
+export function Page6({ createLink }: PageProps) {
     return (
         <div>
             <div className="tabContent-header">

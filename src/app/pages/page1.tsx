@@ -1,10 +1,10 @@
 import {loadingGrid, PageProps} from "./util/page";
-import React from "react";
+import React, {JSX} from "react";
 import {Grid, makeGrid} from "../../game/nonogram";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 
-export function Page1({ createLink, useLockableLink}: PageProps) {
+export function Page1({ createLink}: PageProps):JSX.Element {
     const cols1 = 13;
     const rows1 = 13;
     //TODO: swap to using build function
@@ -139,8 +139,8 @@ export function Page1({ createLink, useLockableLink}: PageProps) {
             false
         ]])
 
-    const [grid, setGrid1] = loadingGrid("gridA1", cols1, rows1, 0.5, grid1);
-    const [grid2, setGrid2] = loadingGrid("gridA2", cols1, rows1, 0.5, grid2A);
+    const [grid, ] = loadingGrid("gridA1", cols1, rows1, 0.5, grid1);
+    const [grid2, ] = loadingGrid("gridA2", cols1, rows1, 0.5, grid2A);
 
 
 

@@ -1,4 +1,4 @@
-import React, {JSX, useState} from "react";
+import React, {JSX, useEffect, useState} from "react";
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import {pageList} from "./pages";
 import "./App-Student.css";
@@ -23,7 +23,7 @@ export default function AppStudent() {
         puzzleKeys: string[], // <-- pass identifiers from page
     ): [JSX.Element, (key: string, solved: boolean) => void] {
 
-        const [solvedStates, setSolvedStates] = React.useState<Record<string, boolean>>(
+        const [, setSolvedStates] = React.useState<Record<string, boolean>>(
             Object.fromEntries(puzzleKeys.map(k => [k, false]))
         );
 
@@ -74,14 +74,14 @@ export default function AppStudent() {
             {/* Navigation */}
                 <div className="tab" id="nav-bar">
                     <nav>
-                    {pageList.map((_, i) => (
+                    {pageList.map(([, title], i) => (
                         maxPage >= i && (
                             <button
                                 key={i}
                                 className={`tablinks ${currentPage === i ? "active" : ""}`}
                                 onClick={() => changeCurrentPage(i)}
                             >
-                                {i}
+                                {title}
                             </button>
                         )
                     ))}
@@ -92,11 +92,15 @@ export default function AppStudent() {
             <div className="tabContentContainer">
             <Routes>
                 <Route path="/" element={<Navigate to={`/page${currentPage}`} />} />
-                {pageList.map((Page, i) => (
+                {pageList.map(([PageComponent], i) => (
                     <Route
                         key={i}
                         path={`/page${i}`}
-                        element={i <= maxPage ? <Page createLink={createLink} navigate={changeCurrentPage} useLockableLink={useLockableLink}/> : <Navigate to={`/page${maxPage}`} />}
+                        element={
+                            i <= maxPage
+                                ? <PageComponent createLink={createLink} navigate={changeCurrentPage} useLockableLink={useLockableLink} />
+                                : <Navigate to={`/page${maxPage}`} />
+                        }
                     />
                 ))}
             </Routes>

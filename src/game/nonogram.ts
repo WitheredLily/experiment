@@ -121,9 +121,9 @@ class Grid {
 
     public checkClues(x: number, y: number) {
         this.checkAlternateSolution()
-        let xValid = this.cluesArrayX[x].checkClue(this.cellStates[x]);
+        const xValid = this.cluesArrayX[x].checkClue(this.cellStates[x]);
         const yArray: CellState[] = this.getYCellStates(y);
-        let yValid = this.cluesArrayY[y].checkClue(yArray);
+        const yValid = this.cluesArrayY[y].checkClue(yArray);
         return xValid && yValid;
     }
 

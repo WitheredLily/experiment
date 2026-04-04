@@ -3,9 +3,9 @@ import {PageProps} from "./util/page";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
 export function Page7({ createLink, useLockableLink }: PageProps) {
-    let [lockedButton, reportSolved] = useLockableLink(8, "Forward", ["quiz1"]);
+    const [lockedButton, reportSolved] = useLockableLink(8, "Forward", ["quiz1"]);
 
-    let question1: QuestionProps = CreateQuestionProps(
+    const question1: QuestionProps = CreateQuestionProps(
         "Which of the following best describes the difference between a state-space search algorithm and a typical search algorithm?",
         [
             "A state-space search algorithm only works for physical spaces, while a search algorithm works for digital data.",
@@ -14,7 +14,7 @@ export function Page7({ createLink, useLockableLink }: PageProps) {
             "A search algorithm is only used for puzzles, while a state-space search is used for databases."
         ],
         [1])
-    let question2: QuestionProps = CreateQuestionProps(
+    const question2: QuestionProps = CreateQuestionProps(
         "In a constraint satisfaction problem applied to a grid-based puzzle, such as a nonogram, what represents the variables?",
         [
             "The rules of the puzzle",
@@ -23,7 +23,7 @@ export function Page7({ createLink, useLockableLink }: PageProps) {
             "The clues for each row and column"
         ],
         [1])
-    let question3: QuestionProps = CreateQuestionProps(
+    const question3: QuestionProps = CreateQuestionProps(
         "In the context of constraint satisfaction, the domain refers to:",
         [
             "The set of all rules that must be followed",
@@ -32,7 +32,7 @@ export function Page7({ createLink, useLockableLink }: PageProps) {
             "The end solution of the puzzle"
         ],
         [1])
-    let question4: QuestionProps = CreateQuestionProps(
+    const question4: QuestionProps = CreateQuestionProps(
         "Which statement best describes how a backtracking algorithm works?",
         [
             "It tries all possibilities randomly until it finds a solution.",
@@ -41,7 +41,7 @@ export function Page7({ createLink, useLockableLink }: PageProps) {
             "It modifies the puzzle rules to make solving easier."
         ],
         [1])
-    let question5: QuestionProps = CreateQuestionProps(
+    const question5: QuestionProps = CreateQuestionProps(
         "Optimizing a constraint satisfaction algorithm for a nonogram mainly involves:",
         [
             "Reducing the number of cells in the grid",

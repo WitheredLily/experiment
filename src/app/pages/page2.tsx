@@ -1,6 +1,6 @@
 import React from "react";
 import {blankRow, loadingGrid, PageProps} from "./util/page";
-import {CellState, rowsToGrid} from "../../game/nonogram";
+import {CellState} from "../../game/nonogram";
 import {getBacktrackSolution} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 
@@ -13,7 +13,7 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
         "punctuating"
     ];
 
-    let [lockedButton, reportSolved] = useLockableLink(3, "Forward", puzzleIds);
+    const [lockedButton, reportSolved] = useLockableLink(3, "Forward", puzzleIds);
     // Simple squares
     const simpleSquareQuizSolution = blankRow([[3,4,5]], 16);
     simpleSquareQuizSolution.setAlternateSolution([[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]]])

@@ -1,9 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {loadingGrid, PageProps} from "./util/page";
-import {Grid} from "../../game/nonogram";
 import {VisualGrid} from "../../game/board";
 
-export function Page8({ createLink, useLockableLink }: PageProps) {
+export function Page8({ createLink }: PageProps) {
 
     const [graphicGrid, setGraphicGrid] = loadingGrid("gridGraphic", 10, 10, 0.25)
 

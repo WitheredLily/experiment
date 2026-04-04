@@ -1,6 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {loadingGrid, PageProps} from "./util/page";
-import {Grid} from "../../game/nonogram";
+import React from "react";
+import { PageProps} from "./util/page";
 
 export function Page6({ createLink, useLockableLink }: PageProps) {
     return (

@@ -1,8 +1,5 @@
-import React, {useEffect, useState} from "react";
-import { VisualGrid } from "../../game/board";
-import {loadingGrid, PageProps} from "./util/page";
-import {Grid} from "../../game/nonogram";
-import {getBacktrackSolution} from "../../game/solvers/backtracking-solver";
+import React from "react";
+import { PageProps} from "./util/page";
 
 export function Page4({ createLink }: PageProps) {
     return (

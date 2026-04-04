@@ -1,16 +1,8 @@
-import {Grid, CellState, Clues} from "../nonogram"
-import {findPackageJSON} from "node:module";
-import type {
-    GeneticSearchConfig,
-    GeneticSearchStrategyConfig,
-} from "genetic-search";
-import {
-    GeneticSearch,
-    SimplePhenomeCache,
-    DescendingSortingStrategy,
-    RandomSelectionStrategy,
-} from "genetic-search";
-import {i} from "vite/dist/node/chunks/moduleRunnerTransport";
+import {Grid, CellState} from "../nonogram"
+
+
+
+
 
 function fillArray(array:any[],firstNumber: number, lastNumber: number, value: any) {
     for (let i = firstNumber; i <= lastNumber; i++) {
@@ -19,14 +11,14 @@ function fillArray(array:any[],firstNumber: number, lastNumber: number, value: a
 }
 
 function applyFunctionToAll(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, state: CellState ) => void, applyingFunction: (clues: readonly number[], line: CellState[]) => CellState[]): boolean {
-    let states = grid.getCellStates()
-    let [xSize,ySize] = grid.getSize()
+    const states = grid.getCellStates()
+    const [xSize,ySize] = grid.getSize()
     for (let x=0;x<xSize;x++){
-        let lineSolution = applyingFunction(grid.getCluesX()[x].getNumbers(), grid.getCellStates()[x])
+        const lineSolution = applyingFunction(grid.getCluesX()[x].getNumbers(), grid.getCellStates()[x])
         for (let i = 0; i < lineSolution.length; i++) {
-            let solution = lineSolution[i]
+            const solution = lineSolution[i]
             if (solution != CellState.Blank) {
-                let currentState = states[x][i]
+                const currentState = states[x][i]
                 if (currentState === CellState.Blank) {
                     updateGrid(grid, x, i, solution)
                 } else if (currentState != solution) {
@@ -37,11 +29,11 @@ function applyFunctionToAll(grid: Grid, updateGrid: (grid: Grid, x: number, y: n
         }
     }
     for (let y=0;y<ySize;y++){
-        let lineSolution = applyingFunction(grid.getCluesY()[y].getNumbers(), grid.getYCellStates(y))
+        const lineSolution = applyingFunction(grid.getCluesY()[y].getNumbers(), grid.getYCellStates(y))
         for (let i = 0; i < lineSolution.length; i++) {
-            let solution = lineSolution[i]
+            const solution = lineSolution[i]
             if (solution != CellState.Blank) {
-                let currentState = states[i][y]
+                const currentState = states[i][y]
                 if (currentState === CellState.Blank) {
                     updateGrid(grid, i, y, solution)
                 } else if (currentState != solution) {
@@ -55,7 +47,7 @@ function applyFunctionToAll(grid: Grid, updateGrid: (grid: Grid, x: number, y: n
 }
 
 function constraintPropagationSolve(grid: Grid): boolean {
-    let updateGrid  = (grid:Grid, x:number, y:number, state:CellState) => {
+    const updateGrid  = (grid:Grid, x:number, y:number, state:CellState) => {
         grid.updateCell(x, y, state)
     }
     // Placeholder for constraint propagation solver
@@ -66,9 +58,9 @@ function constraintPropagationSolve(grid: Grid): boolean {
 }
 
 function constraintPropagationSteps(grid: Grid): [number, number, CellState][][] {
-    let newGrid = grid.clone()
-    let steps: [number, number, CellState][][] = [[]]
-    let updateGrid  = (grid:Grid, x:number, y:number, state:CellState) => {
+    const newGrid = grid.clone()
+    const steps: [number, number, CellState][][] = [[]]
+    const updateGrid  = (grid:Grid, x:number, y:number, state:CellState) => {
         grid.updateCell(x, y, state)
         steps[0].push([x,y,state])
     }
@@ -80,10 +72,10 @@ function constraintPropagationSteps(grid: Grid): [number, number, CellState][][]
 }
 
 function simpleBox(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, state: CellState) => void): boolean {
-    let [xSize,ySize] = grid.getSize()
+    const [xSize,ySize] = grid.getSize()
     function simpleBoxLine(clues: readonly number[], line: CellState[]): number[] {
-        let size = line.length
-        let leftSolution:number[] = new Array(size).fill(-1)
+        const size = line.length
+        const leftSolution:number[] = new Array(size).fill(-1)
         let position = 0
         clues.forEach((clue, index) => {
             for (let i = 0; i < clue; i++) {
@@ -93,7 +85,7 @@ function simpleBox(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, st
             position++;
         })
         position = size - 1
-        let rightSolution:number[] = new Array(size).fill(-1)
+        const rightSolution:number[] = new Array(size).fill(-1)
         clues.toReversed().forEach((clue, index) => {
             for (let i = 0; i < clue; i++) {
                 rightSolution[position] = clues.length - index - 1
@@ -101,7 +93,7 @@ function simpleBox(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, st
             }
             position--;
         })
-        let finalSolution:number[] = new Array(size).fill(0)
+        const finalSolution:number[] = new Array(size).fill(0)
         for (let i=0;i<size;i++){
              if (leftSolution[i] > -1 && leftSolution[i] === rightSolution[i]){
                  finalSolution[i] = 1
@@ -109,20 +101,20 @@ function simpleBox(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, st
         }
         return finalSolution
     }
-    let states = grid.getCellStates()
+    const states = grid.getCellStates()
     return applyFunctionToAll(grid, updateGrid, simpleBoxLine)
 }
 
 function simpleSpace(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, state: CellState) => void): boolean {
     function simpleSpaceLine(clues: readonly number[], line: CellState[]): number[] {
         function simpleSpaceDirection(clues: readonly number[], line: CellState[]): CellState[] {
-            let solution:CellState[] = new Array(line.length).fill(CellState.Blank)
+            const solution:CellState[] = new Array(line.length).fill(CellState.Blank)
             let lastMarked = 0
             let lastFilled = -1
             let firstFilled = -1
             let possible = 0
             let filledFound = false
-            let clueNumber = 0
+            const clueNumber = 0
             line.forEach((state, index) => {
                 switch (state) {
                     case CellState.Blank:
@@ -163,9 +155,9 @@ function simpleSpace(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, 
             })
             return solution
         }
-        let leftSolution = simpleSpaceDirection(clues, line)
-        let rightSolution = simpleSpaceDirection(clues.toReversed(), line.toReversed()).toReversed()
-        let finalSolution: CellState[] = new Array(line.length).fill(CellState.Blank)
+        const leftSolution = simpleSpaceDirection(clues, line)
+        const rightSolution = simpleSpaceDirection(clues.toReversed(), line.toReversed()).toReversed()
+        const finalSolution: CellState[] = new Array(line.length).fill(CellState.Blank)
         for (let i = 0; i < leftSolution.length; i++) {
             if (leftSolution[i] != CellState.Blank) {
                 if (rightSolution[i] != CellState.Blank) {
@@ -187,24 +179,24 @@ function simpleSpace(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, 
 
 function forcing(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, state: CellState) => void): boolean{
     function forcingLine(clues: readonly number[], line: CellState[]): number[] {
-        let markedArray:[number, CellState][] = []
-        for (let cell of line){
-            let lastCell = markedArray[markedArray.length-1] ?? [0,-1]
+        const markedArray:[number, CellState][] = []
+        for (const cell of line){
+            const lastCell = markedArray[markedArray.length-1] ?? [0,-1]
             if (lastCell[1] === cell){
                 lastCell[0]++;
             } else {
                 markedArray.push([1,cell])
             }
         }
-        let runningSpace = 0;
-        let finalArray:number[] = new Array(line.length).fill(0)
+        const runningSpace = 0;
+        const finalArray:number[] = new Array(line.length).fill(0)
         let cellNumber = 0
         let lastMarked = -1
-        for (let section of markedArray) {
+        for (const section of markedArray) {
             if (section[1] === CellState.Marked) {
-                let requiredSpace = [0, 0]
+                const requiredSpace = [0, 0]
                 let lastRequiredSpace = [0, 0]
-                for (let clue of clues) {
+                for (const clue of clues) {
                     requiredSpace[0] += clue
                     requiredSpace[1]++;
                     if (requiredSpace[0] > runningSpace) {

@@ -3,9 +3,9 @@ import {PageProps} from "./util/page";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
 export function Page5({ createLink, useLockableLink }: PageProps) {
-    let [lockedButton, reportSolved] = useLockableLink(6, "Forward", ["quiz1"]);
+    const [lockedButton, reportSolved] = useLockableLink(6, "Forward", ["quiz1"]);
 
-    let question1: QuestionProps = CreateQuestionProps(
+    const question1: QuestionProps = CreateQuestionProps(
         "What is an algorithm?",
         [
             "A random way of solving a problem",
@@ -14,7 +14,7 @@ export function Page5({ createLink, useLockableLink }: PageProps) {
             "A type of artificial intelligence"
         ],
         [1])
-    let question3: QuestionProps = CreateQuestionProps(
+    const question3: QuestionProps = CreateQuestionProps(
         "Which of the following is an everyday example of an algorithm?",
         [
             "A social media profile",
@@ -23,7 +23,7 @@ export function Page5({ createLink, useLockableLink }: PageProps) {
             "A video game controller"
         ],
         [1])
-    let question4: QuestionProps = CreateQuestionProps(
+    const question4: QuestionProps = CreateQuestionProps(
         "In computing, algorithms help programs do which of the following?",
         [
             "Create hardware",
@@ -32,7 +32,7 @@ export function Page5({ createLink, useLockableLink }: PageProps) {
             "Replace human decision-making completely"
         ],
         [1])
-    let question5: QuestionProps = CreateQuestionProps(
+    const question5: QuestionProps = CreateQuestionProps(
         "Social media recommendations referred to as “The Algorithm” are best described as:",
         [
             "Brute force algorithms",

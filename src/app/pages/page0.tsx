@@ -1,13 +1,8 @@
-import {loadingGrid, PageProps, setData} from "./util/page";
-import {ChoiceQuestion} from "./util/question";
-import React, {useState} from "react";
-import {Grid} from "../../game/nonogram";
+import {loadingGrid, PageProps} from "./util/page";
+import React from "react";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
 import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
-import {geneticSolve, geneticSolveSteps} from "../../game/solvers/genetic-solver";
-import {number} from "zod";
-import {v4 as uuidv4} from 'uuid';
 
 export function Page0({ createLink }: PageProps) {
     const cols1 = 9;

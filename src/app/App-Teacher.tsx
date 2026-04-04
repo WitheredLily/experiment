@@ -1,6 +1,5 @@
 import React, {JSX, useState} from "react";
-import {HashRouter, Link, Route, Routes, Navigate, useNavigate } from "react-router-dom";
-import {pageLock} from "./pages/util/page";
+import { useNavigate } from "react-router-dom";
 import * as pages from "./pages";
 import "./App-Student.css";
 import {v4 as uuidv4} from "uuid";
@@ -30,7 +29,7 @@ export default function AppStudent() {
     };
 
     //localStorage.clear();
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const pageArray = Object.values(pages);
     function changeCurrentPage(num: number){
         if (num > maxPage) {

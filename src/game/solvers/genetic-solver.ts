@@ -1,4 +1,4 @@
-import {Grid, CellState, Clues, makeRandomGrid} from "../nonogram"
+import {Grid, CellState} from "../nonogram"
 
 const POPULATION_SIZE = 200;
 const BASE_MUTATION_RATE = 0.02;
@@ -278,7 +278,7 @@ function computeColumnPenalties(
 }
 
 function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[], number] {
-    let bestGrids: TestGrid[] = []
+    const bestGrids: TestGrid[] = []
     const [cols, rows] = grid.getSize();
 
     const cluesX = grid.getCluesX();
@@ -332,7 +332,7 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[], number] {
 
         //console.log(`Gen ${generation}: Best = ${bestFitness}`);
 
-        let bestGrid = chromosomeToGrid(population[bestIndex], rowOptions)
+        const bestGrid = chromosomeToGrid(population[bestIndex], rowOptions)
         if (JSON.stringify(bestGrids[bestGrids.length - 1]) != JSON.stringify(bestGrid)) {
             bestGrids.push(chromosomeToGrid(population[bestIndex], rowOptions))
         }
@@ -392,7 +392,7 @@ function geneticSolve(grid: Grid): [Grid | null, number] {
 
 
 function geneticSolveSteps(grid: Grid):TestGrid[] {
-    let solution = geneticAlgorithm(grid)
+    const solution = geneticAlgorithm(grid)
     return solution[1]
 }
 

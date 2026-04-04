@@ -1,9 +1,8 @@
 import {loadingGrid, PageProps} from "./util/page";
-import React, {useState} from "react";
-import {Grid, loadGrid, makeGrid, makeRandomGrid, rowsToGrid} from "../../game/nonogram";
+import React from "react";
+import {Grid, makeGrid} from "../../game/nonogram";
 import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../game/board";
-import {ChoiceQuestion, CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
 export function Page1({ createLink, useLockableLink}: PageProps) {
     const cols1 = 13;
@@ -14,7 +13,7 @@ export function Page1({ createLink, useLockableLink}: PageProps) {
         [[0],[2,2],[4,4],[2,8],[1,9],[2,8],[9],[7],[5],[3],[1]],
         "gridA1"
     );
-    let grid2A = makeGrid([
+    const grid2A = makeGrid([
         [
             false, false, false,
             false, false, false,

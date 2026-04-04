@@ -3,9 +3,9 @@ import {PageProps} from "./util/page";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
 export function Page9({ createLink, useLockableLink }: PageProps) {
-    let [lockedButton, reportSolved] = useLockableLink(10, "Forward", ["quiz1"]);
+    const [lockedButton, reportSolved] = useLockableLink(10, "Forward", ["quiz1"]);
 
-    let question1: QuestionProps = CreateQuestionProps(
+    const question1: QuestionProps = CreateQuestionProps(
         "What is the main inspiration behind a genetic algorithm?",
         [
             "The laws of thermodynamics",
@@ -14,7 +14,7 @@ export function Page9({ createLink, useLockableLink }: PageProps) {
             "The social hierarchy of humans"
         ],
         [1])
-    let question2: QuestionProps = CreateQuestionProps(
+    const question2: QuestionProps = CreateQuestionProps(
         "In a genetic algorithm, what does “fitness” measure?",
         [
             "How quickly the algorithm runs",
@@ -23,7 +23,7 @@ export function Page9({ createLink, useLockableLink }: PageProps) {
             "The number of generations"
         ],
         [1])
-    let question3: QuestionProps = CreateQuestionProps(
+    const question3: QuestionProps = CreateQuestionProps(
         "Which of the following is NOT a typical step in a genetic algorithm?",
         [
             "Creating a population of potential solutions",
@@ -32,7 +32,7 @@ export function Page9({ createLink, useLockableLink }: PageProps) {
             "Combining and mutating solutions to form a new generation"
         ],
         [2])
-    let question4: QuestionProps = CreateQuestionProps(
+    const question4: QuestionProps = CreateQuestionProps(
         "Why might a genetic algorithm fail to find the best solution?",
         [
             "It always chooses random solutions instead of the best ones",
@@ -41,7 +41,7 @@ export function Page9({ createLink, useLockableLink }: PageProps) {
             "It only works with numeric data"
         ],
         [1])
-    let question5: QuestionProps = CreateQuestionProps(
+    const question5: QuestionProps = CreateQuestionProps(
         "In the context of genetic algorithms, what is a “chromosome”?",
         [
             "A sequence representing part of a potential solution",
@@ -50,7 +50,7 @@ export function Page9({ createLink, useLockableLink }: PageProps) {
             "The mutation process"
         ],
         [0])
-    let question6: QuestionProps = CreateQuestionProps(
+    const question6: QuestionProps = CreateQuestionProps(
         "What is the purpose of mutation in a genetic algorithm?",
         [
             "To ensure every solution is perfect",

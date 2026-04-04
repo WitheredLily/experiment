@@ -3,9 +3,9 @@ import {PageProps} from "./util/page";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
 
 export function Page11({ createLink, useLockableLink }: PageProps) {
-    let [lockedButton, reportSolved] = useLockableLink(12, "Forward", ["quiz1"]);
+    const [lockedButton, reportSolved] = useLockableLink(12, "Forward", ["quiz1"]);
 
-    let question1: QuestionProps = CreateQuestionProps(
+    const question1: QuestionProps = CreateQuestionProps(
         "What is the main purpose of a search algorithm?",
         [
             "To sort data in ascending order",
@@ -14,7 +14,7 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             "To encrypt information for security"
         ],
         [1])
-    let question2: QuestionProps = CreateQuestionProps(
+    const question2: QuestionProps = CreateQuestionProps(
         "How does binary search work?",
         [
             "Checks each element one by one until it finds the target",
@@ -23,7 +23,7 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             "Estimates the position of the target using a formula"
         ],
         [1])
-    let question3: QuestionProps = CreateQuestionProps(
+    const question3: QuestionProps = CreateQuestionProps(
         "What is a disadvantage of linear search?",
         [
             "It only works on sorted data",
@@ -32,7 +32,7 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             "It can skip over the target data"
         ],
         [2])
-    let question4: QuestionProps = CreateQuestionProps(
+    const question4: QuestionProps = CreateQuestionProps(
         "Which statement is true about binary search?",
         [
             "It works efficiently on both sorted and unsorted data",
@@ -41,7 +41,7 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             "It checks every element sequentially"
         ],
         [2])
-    let question5: QuestionProps = CreateQuestionProps(
+    const question5: QuestionProps = CreateQuestionProps(
         "!",
         [
             "!",

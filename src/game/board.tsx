@@ -3,9 +3,7 @@
 
 import React, {useState} from "react";
 import { CellState, Grid} from "./nonogram";
-import {BacktrackSolve, getBacktrackSolution} from "./solvers/backtracking-solver";
-import {pageLock} from "../app/pages/util/page";
-import {geneticSolveSteps, TestGrid} from "./solvers/genetic-solver";
+import {geneticSolveSteps} from "./solvers/genetic-solver";
 
 let incorrectInput = false;
 
@@ -59,7 +57,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
 
     const handlePlayGraphic = async () => {
         if (!inputGraphic) return;
-        for (let input of inputGraphic){
+        for (const input of inputGraphic){
             updateCell(input[0][0], input[0][1], input[0][2])
             await sleep(graphicSpeed * 1000);
         }
@@ -71,9 +69,9 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
         setPlaying(true);
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        let grids = geneticSolveSteps(grid.clone());
+        const grids = geneticSolveSteps(grid.clone());
 
-        for (let exampleGrid of grids) {
+        for (const exampleGrid of grids) {
             const previousStates = grid.getCellStates();
             const newStates = exampleGrid;
 
@@ -124,7 +122,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
 
     const checkInput = (x: number, y: number, state: CellState):boolean => {
         if (inputOrder) {
-            for (let input of inputOrder[inputNumber]) {
+            for (const input of inputOrder[inputNumber]) {
                 if (input[0] === x && input[1] === y && input[2] === state) {
                     inputNumber++;
                     return true;

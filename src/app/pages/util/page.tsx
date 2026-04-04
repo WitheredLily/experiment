@@ -1,6 +1,5 @@
 import {JSX, useEffect, useState} from "react";
-import {Clues, Grid, loadGrid} from "../../../game/nonogram";
-import {boolean} from "zod";
+import { Grid, loadGrid} from "../../../game/nonogram";
 
 interface PageProps {
     createLink: (num: number, text: string, id?: string) => JSX.Element;

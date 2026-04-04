@@ -1,13 +1,12 @@
 import {BacktrackSolve} from "./backtracking-solver";
 import {geneticSolve} from "./genetic-solver";
-import {constraintPropagationSolve} from "./constraint-solver";
 import {CellState, Grid, makeRandomGrid, rowsToGrid} from "../nonogram";
 
 const solution = makeRandomGrid(20,20,0.5)
 
 function gridCheck(grid:Grid){
-    let states = grid.getCellStates()
-    let [xSize,ySize] = grid.getSize()
+    const states = grid.getCellStates()
+    const [xSize,ySize] = grid.getSize()
     for (let y = 0; y < ySize; y++){
         for (let x = 0; x < xSize; x++){
             if (states[x][y] != (solution[x][y] ? CellState.Filled : CellState.Marked)) {
@@ -20,7 +19,7 @@ function gridCheck(grid:Grid){
 }
 
 test("Backtracking Solver", () => {
-    let grid:Grid = rowsToGrid(solution, "backtrack")
+    const grid:Grid = rowsToGrid(solution, "backtrack")
     BacktrackSolve(grid)
     expect(gridCheck(grid)).toBe(true);
 });
@@ -34,20 +33,20 @@ test("Constraint Propagation Solver", () => {
 */
 test("Genetic Solver", () => {
     for (let i = 0; i < 10; i++) {
-        let grid: Grid = rowsToGrid(makeRandomGrid(10,10,0.5), "genetic")
+        const grid: Grid = rowsToGrid(makeRandomGrid(10,10,0.5), "genetic")
         geneticSolve(grid)
         expect(gridCheck(grid)).toBe(true);
     }
 });
 
 test("Genetic Solver Success Rate", () => {
-    let gridNum = 100
-    let solveRates = new Map<number, [number,number]>()
+    const gridNum = 100
+    const solveRates = new Map<number, [number,number]>()
     for (let n=3; n<=20; n+=1) {
         let solvedGrids = 0
         let solvedIterations = 0
         for (let i = 0; i < gridNum; i++) {
-            let grid: Grid = rowsToGrid(makeRandomGrid(n, n, 0.5), "genetic")
+            const grid: Grid = rowsToGrid(makeRandomGrid(n, n, 0.5), "genetic")
             const [solved,gens] = geneticSolve(grid);
             if (solved !== null) {
                 solvedGrids += 1

@@ -29,6 +29,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
+    "typescript-eslint": "^8.58.0",
     "uuid": "^13.0.0",
     "wait-on": "^9.0.4",
     "web-vitals": "^5.1.0",
@@ -59,6 +60,7 @@
     "build": "vite build --config vite.config.student.ts && vite build --config vite.config.teacher.ts && vite build --config vite.config.login.ts",
     "preview": "vite preview",
     "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
     "generate-images": "npm start  scripts/images/my-react-app/src/generate-images.js"
   },
   "eslintConfig": {
@@ -84,14 +86,19 @@
     "@types/aws-lambda": "^8.10.157",
     "@types/bootstrap": "^5.2.10",
     "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
     "@vitejs/plugin-react": "^5.1.4",
     "aws-cdk": "2.1030.0",
     "concurrently": "^9.2.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tslint": "^5.20.1",
     "typescript": "^5.9.3",
     "vite": "^7.2.2"
   }

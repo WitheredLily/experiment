@@ -1,17 +1,13 @@
-import React, {useState} from "react";
+import React from "react";
 import {loadingGrid, PageProps} from "./util/page";
 import {VisualGrid} from "../../game/board";
-import {Grid} from "../../game/nonogram";
-import {getBacktrackSolution, BacktrackSolve} from "../../game/solvers/backtracking-solver";
-import {constraintPropagationSolve} from "../../game/solvers/constraint-solver";
-import {geneticSolve, geneticSolveSteps} from "../../game/solvers/genetic-solver";
 
 export function Page3({ createLink, useLockableLink }: PageProps) {
     const cols1 = 7;
     const rows1 = 7;
 
     const [grid1, setGrid1] = loadingGrid("grid1", cols1, rows1, 0.75);
-    let [lockedButton, reportSolved] = useLockableLink(4, "Forward", ["grid1"]);
+    const [lockedButton, reportSolved] = useLockableLink(4, "Forward", ["grid1"]);
 
     if (!grid1) {
         return <div>Loading grid...</div>;

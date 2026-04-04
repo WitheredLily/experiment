@@ -1,12 +1,11 @@
 import React, {JSX, useState} from "react";
-import {HashRouter, Link, Route, Routes, Navigate, useNavigate } from "react-router-dom";
-import {pageLock} from "./pages/util/page";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import {pageList} from "./pages";
 import "./App-Student.css";
 
 export default function AppStudent() {
     //localStorage.clear();
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     function changeCurrentPage(num: number){
         if (num > maxPage) {
             setMaxPage(num);

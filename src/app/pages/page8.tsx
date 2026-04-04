@@ -4,7 +4,7 @@ import {Grid} from "../../game/nonogram";
 import {VisualGrid} from "../../game/board";
 
 export function Page8({ createLink, useLockableLink }: PageProps) {
-    localStorage.removeItem("gridGuide1");
+
     const [graphicGrid, setGraphicGrid] = loadingGrid("gridGraphic", 10, 10, 0.25)
 
     if (!graphicGrid) return <div>Loading grid...</div>;

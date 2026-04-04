@@ -3,14 +3,6 @@ import {loadingGrid, PageProps} from "./util/page";
 import {Grid} from "../../game/nonogram";
 
 export function Page6({ createLink, useLockableLink }: PageProps) {
-    localStorage.removeItem("gridGuide1");
-    const [grid, setGrid] = useState<Grid | null>(null);
-    const gridId = "gridGuide1";
-    useEffect(() => {
-        setGrid(new Grid([[1,1],[1,1]], [[1],[1],[1],[1]], gridId));
-    }, []);
-
-    if (!grid) return <div>Loading grid...</div>;
     return (
         <div>
             <div className="tabContent-header">

@@ -10,8 +10,8 @@ export function Page3({ createLink, useLockableLink }: PageProps) {
     const cols1 = 7;
     const rows1 = 7;
 
-    const [grid1, setGrid1] = loadingGrid("grid2", cols1, rows1, 0.75);
-    let [lockedButton, reportSolved] = useLockableLink(3, "Forward", ["grid1"]);
+    const [grid1, setGrid1] = loadingGrid("grid1", cols1, rows1, 0.75);
+    let [lockedButton, reportSolved] = useLockableLink(4, "Forward", ["grid1"]);
 
     if (!grid1) {
         return <div>Loading grid...</div>;
@@ -27,6 +27,7 @@ export function Page3({ createLink, useLockableLink }: PageProps) {
                 <div className="question-container">
                     <p>Here is a nonogram to try:</p>
                     <VisualGrid grid={grid1} onGridChange={setGrid1} lock={(locked) => reportSolved("grid1", !locked)}/>
+                    <button onClick={() => {reportSolved("all", true)}}>Unlock</button>
                 </div>
                 <br/>
                 <nav className={"navButton"}>

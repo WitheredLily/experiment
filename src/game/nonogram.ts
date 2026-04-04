@@ -129,6 +129,9 @@ class Grid {
 
     public updateCell(x: number, y: number, newState: CellState){
         this.cellStates[x][y] = newState;
+        this.checkAllClues();
+        this.isSolved();
+        this.save();
     }
 
     public getSolved(): boolean {

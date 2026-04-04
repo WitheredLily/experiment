@@ -5,7 +5,7 @@ import {pageList} from "./pages";
 import "./App-Student.css";
 
 export default function AppStudent() {
-    localStorage.clear();
+    //localStorage.clear();
     let navigate = useNavigate();
     function changeCurrentPage(num: number){
         if (num > maxPage) {

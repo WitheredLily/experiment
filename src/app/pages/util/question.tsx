@@ -31,24 +31,75 @@ export function CreateQuestionProps(question: string, choices: string[], answers
     return {question, choices, answers, onSelect: onSelect};
 }
 
-export function QuestionSection({ locks, questions }: { locks: ((locked: boolean) => void)[], questions: QuestionProps[] }) {
-    const [incorrect, setIncorrect] = useState<boolean[]>(questions.map(() => true));
+function shuffleChoices(
+    choices: string[],
+    answers: number[]
+): { shuffledChoices: string[]; shuffledAnswers: number[] } {
+
+    const indexed = choices.map((choice, index) => ({
+        choice,
+        originalIndex: index
+    }));
+
+    for (let i = indexed.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+    }
+
+    const shuffledChoices = indexed.map(item => item.choice);
+
+    const shuffledAnswers = indexed
+        .map((item, newIndex) =>
+            answers.includes(item.originalIndex) ? newIndex : -1
+        )
+        .filter(i => i !== -1);
+
+    return { shuffledChoices, shuffledAnswers };
+}
+
+export function QuestionSection({
+                                    locks,
+                                    questions
+                                }: {
+    locks: ((locked: boolean) => void)[];
+    questions: QuestionProps[];
+}) {
+
+    const [incorrect, setIncorrect] = useState<boolean[]>(
+        questions.map(() => true)
+    );
+
+    const [shuffledQuestions] = useState(() =>
+        questions.map(q => {
+            const { shuffledChoices, shuffledAnswers } =
+                shuffleChoices(q.choices, q.answers);
+
+            return {
+                ...q,
+                choices: shuffledChoices,
+                answers: shuffledAnswers
+            };
+        })
+    );
 
     const handleAnswerChange = (index: number, isCorrect: boolean) => {
         const newIncorrect = [...incorrect];
         newIncorrect[index] = !isCorrect;
         setIncorrect(newIncorrect);
 
-        locks.forEach(lock => lock(newIncorrect.some(x => x)));
+        const isLocked = newIncorrect.some(x => x);
+        locks.forEach(lock => lock(isLocked));
     };
 
     return (
         <>
-            {questions.map((q, i) => (
+            {shuffledQuestions.map((q, i) => (
                 <ChoiceQuestion
                     key={i}
                     question={q}
-                    onAnswerChange={(isCorrect) => handleAnswerChange(i, isCorrect)}
+                    onAnswerChange={(isCorrect) =>
+                        handleAnswerChange(i, isCorrect)
+                    }
                 />
             ))}
         </>

@@ -29,7 +29,7 @@ export default function AppStudent() {
         ));
     };
 
-    localStorage.clear();
+    //localStorage.clear();
     let navigate = useNavigate();
     const pageArray = Object.values(pages);
     function changeCurrentPage(num: number){

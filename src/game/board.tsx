@@ -50,6 +50,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
+    console.log(grid);
     const [highlightedCells, setHighlightedCells] = useState<Set<string>>(new Set());
     const [playing, setPlaying] = useState(false);
     let inputNumber = 0;

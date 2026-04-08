@@ -1,4 +1,4 @@
-import { PageProps } from "./util/page";
+import { PageProps } from "../util/page";
 import React from "react";
 
 export function Page0({ createLink }: PageProps) {
@@ -42,10 +42,10 @@ export function Page0({ createLink }: PageProps) {
                         <li>Search Algorithms</li>
                     </ul>
                 </div>
+                <nav className="navButton">
+                    {createLink(1, "Start")}
+                </nav>
             </div>
-            <nav className="navButton">
-                {createLink(1, "Start")}
-            </nav>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import React from "react";
-import {PageProps} from "./util/page";
-import {CreateQuestionProps, QuestionProps, QuestionSection} from "./util/question";
+import {PageProps} from "../util/page";
+import {CreateQuestionProps, QuestionProps, QuestionSection} from "../util/question";
 
 export function Page9({ createLink, useLockableLink }: PageProps) {
     const [lockedButton, reportSolved] = useLockableLink(10, "Forward", ["quiz1"]);

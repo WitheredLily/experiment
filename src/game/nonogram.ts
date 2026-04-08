@@ -27,34 +27,48 @@ class Grid {
     private readonly id?: string;
     private alternateSolution?: CellState[][][];
 
-    public constructor(numbersX: number[][], numbersY: number[][], id?: string, states?: CellState[][]) {
+    public constructor(numbersX: number[][], numbersY: number[][], id?: string, states?: CellState[][], alternateSolution?: CellState[][][]) {
         const cols = numbersX.length;
         const rows = numbersY.length;
+
         if (states) {
-            if (states.length !== cols) {
-                throw loadingErr;
-            }
+            if (states.length !== cols) throw loadingErr;
             for (const state of states) {
-                if (state.length !== rows) {
-                    throw loadingErr;
-                }
+                if (state.length !== rows) throw loadingErr;
             }
             this.cellStates = states;
         } else {
-            this.cellStates = Array.from({length: cols}, () =>
-                Array.from({length: rows}, () => CellState.Blank)
+            this.cellStates = Array.from({ length: cols }, () =>
+                Array.from({ length: rows }, () => CellState.Blank)
             );
         }
+
         this.cluesArrayX = numbersToClue(numbersX);
         this.cluesArrayY = numbersToClue(numbersY);
-        this.numbers = [numbersX,numbersY]
-        this.solved = false;
-        this.isSolved()
+        this.numbers = [numbersX, numbersY];
         this.id = id;
+        this.alternateSolution = alternateSolution;
+        this.solved = false;
+
         this.checkAllClues();
-        this.save();
     }
 
+    public toJSON() {
+        return {
+            numbers: this.numbers,
+            cellStates: this.cellStates,
+            alternateSolution: this.alternateSolution
+        };
+    }
+    public static fromJSON(data: any, id?: string): Grid {
+        return new Grid(
+            data.numbers[0],
+            data.numbers[1],
+            id,
+            data.cellStates,
+            data.alternateSolution
+        );
+    }
     public setStates(states: CellState[][]) {
         if (states.length !== this.cellStates.length || states[0].length !== this.cellStates[0].length) {
             return false;
@@ -81,14 +95,17 @@ class Grid {
     }
 
     public checkAlternateSolution(){
+        //console.log("Checking alternate solution: ", this.alternateSolution)
         if (this.alternateSolution) {
             for (let i = 0; i < this.alternateSolution.length; i++) {
                 for (let j = 0; j < this.alternateSolution[i].length; j++) {
                     if (!this.alternateSolution[i][j].includes(this.cellStates[i][j])) {
-                        return
+                        //console.log("Checking alternate solution: Fail")
+                        return;
                     }
                 }
             }
+            console.log("Checking alternate solution: Success")
             this.solved=true;
         }
     }
@@ -99,22 +116,36 @@ class Grid {
     }
 
     public clone(newId?: string): Grid {
-        return new Grid(this.numbers[0], this.numbers[1], newId, Object.assign([], this.cellStates.map(function(arr) {
-            return arr.slice();
-        })))
+        const altSolCopy = this.alternateSolution
+            ? this.alternateSolution.map(layer => layer.map(col => col.slice()))
+            : undefined;
+
+        const cellStatesCopy = this.cellStates.map(col => col.slice());
+
+        return new Grid(
+            this.numbers[0],
+            this.numbers[1],
+            newId,
+            cellStatesCopy,
+            altSolCopy
+        );
     }
 
     public save(): void {
         if (!this.id) return;
-        localStorage.setItem(this.id, JSON.stringify({
-            numbers: this.numbers,
-            cellStates: this.cellStates,
-        }));
+        localStorage.setItem(this.id, JSON.stringify(this.toJSON()));
     }
 
-    public isSolved(){
-        const solved = checkSolvedAxis(this.cluesArrayX) && checkSolvedAxis(this.cluesArrayY);
-        this.checkAlternateSolution()
+    public isSolved() {
+        if (this.alternateSolution) {
+            this.checkAlternateSolution();
+            return this.solved;
+        }
+
+        const solved =
+            checkSolvedAxis(this.cluesArrayX) &&
+            checkSolvedAxis(this.cluesArrayY);
+
         this.solved = solved;
         return solved;
     }
@@ -167,27 +198,21 @@ async function loadGrid(
     id: string,
     cols: number,
     rows: number,
-    probability: number,
     image?: string
-): Promise<Grid> {
+): Promise<Grid | null> {
+
     const stored = localStorage.getItem(id);
+
     if (stored) {
-        const loadedGrid = JSON.parse(stored);
-        if (!loadedGrid.solved) {
-            return new Grid(
-                loadedGrid.numbers[0],
-                loadedGrid.numbers[1],
-                id,
-                loadedGrid.cellStates
-            );
-        }
+        const parsed = JSON.parse(stored);
+        return Grid.fromJSON(parsed, id);
     }
 
     if (image) {
         return imageToNonogram(image, cols, rows, id);
-    } else {
-        return rowsToGrid(makeRandomGrid(cols, rows, probability), id);
     }
+
+    return null;
 }
 
 

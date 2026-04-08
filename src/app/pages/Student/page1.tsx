@@ -1,8 +1,8 @@
-import {loadingGrid, PageProps} from "./util/page";
+import {loadingGrid, PageProps} from "../util/page";
 import React, {JSX} from "react";
-import {Grid, makeGrid} from "../../game/nonogram";
-import {BacktrackSolve} from "../../game/solvers/backtracking-solver";
-import {VisualGrid} from "../../game/board";
+import {Grid, makeGrid} from "../../../game/nonogram";
+import {BacktrackSolve} from "../../../game/solvers/backtracking-solver";
+import {VisualGrid} from "../../../game/board";
 
 export function Page1({ createLink}: PageProps):JSX.Element {
     const cols1 = 13;
@@ -165,14 +165,14 @@ export function Page1({ createLink}: PageProps):JSX.Element {
             <div className="tabContent-header">
                 <h1>What is a nonogram?</h1>
             </div>
-        <div className="tabContent">
-            <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
-            <VisualGrid grid={grid} nonInteractive={true}/>
-            <VisualGrid grid={grid2} nonInteractive={true}/>
-            <nav className={"navButton"}>
-                {createLink(2,"Forward")}
-            </nav>
-        </div>
+            <div className="tabContent">
+                <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
+                <VisualGrid grid={grid} nonInteractive={true}/>
+                <VisualGrid grid={grid2} nonInteractive={true}/>
+                <nav className={"navButton"}>
+                    {createLink(2,"Forward")}
+                </nav>
+            </div>
         </div>
     );
 }

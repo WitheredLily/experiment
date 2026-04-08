@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import AppStudent from './App-Student';
+import App from './App';
 
 test('renders learn react link', () => {
-  render(<AppStudent />);
+  render(<App />);
   const linkElement = screen.getByText(/learn react/i);
   expect(linkElement).toBeInTheDocument();
 });
 
 test('updating lock works', () =>{
-  render(<AppStudent />);
+  render(<App />);
   //jest.mock()
 })

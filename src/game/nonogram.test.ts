@@ -118,7 +118,8 @@ describe("Nonogram Grid", () => {
             grid.updateCell(0, 0, CellState.Filled);
             grid.save();
 
-            const loaded = await loadGrid("stored", 1, 1, 0.5);
+            const loaded = await loadGrid("stored", 1, 1);
+            if (!loaded) throw new Error("Failed to load grid");
             expect(loaded.getCellStates()[0][0]).toBe(CellState.Filled);
         });
     });
@@ -150,7 +151,7 @@ describe("Nonogram Grid", () => {
                 new Grid([[1]], [[1]], "img")
             );
 
-            const grid = await loadGrid("img", 1, 1, 0.5, "image-data");
+            const grid = await loadGrid("img", 1, 1, "image-data");
 
             expect(imageToNonogram).toHaveBeenCalled();
             expect(grid).toBeInstanceOf(Grid);

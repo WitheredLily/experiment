@@ -3,16 +3,15 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  appType: 'spa',
   server: {
-    port: 3007
+    port: 3000,
   },
+  plugins: [react()],
   build: {
-    outDir: 'build/login',
+    outDir: 'build',
     rollupOptions: {
-      input: {
-        main: 'index-login.html'
-      }
+      input: 'index.html'
     }
-  }
+  },
 })

@@ -1,6 +1,6 @@
 import React from "react";
-import {loadingGrid, PageProps} from "./util/page";
-import {VisualGrid} from "../../game/board";
+import {loadingGrid, PageProps} from "../util/page";
+import {VisualGrid} from "../../../game/board";
 
 export function Page3({ createLink, useLockableLink }: PageProps) {
     const cols1 = 7;

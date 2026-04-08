@@ -1,5 +1,5 @@
 import React from "react";
-import { PageProps} from "./util/page";
+import { PageProps} from "../util/page";
 
 export function Page10({ createLink, useLockableLink }: PageProps) {
     return (

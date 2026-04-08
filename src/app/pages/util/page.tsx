@@ -1,5 +1,5 @@
 import {JSX, useEffect, useState} from "react";
-import { Grid, loadGrid} from "../../../game/nonogram";
+import {Grid, loadGrid, makeRandomGrid, rowsToGrid} from "../../../game/nonogram";
 
 interface PageProps {
     createLink: (num: number, text: string, id?: string) => JSX.Element;
@@ -15,18 +15,25 @@ function loadingGrid(gridId: string, cols: number, rows: number, probability: nu
     const [grid, setGrid] = useState<Grid | null>(null);
 
     useEffect(() => {
-        if (initialGrid) {
-            setGrid(initialGrid);
-            return;
-        }
 
         const load = async () => {
-            const g = await loadGrid(gridId, cols, rows, probability, image);
-            setGrid(g);
+            const g = await loadGrid(gridId, cols, rows, image);
+            if (g) {
+                console.log("Loaded grid from local storage");
+                setGrid(g);
+            } else {
+                if (initialGrid) {
+                    console.log("Initial grid loaded: ", initialGrid);
+                    setGrid(initialGrid?.clone(gridId));
+                } else {
+                    console.log("Random grid loaded");
+                    setGrid(rowsToGrid(makeRandomGrid(cols, rows, probability)));
+                }
+            }
         };
 
         load();
-    }, []);
+    }, [gridId, cols, rows, image]);
 
     return [grid, setGrid] as const;
 }
@@ -61,9 +68,9 @@ function leftRightMost(clues: number[], size: number): boolean[][] {
     return left.map((_, i) => [left[i], right[i]]);
 }
 
-function blankRow(clues: number[][], size: number){
-    const yClues = Array(size).fill([1]);
-    return new Grid(yClues, clues);
+function blankRow(clues: number[][], size: number, id?: string){
+    const yClues = Array.from({ length: size }, () => [1]);
+    return new Grid(yClues, clues, id);
 }
 
 

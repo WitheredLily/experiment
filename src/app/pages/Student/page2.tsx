@@ -1,8 +1,8 @@
-import React from "react";
-import {blankRow, loadingGrid, PageProps} from "./util/page";
-import {CellState} from "../../game/nonogram";
-import {getBacktrackSolution} from "../../game/solvers/backtracking-solver";
-import {VisualGrid} from "../../game/board";
+import React, {useMemo} from "react";
+import {blankRow, loadingGrid, PageProps} from "../util/page";
+import {CellState} from "../../../game/nonogram";
+import {getBacktrackSolution} from "../../../game/solvers/backtracking-solver";
+import {VisualGrid} from "../../../game/board";
 
 export function Page2({ createLink, useLockableLink }: PageProps) {
     const puzzleIds = [
@@ -15,37 +15,51 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
 
     const [lockedButton, reportSolved] = useLockableLink(3, "Forward", puzzleIds);
     // Simple squares
-    const simpleSquareQuizSolution = blankRow([[3,4,5]], 16);
-    simpleSquareQuizSolution.setAlternateSolution([[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]]])
+    const simpleSquareQuizSolution = useMemo(() => {
+        const g = blankRow([[3,4,5]], 16, "simpleSquareQuizSolution");
+        g.setAlternateSolution([[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Blank]]]);
+        return g;
+    }, []);
     const [colsSquare, rowsSquare] = simpleSquareQuizSolution.getSize();
-    const [simpleSquareQuiz, setSimpleSquareQuiz] = loadingGrid("simpleSpaceQuizSolution", colsSquare, rowsSquare, 0.5, simpleSquareQuizSolution);
-
+    const [simpleSquareQuiz, setSimpleSquareQuiz] = loadingGrid("simpleSquareQuizSolution", colsSquare, rowsSquare, 0.5, simpleSquareQuizSolution);
 
     // Simple spaces
-    const simpleSpaceQuizSolution = blankRow([[1,4]], 10);
-    simpleSpaceQuizSolution.setStates([[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Filled],[CellState.Filled],[CellState.Blank],[CellState.Blank]])
-    simpleSpaceQuizSolution.setAlternateSolution([[[CellState.Blank, CellState.Marked]],[[CellState.Filled]],[[CellState.Blank, CellState.Marked]],[[CellState.Marked]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Marked]]])
+    const simpleSpaceQuizSolution = useMemo(() => {
+    const g = blankRow([[1,4]], 10, "simpleSpaceQuizSolution");
+    g.setStates([[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Filled],[CellState.Filled],[CellState.Blank],[CellState.Blank]])
+    g.setAlternateSolution([[[CellState.Blank, CellState.Marked]],[[CellState.Filled]],[[CellState.Blank, CellState.Marked]],[[CellState.Marked]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Marked]]])
+        return g;
+    }, []);
     const [colsSpace,rowsSpace] = simpleSpaceQuizSolution.getSize();
     const [simpleSpaceQuiz, setSimpleSpaceQuiz] = loadingGrid("simpleSpaceQuizSolution", colsSpace, rowsSpace, 0.5, simpleSpaceQuizSolution);
 
     // Glue
-    const glueQuizSolution = blankRow([[2,4]], 10);
-    glueQuizSolution.setStates([[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Marked],[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Blank]])
-    glueQuizSolution.setAlternateSolution([[[CellState.Blank]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Marked]],[[CellState.Blank, CellState.Marked]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]]])
+    const glueQuizSolution = useMemo(() => {
+    const g = blankRow([[2,4]], 10, "glueQuizSolution");
+    g.setStates([[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Marked],[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Blank]])
+    g.setAlternateSolution([[[CellState.Blank]],[[CellState.Filled]],[[CellState.Blank]],[[CellState.Marked]],[[CellState.Blank, CellState.Marked]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank]]])
+        return g;
+    }, []);
     const [colsGlue,rowsGlue] = glueQuizSolution.getSize();
     const [glueQuiz, setGlueQuiz] = loadingGrid("glueQuizSolution", colsGlue, rowsGlue, 0.5, glueQuizSolution);
 
     // Joining and splitting
-    const jaSQuizSolution = blankRow([[4,3]], 10);
-    jaSQuizSolution.setStates([[CellState.Blank],[CellState.Filled],[CellState.Filled],[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Filled],[CellState.Blank]])
-    jaSQuizSolution.setAlternateSolution([[[CellState.Blank, CellState.Marked]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank, CellState.Marked]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank, CellState.Marked]]])
+    const jaSQuizSolution = useMemo(() => {
+    const g = blankRow([[4,3]], 10, "jaSQuizSolution");
+    g.setStates([[CellState.Blank],[CellState.Filled],[CellState.Filled],[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Filled],[CellState.Blank],[CellState.Filled],[CellState.Blank]])
+    g.setAlternateSolution([[[CellState.Blank, CellState.Marked]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank, CellState.Marked]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Blank, CellState.Marked]]])
+        return g;
+    }, []);
     const [colsJaS,rowsJaS] = jaSQuizSolution.getSize();
     const [jaSQuiz, setJaSQuiz] = loadingGrid("jaSQuizSolution", colsJaS, rowsJaS, 0.5, jaSQuizSolution);
 
     // Punctuating
-    const punctuatingQuizSolution = blankRow([[1,3,2]], 10);
-    punctuatingQuizSolution.setStates([[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Filled],[CellState.Filled],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Blank]])
-    punctuatingQuizSolution.setAlternateSolution([[[CellState.Blank]],[[CellState.Blank]],[[CellState.Marked]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Marked]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Blank]]])
+    const punctuatingQuizSolution = useMemo(() => {
+    const g = blankRow([[1,3,2]], 10, "punctuatingQuizSolution");
+    g.setStates([[CellState.Blank],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Filled],[CellState.Filled],[CellState.Blank],[CellState.Blank],[CellState.Filled],[CellState.Blank]])
+    g.setAlternateSolution([[[CellState.Blank]],[[CellState.Blank]],[[CellState.Marked]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Filled]],[[CellState.Marked]],[[CellState.Blank]],[[CellState.Filled]],[[CellState.Blank]]])
+        return g;
+    }, []);
     const [colsPunct,rowsPunct] = punctuatingQuizSolution.getSize();
     const [punctuatingQuiz, setPunctuatingQuiz] = loadingGrid("punctuatingQuizSolution", colsPunct, rowsPunct, 0.5, punctuatingQuizSolution);
 

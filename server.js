@@ -12,10 +12,10 @@ const app = (0, express_1.default)();
 const buildDir = path_1.default.join(__dirname, 'build');
 app.use(express_1.default.static(buildDir));
 app.get('/api/send-app', (req, res) => {
-    res.sendFile(path_1.default.join(buildDir, 'index-student.html'));
+    res.sendFile(path_1.default.join(buildDir, 'index.html'));
 });
 app.get('*', (req, res) => {
-    res.sendFile(path_1.default.join(buildDir, 'index-student.html'));
+    res.sendFile(path_1.default.join(buildDir, 'index.html'));
 });
 // Detect whether we're running locally or in Lambda
 if (process.env.AWS_LAMBDA_FUNCTION_NAME) {

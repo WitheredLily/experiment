@@ -1,8 +1,8 @@
 // typescript
 // File: `src/game/board.tsx`
 
-import React, {useState} from "react";
-import { CellState, Grid} from "./nonogram";
+import React, {useEffect, useState} from "react";
+import {CellState, Grid, makeRandomGrid, rowsToGrid} from "./nonogram";
 import {geneticSolveSteps} from "./solvers/genetic-solver";
 
 let incorrectInput = false;
@@ -19,10 +19,13 @@ interface BoardProps {
     hideClueColumn?: boolean;
     hideClueRow?: boolean;
     lock?: (locked: boolean) => void
+    highlightedCellsArray?: [number, number][];
+    noSolve?: boolean;
+    shuffle?: boolean;
 }
 
-const stateToColor = (s: CellState): "white" | "black" | "gray" =>
-    s === CellState.Filled ? "black" : s === CellState.Marked ? "gray" : "white";
+const stateToColor = (s: CellState): "white" | "black" =>
+    s === CellState.Filled ? "black" : "white";
 
 const renderClueColumn = (nums: ReadonlyArray<number>) =>
     nums.length > 0 ? (
@@ -37,7 +40,7 @@ const renderClueColumn = (nums: ReadonlyArray<number>) =>
 
 const renderClueRow = (nums: ReadonlyArray<number>) =>
     nums.length > 0 ? (
-        <div style={{ display: "flex", gap: "0.25rem", justifyContent: "flex-end", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "0.25rem", justifyContent: "flex-end", alignItems: "center", marginRight: "0.25rem" }}>
             {nums.map((n, i) => (
                 <div key={i}>{n}</div>
             ))}
@@ -46,15 +49,29 @@ const renderClueRow = (nums: ReadonlyArray<number>) =>
         <div style={{ opacity: 0.4 }}>·</div>
     );
 
-export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow, lock, geneticGraphic, graphicSpeed = 1 }) => {
+export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolving, nonInteractive, inputOrder, inputGraphic, hideClueColumn, hideClueRow, lock, geneticGraphic, graphicSpeed = 1, highlightedCellsArray, noSolve, shuffle }) => {
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
-    console.log(grid);
+    //console.log(grid);
     const [highlightedCells, setHighlightedCells] = useState<Set<string>>(new Set());
     const [playing, setPlaying] = useState(false);
+    const [loading, setLoading] = useState(false);
     let inputNumber = 0;
     const [cols, rows] = grid.getSize();
+
+    useEffect(() => {
+        if (!highlightedCellsArray) {
+            setHighlightedCells(new Set());
+            return;
+        }
+
+        const highlightedCellsSet = new Set(
+            highlightedCellsArray.map(cell => `${cell[0]}-${cell[1]}`)
+        );
+
+        setHighlightedCells(highlightedCellsSet);
+    }, [highlightedCellsArray]);
 
     const handlePlayGraphic = async () => {
         if (!inputGraphic) return;
@@ -65,12 +82,14 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
     };
 
     const handlePlayGeneticGraphic = async () => {
-        if (!geneticGraphic || playing) return;
+        if (!geneticGraphic || playing || loading) return;
 
-        setPlaying(true);
+        setLoading(true);
         await new Promise(resolve => setTimeout(resolve, 0));
 
         const grids = geneticSolveSteps(grid.clone());
+        setLoading(false);
+        setPlaying(true);
 
         for (const exampleGrid of grids) {
             const previousStates = grid.getCellStates();
@@ -121,6 +140,16 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
         }
     }
 
+    const shuffleGrid = () => {
+        if (!shuffle || playing || loading) return;
+
+        const newGrid = grid.clone();
+        newGrid.shuffle(0.5);
+
+        onGridChange?.(newGrid);
+        newGrid.save();
+    }
+
     const checkInput = (x: number, y: number, state: CellState):boolean => {
         if (inputOrder) {
             for (const input of inputOrder[inputNumber]) {
@@ -154,19 +183,10 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
     };
 
         return (
-            <div style={{display: "inline-block"}}>
+            <div style={{display: "inline-block", }}>
                 {/* top clues */}
-                {grid.getSolved() && !nonInteractive && (
-                    <div style={{
-                        padding: "1rem",
-                        marginBottom: "1rem",
-                        backgroundColor: "#e6ffe6",
-                        border: "1px solid #00cc00",
-                        borderRadius: "4px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                        color: "#006600"
-                    }}>
+                {grid.getSolved() && !(nonInteractive || noSolve) && (
+                    <div className="solved-message">
                         Puzzle solved! Congratulations!
                     </div>
                 )}
@@ -175,7 +195,6 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                         display: "grid",
                         gridTemplateColumns: `3rem repeat(${cols}, 3rem)`,
                         marginBottom: "4px",
-                        gap: "4px",
                         alignItems: "end",
                     }}
                 >
@@ -208,7 +227,6 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                     style={{
                         display: "grid",
                         gridTemplateColumns: `3rem repeat(${cols}, 3rem)`,
-                        gap: "4px",
                         width: "fit-content",
                         alignItems: "center",
                     }}
@@ -249,19 +267,9 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                                         onClick={() => handleLeftClick(xIdx, yIdx)}
                                         onContextMenu={(e) => handleRightClick(xIdx, yIdx, e)}
                                         style={{
-                                            width: "3rem",
-                                            height: "3rem",
-                                            border: isHighlighted ? "5px solid #2196f3" : "1px solid #999",
-                                            boxSizing: "border-box",
                                             backgroundColor: stateToColor(cellState),
-                                            cursor: "pointer",
-                                            transition: "background-color 0.15s, border 0.15s",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            display: "flex",
-                                            fontSize: "1.5rem",
-                                            fontWeight: "bold",
                                         }}
+                                        className={`cell ${isHighlighted ? "highlighted" : "non-highlighted"}`}
                                     >{cellState === CellState.Marked && (
                                         <span>X</span>
                                     )}{cellState === CellState.Special && (
@@ -272,7 +280,9 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                         </React.Fragment>
                     ))}
                 </div>
-                <br/>
+                {loading && (
+                    <div><p>Loading</p></div>
+                )}
                 {playing && (
                     <div><p>Playing</p></div>
                 )}
@@ -301,6 +311,14 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
                         onClick={() => handlePlayGeneticGraphic()}
                     >
                         Play
+                    </button>
+                )}
+                {shuffle && (
+                    <button
+                        style={{ marginTop: "1rem", width: "100%" }}
+                        onClick={() => shuffleGrid()}
+                    >
+                        Shuffle
                     </button>
                 )}
             </div>

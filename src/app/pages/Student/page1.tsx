@@ -1,176 +1,173 @@
 import {loadingGrid, PageProps} from "../util/page";
-import React, {JSX} from "react";
+import React, {JSX, useMemo} from "react";
 import {Grid, makeGrid} from "../../../game/nonogram";
 import {BacktrackSolve} from "../../../game/solvers/backtracking-solver";
 import {VisualGrid} from "../../../game/board";
 
 export function Page1({ createLink}: PageProps):JSX.Element {
-    const cols1 = 13;
-    const rows1 = 13;
-    //TODO: swap to using build function
-    const grid1 = new Grid(
-        [[0],[3],[2,2],[2,1,2],[8],[8],[8],[8],[8],[7],[5],[3],[0]],
-        [[0],[2,2],[4,4],[2,8],[1,9],[2,8],[9],[7],[5],[3],[1]],
-        "gridA1"
-    );
-    const grid2A = makeGrid([
-        [
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false
-        ],
-        [
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false
-        ],
-        [
-            false, false, false,
-            false, false, true,
-            true,  true,  true,
-            true,  true,  false,
-            false, false, false,
-            false
-        ],
-        [
-            false, false, false,
-            false, true,  true,
-            false, false, false,
-            false, false, true,
-            false, false, false,
-            false
-        ],
-        [
-            false, false, true, true,
-            true,  true,  true, true,
-            true,  true,  true, true,
-            true,  true,  true, true
-        ],
-        [
-            false, true,  true,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            true
-        ],
-        [
-            false, true,  false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            true
-        ],
-        [
-            false, true,  false,
-            false, false, true,
-            true,  false, false,
-            false, false, false,
-            true,  true,  true,
-            true
-        ],
-        [
-            false, true,  false,
-            false, true,  false,
-            false, true,  false,
-            false, false, false,
-            true,  false, false,
-            false
-        ],
-        [
-            false, true,  false,
-            false, true,  false,
-            false, true,  false,
-            false, false, false,
-            true,  false, false,
-            false
-        ],
-        [
-            false, true,  false,
-            false, true,  false,
-            false, true,  false,
-            false, false, false,
-            true,  true,  true,
-            true
-        ],
-        [
-            false, true,  false,
-            false, true,  false,
-            false, true,  false,
-            false, false, false,
-            false, false, false,
-            true
-        ],
-        [
-            false, false, true,
-            false, true,  false,
-            false, true,  false,
-            false, false, false,
-            false, false, false,
-            true
-        ],
-        [
-            false, false, false, true,
-            true,  true,  true,  true,
-            true,  true,  true,  true,
-            true,  true,  true,  true
-        ],
-        [
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false
-        ],
-        [
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false, false, false,
-            false
-        ]])
+    const heartGridSolution = useMemo(() => {
+        const g = new Grid(
+            [[0],[3],[2,2],[2,1,2],[8],[8],[8],[8],[8],[7],[5],[3],[0]],
+            [[0],[2,2],[4,4],[2,8],[1,9],[2,8],[9],[7],[5],[3],[1]],
+            "gridA1"
+        );
+        BacktrackSolve(g)
+        return g;
+    }, []);
+    const [colsHeart, rowsHeart] = heartGridSolution.getSize();
+    const [heartGrid, setHeartGrid] = loadingGrid("heartGrid", colsHeart, rowsHeart, 0.5, heartGridSolution);
 
-    const [grid, ] = loadingGrid("gridA1", cols1, rows1, 0.5, grid1);
-    const [grid2, ] = loadingGrid("gridA2", cols1, rows1, 0.5, grid2A);
-
-
-
-    loadingGrid("gridA1", cols1, rows1, 0.5, grid1);
-    loadingGrid("gridA2", cols1, rows1, 0.5, grid2A);
-
-    //let [lockedLink, lock] = createLockableLink(2,"Forward", true, "LinkA1");
-
-    //let question: QuestionProps = CreateQuestionProps("A, B, or C", ["A","B","C"],[1])
-
-    //let questionSect1 = QuestionSection([lock], [question])
+    const amongSolution = useMemo(() => {
+        const g = makeGrid([
+            [
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false
+            ],
+            [
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false
+            ],
+            [
+                false, false, false,
+                false, false, true,
+                true,  true,  true,
+                true,  true,  false,
+                false, false, false,
+                false
+            ],
+            [
+                false, false, false,
+                false, true,  true,
+                false, false, false,
+                false, false, true,
+                false, false, false,
+                false
+            ],
+            [
+                false, false, true, true,
+                true,  true,  true, true,
+                true,  true,  true, true,
+                true,  true,  true, true
+            ],
+            [
+                false, true,  true,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                true
+            ],
+            [
+                false, true,  false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                true
+            ],
+            [
+                false, true,  false,
+                false, false, true,
+                true,  false, false,
+                false, false, false,
+                true,  true,  true,
+                true
+            ],
+            [
+                false, true,  false,
+                false, true,  false,
+                false, true,  false,
+                false, false, false,
+                true,  false, false,
+                false
+            ],
+            [
+                false, true,  false,
+                false, true,  false,
+                false, true,  false,
+                false, false, false,
+                true,  false, false,
+                false
+            ],
+            [
+                false, true,  false,
+                false, true,  false,
+                false, true,  false,
+                false, false, false,
+                true,  true,  true,
+                true
+            ],
+            [
+                false, true,  false,
+                false, true,  false,
+                false, true,  false,
+                false, false, false,
+                false, false, false,
+                true
+            ],
+            [
+                false, false, true,
+                false, true,  false,
+                false, true,  false,
+                false, false, false,
+                false, false, false,
+                true
+            ],
+            [
+                false, false, false, true,
+                true,  true,  true,  true,
+                true,  true,  true,  true,
+                true,  true,  true,  true
+            ],
+            [
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false
+            ],
+            [
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                false
+            ]])
+        return g;
+    }, []);
+    const [colsAmong, rowsAmong] = amongSolution.getSize();
+    const [amongGrid, setAmongGrid] = loadingGrid("amongGrid", colsAmong, rowsAmong, 0.5, amongSolution);
 
 
 
-    if (!grid || !grid2) {
+    if (!heartGrid || !amongGrid) {
         return <div>Loading grid...</div>;
     }
 
-    BacktrackSolve(grid)
+    //BacktrackSolve(amongGrid)
     return (
         <div>
             <div className="tabContent-header">
                 <h1>What is a nonogram?</h1>
             </div>
             <div className="tabContent">
-                <p>A nonogram is logic puzzle consisting of a grid of black and white squares with each row and column giving the number of black squares and their groupings,</p>
-                <VisualGrid grid={grid} nonInteractive={true}/>
-                <VisualGrid grid={grid2} nonInteractive={true}/>
+                <p>A nonogram is a logic puzzle where you fill in squares on a grid to create a picture. Numbers are given at the start of each row and column, showing how many consecutive filled squares appear in that line.</p>
+                <img src="/images/Key.svg" alt="Key" width={"20%"} />
+                <p>Left click a cell to mark it as filled. Right click a cell to mark it as blank</p>
+                <VisualGrid grid={heartGrid} onGridChange={setHeartGrid} noSolve/>
+                <VisualGrid grid={amongGrid} onGridChange={setAmongGrid} noSolve/>
                 <nav className={"navButton"}>
-                    {createLink(2,"Forward")}
+                    {createLink(2,"Next")}
                 </nav>
             </div>
         </div>

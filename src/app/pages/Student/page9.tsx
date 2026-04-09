@@ -3,7 +3,7 @@ import {PageProps} from "../util/page";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "../util/question";
 
 export function Page9({ createLink, useLockableLink }: PageProps) {
-    const [lockedButton, reportSolved] = useLockableLink(10, "Forward", ["quiz1"]);
+    const [lockedButton, reportSolved] = useLockableLink(10, "Next", ["quiz1"]);
 
     const question1: QuestionProps = CreateQuestionProps(
         "What is the main inspiration behind a genetic algorithm?",
@@ -58,7 +58,7 @@ export function Page9({ createLink, useLockableLink }: PageProps) {
             "To remove the weakest solutions",
             "To calculate the fitness of solutions"
         ],
-        [0])
+        [1])
     return (
         <div>
             <div className="tabContent-header">

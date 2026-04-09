@@ -1,126 +1,44 @@
-.App {
-    display: flex;
-    align-items: flex-start;
-    min-height: 100vh;
-    max-width: 80vw;
-    background-color: #f6f5f4;
-    margin: auto;
+.solved-message{
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #e6ffe6;
+    border: 1px solid #00cc00;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    color: #006600
 }
 
-.App-header {
-  background-color: #c0c0cf;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.clue{
+    display: grid;
+    align-items: end;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-/* Style the tab */
-.tab {
-    position: sticky;
-    top: 0;
-
-    display: flex;
-    flex-direction: column;
-
-    align-self: flex-start;
-    width: max-content;
-
-    border: 1px solid #000000;
-    background-color: #f1f1f1;
-    height: 100vh;
-    min-width: 5vw;
-}
-
-/* Style the buttons that are used to open the tab content */
-.tab button {
-    background-color: inherit;
-    border: none;
-    outline: none;
+.cell{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    box-sizing: border-box;
     cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
-    display: block;
-    width: 100%;
-}
-
-/* Change background color of buttons on hover */
-.tab button:hover {
-    background-color: #ddd;
-}
-
-/* Create an active/current tablink class */
-.tab button.active {
-    background-color: #ccc;
-}
-
-/* Style the tab content */
-.tabContentContainer {
-    display:grid;
-    flex: 1;
-    padding: 0;
-    min-height: 100vh;
-}
-
-.tabContent {
-    padding: 16px;
-    min-height: 85vh;
-    max-width: 60vw;
-    background-color: #d0dacc;
-}
-
-.tabContent-header {
-    h1 {
-        margin-top: 0;
-        margin-left: 1vw;
-        font-size: 3vh;
-    }
-    height: 5vh;
-    background-color: #b1ab9c;
-    width: 100%;
-    top:0;
-    position: sticky;
-}
-
-.navButton{
-    height: 5vh;
+    transition: background-color 0.15s, border 0.15s;
+    align-items: center;
+    justify-content: center;
     display: flex;
-    width: 100%;
-    button {
-        flex: 1;
-    }
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
-.question-container{
-    padding: 25px;
-    background-color: #ede8b0;
-    border-radius: 25px;
+.highlighted{
+    border: 5px solid #2196f3
 }
 
-.graphic-container{
-    padding: 25px;
-    background-color: #e8a89d;
-    border-radius: 25px;
+.non-highlighted{
+    border: 1px solid #999
 }
 
-.arrow-symbol{
-    font-size: 150px;
-    display: flex;
+.finish-section{
     justify-content: center;
     align-items: center;
-}
-.shrink-wrap-container{
-    width: fit-content;
-}
-
-.learning-section{
-    padding: 25px;
-    border-radius: 25px;
+    text-align: center;
+    width: 100%;
+    height: 100%;
 }

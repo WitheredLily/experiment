@@ -3,7 +3,7 @@ import {PageProps} from "../util/page";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "../util/question";
 
 export function Page7({ createLink, useLockableLink }: PageProps) {
-    const [lockedButton, reportSolved] = useLockableLink(8, "Forward", ["quiz1"]);
+    const [lockedButton, reportSolved] = useLockableLink(8, "Next", ["quiz1"]);
 
     const question1: QuestionProps = CreateQuestionProps(
         "Which of the following best describes the difference between a state-space search algorithm and a typical search algorithm?",

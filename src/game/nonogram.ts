@@ -19,8 +19,8 @@ enum ClueStates {
 const loadingErr = new Error("Invalid cell states saved");
 
 class Grid {
-    private readonly cluesArrayX: Clues[];
-    private readonly cluesArrayY: Clues[];
+    private cluesArrayX: Clues[];
+    private cluesArrayY: Clues[];
     private readonly numbers: number[][][];
     private readonly cellStates: CellState[][];
     private solved: boolean;
@@ -69,6 +69,35 @@ class Grid {
             data.alternateSolution
         );
     }
+
+    public markBlank(){
+        for (let i = 0; i < this.cellStates.length; i++) {
+            for (let j = 0; j < this.cellStates[i].length; j++) {
+                if (this.cellStates[i][j] === CellState.Blank) {
+                    this.updateCell(i, j, CellState.Marked);
+                }
+            }
+        }
+    }
+
+    public clear(){
+        for (let i = 0; i < this.cellStates.length; i++) {
+            for (let j = 0; j < this.cellStates[i].length; j++) {
+                this.cellStates[i][j] = CellState.Blank;
+            }
+        }
+        this.save()
+        this.checkAllClues();
+    }
+
+    public shuffle(probability: number) {
+        const [cols,rows] = this.getSize();
+        const newGrid = rowsToGrid(makeRandomGrid(cols, rows, probability))
+        this.cluesArrayX = newGrid.cluesArrayX;
+        this.cluesArrayY = newGrid.cluesArrayY;
+        this.clear()
+    }
+
     public setStates(states: CellState[][]) {
         if (states.length !== this.cellStates.length || states[0].length !== this.cellStates[0].length) {
             return false;

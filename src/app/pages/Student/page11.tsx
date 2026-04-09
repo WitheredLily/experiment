@@ -3,7 +3,7 @@ import {PageProps} from "../util/page";
 import {CreateQuestionProps, QuestionProps, QuestionSection} from "../util/question";
 
 export function Page11({ createLink, useLockableLink }: PageProps) {
-    const [lockedButton, reportSolved] = useLockableLink(12, "Forward", ["quiz1"]);
+    const [lockedButton, reportSolved] = useLockableLink(12, "Next", ["quiz1"]);
 
     const question1: QuestionProps = CreateQuestionProps(
         "What is the main purpose of a search algorithm?",

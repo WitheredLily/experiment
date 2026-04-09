@@ -6,9 +6,12 @@ import {blankRow, leftRightMost} from "../../../../src/app/pages/util/page.tsx";
 
 export default function ExportGrid() {
     // Simple Square
-    const gridSimpleSquareExample1 = makeGrid(leftRightMost([4,3], 10))
-    const gridSimpleSquareExample2 = makeGrid([[false],[false],[true],[true],[false],[false],[false],[true],[false],[false]])
+    const gridSimpleSquareExample1 = blankRow([[4,3]], 10)
+    const gridSimpleSquareExample2 = makeGrid(leftRightMost([4,3], 10))
+    gridSimpleSquareExample2.markBlank()
+    const gridSimpleSquareExample2Highlights = [[2,0],[3,0],[2,1],[3,1],[7,0],[7,1]];
     const gridSimpleSquareExample3 = blankRow([[4,3]], 10)
+    gridSimpleSquareExample3.setStates([[CellState.Blank], [CellState.Blank], [CellState.Filled], [CellState.Filled], [CellState.Blank], [CellState.Blank], [CellState.Blank], [CellState.Filled], [CellState.Blank], [CellState.Blank]])
 
     const gridSimpleSquareQuiz1 = makeGrid(leftRightMost([3,4,5], 16))
 
@@ -66,6 +69,10 @@ export default function ExportGrid() {
     const gridPunctuatingQuiz = blankRow([[1,3,2]], 10)
     gridPunctuatingQuiz.setStates([[CellState.Blank], [CellState.Blank], [CellState.Blank], [CellState.Filled], [CellState.Filled], [CellState.Filled], [CellState.Blank], [CellState.Blank], [CellState.Filled], [CellState.Blank]])
 
+    // Key
+    const gridKey = new Grid([[1]],[[1],[0],[0]])
+    gridKey.setStates([[CellState.Filled, CellState.Marked, CellState.Blank]])
+
     const refs = useRef([]);
 
     const blocks = [
@@ -73,14 +80,14 @@ export default function ExportGrid() {
             id: "SimpleSquareExample",
             content: (
                 <>
-                    <VisualGrid grid={gridSimpleSquareExample3} nonInteractive hideClueColumn />
-                    <span className="arrow-symbol">&#8595;</span>
-                    <br />
                     <VisualGrid grid={gridSimpleSquareExample1} nonInteractive hideClueColumn />
+                    <span className="arrow-symbol">&#8595;</span>
+                    <br />
+                    <VisualGrid grid={gridSimpleSquareExample2} nonInteractive hideClueColumn highlightedCellsArray={gridSimpleSquareExample2Highlights} />
                     <br />
                     <span className="arrow-symbol">&#8595;</span>
                     <br />
-                    <VisualGrid grid={gridSimpleSquareExample2} nonInteractive hideClueColumn />
+                    <VisualGrid grid={gridSimpleSquareExample3} nonInteractive hideClueColumn />
                 </>
             )
         },
@@ -202,6 +209,44 @@ export default function ExportGrid() {
                 </>
             )
         },
+        {
+            id: "Key",
+            content: (
+                <>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "stretch",
+                            gap: "1rem",
+                            width: "fit-content",
+                        }}
+                    >
+                        <VisualGrid
+                            grid={gridKey}
+                            nonInteractive
+                            hideClueColumn
+                            hideClueRow
+                        />
+
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "space-evenly",
+                                padding: "0.5rem",
+                                minWidth: "80px",
+                            }}
+                        >
+                            <a>Filled</a>
+                            <br/>
+                            <a>Blank</a>
+                            <br/>
+                            <a>Unknown</a>
+                        </div>
+                    </div>
+                </>
+            )
+        },
     ];
 
     const handleExport = async () => {
@@ -235,8 +280,8 @@ export default function ExportGrid() {
                         className="shrink-wrap-container"
                     >
                         {block.content}
-                        <hr/>
                     </div>
+                    <hr/>
                 </div>
             ))}
 

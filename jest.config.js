@@ -1,11 +1,11 @@
 module.exports = {
-  testEnvironment: 'jsdom',
+  testEnvironment: "jsdom",
   testEnvironmentOptions: {
-    url: 'http://localhost'
+    url: "http://localhost",
   },
-  roots: ['<rootDir>'],
-  testMatch: ['**/*.test.ts'],
+  roots: ["<rootDir>"],
+  testMatch: ["**/*.test.ts"],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest'
-  }
+    "^.+\\.tsx?$": "ts-jest",
+  },
 };

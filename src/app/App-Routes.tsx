@@ -5,26 +5,26 @@ import Teacher from "./pages/Teacher/teacher";
 import RequireAuth from "./auth/RequireAuth";
 
 export default function AppRoutes() {
-    return (
-        <Routes>
-            <Route path="/" element={<Login />} />
+  return (
+    <Routes>
+      <Route path="/" element={<Login />} />
 
-            <Route
-                path="/student/*"
-                element={
-                    <RequireAuth role="student">
-                        <Student />
-                    </RequireAuth>
-                }
-            />
-            <Route
-                path="/teacher/*"
-                element={
-                    <RequireAuth role="teacher">
-                        <Teacher/>
-                    </RequireAuth>
-                }
-            />
-        </Routes>
-    );
+      <Route
+        path="/student/*"
+        element={(
+          <RequireAuth role="student">
+            <Student />
+          </RequireAuth>
+        )}
+      />
+      <Route
+        path="/teacher/*"
+        element={(
+          <RequireAuth role="teacher">
+            <Teacher />
+          </RequireAuth>
+        )}
+      />
+    </Routes>
+  );
 }

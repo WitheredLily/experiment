@@ -96,7 +96,7 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
                 <div className="question-container">
                     <div className="shrink-wrap-container">
                         <h2>Question:</h2>
-                        <p>Apply the same logic to the example</p>
+                        <p>Apply the same logic to the example. Remember left click to fill a cell and right click to mark a cell as can't be filled.</p>
                         <img src="/images/SimpleSquareQuiz.svg" alt="Simple Square Quiz"/>
                         <br/>
                         <VisualGrid grid={simpleSquareQuiz} onGridChange={setSimpleSquareQuiz} hideClueColumn={true} hideClueRow={true} lock={(locked) => reportSolved("simpleSquare", !locked)}/>
@@ -181,7 +181,7 @@ export function Page2({ createLink, useLockableLink }: PageProps) {
                 <p>This method involves trying possible solutions and every time you encounter an incorrect solution you take a step back and try the other path. This method is difficult and time consuming for humans to do by hand though certain nonograms may require it. Here is an example of backtracking being used.</p>
                 <div className="graphic-container">
                     <VisualGrid grid={gridBacktrack} onGridChange={setGridBacktrack} nonInteractive={true} inputGraphic={getBacktrackSolution(gridBacktrack)}/>
-                    <button onClick={() => {reportSolved("all", true)}}>Unlock</button>
+                    
                 </div>
             </div>
 

@@ -51,7 +51,7 @@ export function Page5({ createLink, useLockableLink }: PageProps) {
                     locks={[(locked) => reportSolved("quiz1", !locked)]}
                     questions={[question1, question3, question4, question5]}
                 />
-                <button onClick={() => {reportSolved("all", true)}}>Unlock</button>
+                
                 <nav className={"navButton"}>
                     {createLink(4, "Back")} | {lockedButton}
                 </nav>

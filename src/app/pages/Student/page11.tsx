@@ -41,6 +41,24 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             "It checks every element sequentially"
         ],
         [2])
+    const question5: QuestionProps = CreateQuestionProps(
+        "After Jump Search finds the possible block where the target may exist, what does it do next?",
+        [
+            "Stops immediately",
+            "Performs binary search in that block",
+            "Performs linear search within that block",
+            "Jumps again by a larger step"
+        ],
+        [2])
+    const question6: QuestionProps = CreateQuestionProps(
+        "Which search algorithm uses the value of the target to estimate its likely position?",
+        [
+            "Linear Search",
+            "Jump Search",
+            "Binary Search",
+            "Interpolation Search"
+        ],
+        [3])
     return (
         <div>
             <div className="tabContent-header">
@@ -49,9 +67,9 @@ export function Page11({ createLink, useLockableLink }: PageProps) {
             <div style={{padding: "1rem"}} className="tabContent">
                 <QuestionSection
                     locks={[(locked) => reportSolved("quiz1", !locked)]}
-                    questions={[question1, question2, question3, question4]}
+                    questions={[question1, question2, question6, question3, question4, question5]}
                 />
-                <button onClick={() => {reportSolved("all", true)}}>Unlock</button>
+                
                 <nav className={"navButton"}>
                     {createLink(10, "Back")} | {lockedButton}
                 </nav>

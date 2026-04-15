@@ -20,7 +20,7 @@ export function Page8({ createLink }: PageProps) {
                 <ol>
                     <li>Create a population of random solutions with chromosomes. In my example below I create every potential solution for each column then I combine my potential columns randomly into 200 different potential grids. Each column is a chromosome represented by an array of 0 (empty) and 1 (filled).</li>
                     <li>Measure the fitness of each potential solution in the population.</li>
-                    <li>The best solution goes to the next generation</li>
+                    <li>The best solution goes to the next generation.</li>
                     <li>The next generation is created by taking a group of random solutions picking the best 2 and combining them randomly until you have a full new generation</li>
                     <li>Potentially mutate by changing a chromosome.</li>
                     <li>Repeat steps 2-5 until a perfect solution is found or the maximum number of generations is reached.</li>
@@ -28,10 +28,10 @@ export function Page8({ createLink }: PageProps) {
                 <div className="graphic-container">
                 <VisualGrid grid={graphicGrid} onGridChange={setGraphicGrid} geneticGraphic graphicSpeed={2} shuffle />
                 </div>
+                </div>
                 <nav className={"navButton"}>
                     {createLink(7, "Back")} | {createLink(9, "Next")}
                 </nav>
-                </div>
             </div>
         </div>
     );

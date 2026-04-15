@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import { useEffect } from "react";
+import {useEffect} from "react";
 
 const studentDirect = true;
 
@@ -16,11 +16,9 @@ export default function Login() {
             // Redirect immediately
             navigate("/student/page0", { replace: true });
         }
-        // We intentionally leave the dependency array empty
-        // so this runs only once on mount
-    }, []); // ✅ empty array prevents infinite loop
 
-    // Only show login buttons if studentDirect is false
+    }, []);
+
     if (studentDirect && !user) return null;
 
     const handleLogin = (username: string, role: "student" | "teacher") => {

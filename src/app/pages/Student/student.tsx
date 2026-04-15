@@ -20,30 +20,33 @@ export default function Student() {
     function useLockableLink(
         num: number,
         text: string,
-        puzzleKeys: string[], // <-- pass identifiers from page
+        puzzleKeys: string[],
     ): [JSX.Element, (key: string, solved: boolean) => void] {
 
-        const [, setSolvedStates] = React.useState<Record<string, boolean>>(
-            Object.fromEntries(puzzleKeys.map(k => [k, false]))
-        );
+        const storageKey = `page-${num}-solved`;
 
-        const [locked, setLocked] = React.useState(true);
+        const [solvedStates, setSolvedStates] = React.useState<Record<string, boolean>>(() => {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) return JSON.parse(saved);
+
+            return Object.fromEntries(puzzleKeys.map(k => [k, false]));
+        });
+
+        const [locked, setLocked] = React.useState<boolean>(() => {
+            return !Object.values(solvedStates).every(Boolean);
+        });
+
+        React.useEffect(() => {
+            localStorage.setItem(storageKey, JSON.stringify(solvedStates));
+            const allSolved = Object.values(solvedStates).every(Boolean);
+            setLocked(!allSolved);
+        }, [solvedStates]);
 
         const reportSolved = (key: string, solved: boolean) => {
-            if (key === "all") {
-                // Unlock everything immediately for testing
-                setSolvedStates(Object.fromEntries(puzzleKeys.map(k => [k, true])));
-                setLocked(false);
-                return;
-            }
-            setSolvedStates(prev => {
-                const updated = { ...prev, [key]: solved };
-
-                const allSolved = Object.values(updated).every(Boolean);
-                setLocked(!allSolved);
-
-                return updated;
-            });
+            setSolvedStates(prev => ({
+                ...prev,
+                [key]: solved,
+            }));
         };
 
         const button = (

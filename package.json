@@ -80,6 +80,7 @@
   },
   "devDependencies": {
     "@babel/preset-react": "^7.28.5",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@types/aws-lambda": "^8.10.157",
     "@types/bootstrap": "^5.2.10",
     "@types/jest": "^30.0.0",

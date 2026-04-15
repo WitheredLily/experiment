@@ -39,7 +39,6 @@ export function Page3({ createLink, useLockableLink }: PageProps) {
                             onGridChange={setGrid1}
                             lock={(locked) => reportSolved("grid1", !locked)}
                         />
-                        <button onClick={() => reportSolved("all", true)}>Unlock</button>
                     </div>
 
                     <br/>

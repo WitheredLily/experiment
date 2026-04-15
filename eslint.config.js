@@ -3,15 +3,20 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import unusedImports from "eslint-plugin-unused-imports";
+import stylistic from '@stylistic/eslint-plugin'
 
 
 export default [
+  stylistic.configs.recommended,
   {
     plugins: {
       "unused-imports": unusedImports,
+      "@stylistic": stylistic,
     },
     rules: {
       "no-unused-vars": "off", // or "@typescript-eslint/no-unused-vars": "off",
+      'indent': ['error', 2],
+      '@stylistic/indent': ['error', 2],
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "warn",

@@ -12,7 +12,12 @@ export default function RequireAuth({
                                         children,
                                         role,
                                     }: RequireAuthProps) {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
+
+    if (loading) {
+        return null;
+    }
+
 
     // Not logged in
     if (!user) {

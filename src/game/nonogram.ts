@@ -80,6 +80,16 @@ class Grid {
         }
     }
 
+    public blankMarked(){
+        for (let i = 0; i < this.cellStates.length; i++) {
+            for (let j = 0; j < this.cellStates[i].length; j++) {
+                if (this.cellStates[i][j] === CellState.Marked) {
+                    this.updateCell(i, j, CellState.Blank);
+                }
+            }
+        }
+    }
+
     public clear(){
         for (let i = 0; i < this.cellStates.length; i++) {
             for (let j = 0; j < this.cellStates[i].length; j++) {

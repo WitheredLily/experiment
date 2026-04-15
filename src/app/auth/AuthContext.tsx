@@ -11,6 +11,7 @@ interface AuthContextType {
     user: User | null;
     login: (username: string, role: Role) => void;
     logout: () => void;
+    loading: boolean;
 }
 
 interface AuthProviderProps {
@@ -21,12 +22,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const stored = localStorage.getItem("user");
         if (stored) {
             setUser(JSON.parse(stored));
         }
+        setLoading(false);
     }, []);
 
     const login = (username: string, role: Role) => {
@@ -41,7 +44,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

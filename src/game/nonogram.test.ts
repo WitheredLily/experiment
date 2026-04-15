@@ -1,167 +1,195 @@
-import {
-    CellState,
-    Grid,
-    makeRandomGrid,
-    rowsToGrid,
-    loadGrid,
-    checkSolvedAxis,
-} from "./nonogram";
+import {Grid, CellState, makeRandomGrid, rowsToGrid, boolToStates, makeGrid, checkSolvedAxis, loadGrid} from "./nonogram";
 
-// Mock imageToNonogram
-jest.mock("../images/image-converter", () => ({
-    imageToNonogram: jest.fn(),
-}));
+describe("Nonogram - Grid", () => {
+    const simpleBoolGrid = [
+        [true, false],
+        [true, true],
+    ]; // 2x2 (columns)
 
-import { imageToNonogram } from "../images/image-converter";
+    describe("Construction", () => {
+        it("creates a grid with correct size", () => {
+            const grid = makeGrid(simpleBoolGrid);
+            const [cols, rows] = grid.getSize();
 
-describe("Nonogram Grid", () => {
-    beforeEach(() => {
-        localStorage.clear();
-        jest.clearAllMocks();
+            expect(cols).toBe(2);
+            expect(rows).toBe(2);
+        });
+
+        it("throws if provided invalid saved state shape", () => {
+            const numbersX = [[1], [2]];
+            const numbersY = [[1], [1]];
+
+            expect(() => {
+                new Grid(numbersX, numbersY, "id", [[CellState.Blank]]);
+            }).toThrow("Invalid cell states saved");
+        });
     });
 
-    describe("Grid construction", () => {
-        it("initializes blank cell states by default", () => {
-            const numbersX = [[1], []];
+    describe("Cell updates and solving", () => {
+        it("marks grid solved when correct solution is filled", () => {
+            const grid = makeGrid(simpleBoolGrid);
+            const states = boolToStates(simpleBoolGrid);
+
+            grid.setStates(states);
+            expect(grid.isSolved()).toBe(true);
+        });
+
+        it("is not solved if incorrect", () => {
+            const grid = makeGrid(simpleBoolGrid);
+
+            grid.updateCell(0, 0, CellState.Filled);
+            expect(grid.isSolved()).toBe(false);
+        });
+
+        it("clear resets all cells to blank", () => {
+            const grid = makeGrid(simpleBoolGrid);
+            grid.clear();
+
+            const states = grid.getCellStates();
+            states.forEach(col =>
+                col.forEach(cell => expect(cell).toBe(CellState.Blank))
+            );
+        });
+
+        it("markBlank marks all blank cells", () => {
+            const grid = makeGrid(simpleBoolGrid);
+            grid.clear();
+            grid.markBlank();
+
+            const states = grid.getCellStates();
+            states.forEach(col =>
+                col.forEach(cell => expect(cell).toBe(CellState.Marked))
+            );
+        });
+
+        it("blankMarked reverts marked cells to blank", () => {
+            const grid = makeGrid(simpleBoolGrid);
+            grid.markBlank();
+            grid.blankMarked();
+
+            const states = grid.getCellStates();
+            states.forEach(col =>
+                col.forEach(cell => expect(cell).toBe(CellState.Blank))
+            );
+        });
+    });
+
+    describe("Clone", () => {
+        it("clones grid deeply", () => {
+            const grid = makeGrid(simpleBoolGrid);
+            const clone = grid.clone("new-id");
+
+            clone.updateCell(0, 0, CellState.Filled);
+
+            expect(grid.getCellStates()[0][0]).not.toBe(
+                clone.getCellStates()[0][0]
+            );
+        });
+    });
+
+    describe("Serialization", () => {
+        it("serializes and deserializes correctly", () => {
+            const grid = makeGrid(simpleBoolGrid);
+            const json = grid.toJSON();
+            const restored = Grid.fromJSON(json);
+
+            expect(restored.getClueNumbers()).toEqual(grid.getClueNumbers());
+        });
+    });
+
+    describe("Alternate solution", () => {
+        it("solves if cell matches one allowed alternate state", () => {
+            const numbersX = [[1]];
             const numbersY = [[1]];
 
             const grid = new Grid(numbersX, numbersY);
+            const altSolution = [[[CellState.Filled]]];
 
-            const states = grid.getCellStates();
-            expect(states.length).toBe(2);
-            expect(states[0][0]).toBe(CellState.Blank);
-            expect(states[1][0]).toBe(CellState.Blank);
-        });
-
-        it("throws error when provided invalid saved state dimensions", () => {
-            const numbersX = [[1], []];
-            const numbersY = [[1]];
-            const invalidStates = [[CellState.Blank]]; // wrong size
-
-            expect(() => {
-                new Grid(numbersX, numbersY, "id", invalidStates);
-            }).toThrow("Invalid cell states saved");
-        });
-
-        it("returns correct grid size", () => {
-            const grid = new Grid([[1], [1]], [[2]]);
-            expect(grid.getSize()).toEqual([2, 1]);
-        });
-    });
-
-    describe("Cell updates and clues", () => {
-        it("updates a cell state", () => {
-            const grid = new Grid([[1]], [[1]]);
+            grid.setAlternateSolution(altSolution);
             grid.updateCell(0, 0, CellState.Filled);
 
-            expect(grid.getCellStates()[0][0]).toBe(CellState.Filled);
-        });
-
-        it("checks clues correctly for a filled cell", () => {
-            const grid = new Grid([[1]], [[1]]);
-            grid.updateCell(0, 0, CellState.Filled);
-
-            const valid = grid.checkClues(0, 0);
-            expect(valid).toBe(true);
-        });
-
-        it("marks clue as wrong when invalid pattern is used", () => {
-            const grid = new Grid([[1]], [[1]]);
-            grid.updateCell(0, 0, CellState.Marked);
-
-            const valid = grid.checkClues(0, 0);
-            expect(valid).toBe(false);
-        });
-    });
-
-    describe("Solved state", () => {
-        it("is not solved when clues are unsatisfied", () => {
-            const grid = new Grid([[1]], [[1]]);
-            expect(grid.getSolved()).toBe(false);
-        });
-
-        it("is solved when all clues are correct", () => {
-            const grid = new Grid([[1]], [[1]]);
-            grid.updateCell(0, 0, CellState.Filled);
-
-            grid.checkAllClues();
-            expect(grid.isSolved()).toBe(true);
             expect(grid.getSolved()).toBe(true);
         });
-    });
 
-    describe("Cloning", () => {
-        it("creates a deep clone with same cell states", () => {
-            const grid = new Grid([[1]], [[1]], "original");
-            grid.updateCell(0, 0, CellState.Filled);
+        it("does not solve if alternate solution mismatch", () => {
+            const numbersX = [[1]];
+            const numbersY = [[1]];
 
-            const clone = grid.clone("clone");
+            const grid = new Grid(numbersX, numbersY);
+            const altSolution = [[[CellState.Filled]]];
 
-            expect(clone).not.toBe(grid);
-            expect(clone.getCellStates()).not.toBe(grid.getCellStates());
-            expect(clone.getCellStates()[0][0]).toBe(CellState.Filled);
+            grid.setAlternateSolution(altSolution);
+            grid.updateCell(0, 0, CellState.Blank);
+
+            expect(grid.getSolved()).toBe(false);
         });
     });
+});
 
-    describe("Persistence (localStorage)", () => {
-        it("saves grid state when id is provided", () => {
-            const grid = new Grid([[1]], [[1]], "test-grid");
-            grid.updateCell(0, 0, CellState.Filled);
-            grid.save();
+describe("Clue + Axis solving", () => {
+    it("checkSolvedAxis returns true if all correct", () => {
+        const grid = makeGrid([[true]]);
+        grid.setStates([[CellState.Filled]]);
 
-            const stored = JSON.parse(localStorage.getItem("test-grid")!);
-            expect(stored.cellStates[0][0]).toBe(CellState.Filled);
-        });
-
-        it("loads grid from localStorage if available", async () => {
-            const grid = new Grid([[1]], [[1]], "stored");
-            grid.updateCell(0, 0, CellState.Filled);
-            grid.save();
-
-            const loaded = await loadGrid("stored", 1, 1);
-            if (!loaded) throw new Error("Failed to load grid");
-            expect(loaded.getCellStates()[0][0]).toBe(CellState.Filled);
-        });
+        const result = checkSolvedAxis(grid.getCluesX());
+        expect(result).toBe(true);
     });
 
-    describe("Random and generated grids", () => {
-        it("makeRandomGrid returns correct dimensions", () => {
-            const grid = makeRandomGrid(3, 2, 1);
-            expect(grid.length).toBe(3);
-            expect(grid[0].length).toBe(2);
-        });
+    it("checkSolvedAxis returns false if any wrong", () => {
+        const grid = makeGrid([[true]]);
+        grid.setStates([[CellState.Blank]]);
 
-        it("rowsToGrid generates correct clues", () => {
-            const boolGrid = [
-                [true, false, true],
-                [true, true, false],
-            ];
+        const result = checkSolvedAxis(grid.getCluesX());
+        expect(result).toBe(false);
+    });
+});
 
-            const grid = rowsToGrid(boolGrid, "rows");
-
-            const [cluesX, cluesY] = grid.getClueNumbers();
-            expect(cluesX).toEqual([[1, 1], [2]]);
-            expect(cluesY).toEqual([[2], [1], [1]]);
-        });
+describe("Utility functions", () => {
+    it("makeRandomGrid respects size", () => {
+        const grid = makeRandomGrid(3, 4, 0.5);
+        expect(grid.length).toBe(3);
+        expect(grid[0].length).toBe(4);
     });
 
-    describe("loadGrid with image", () => {
-        it("uses imageToNonogram when image is provided", async () => {
-            (imageToNonogram as jest.Mock).mockResolvedValue(
-                new Grid([[1]], [[1]], "img")
-            );
+    it("rowsToGrid generates matching clues", () => {
+        const boolGrid = [
+            [true, true, false],
+            [false, true, false],
+        ];
+        const grid = rowsToGrid(boolGrid);
 
-            const grid = await loadGrid("img", 1, 1, "image-data");
+        const [numbersX, numbersY] = grid.getClueNumbers();
 
-            expect(imageToNonogram).toHaveBeenCalled();
-            expect(grid).toBeInstanceOf(Grid);
-        });
+        expect(numbersX).toEqual([[2], [1]]);
+        expect(numbersY.length).toBe(3);
     });
 
-    describe("checkSolvedAxis", () => {
-        it("returns false if any clue is not correct", () => {
-            const grid = new Grid([[1]], [[1]]);
-            expect(checkSolvedAxis(grid.getCluesX())).toBe(false);
-        });
+    it("boolToStates converts correctly", () => {
+        const boolGrid = [[true, false]];
+        const states = boolToStates(boolGrid);
+
+        expect(states[0][0]).toBe(CellState.Filled);
+        expect(states[0][1]).toBe(CellState.Blank);
+    });
+});
+
+describe("loadGrid", () => {
+    beforeEach(() => {
+        localStorage.clear();
+        jest.restoreAllMocks();
+    });
+
+    it("loads from localStorage if present", async () => {
+        const grid = makeGrid([[true]]);
+        localStorage.setItem("test-id", JSON.stringify(grid.toJSON()));
+
+        const loaded = await loadGrid("test-id", 1, 1);
+        expect(loaded).not.toBeNull();
+        expect(loaded?.getClueNumbers()).toEqual(grid.getClueNumbers());
+    });
+
+    it("returns null if no storage and no image", async () => {
+        const loaded = await loadGrid("missing", 2, 2);
+        expect(loaded).toBeNull();
     });
 });

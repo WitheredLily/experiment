@@ -2,7 +2,7 @@
 // File: `src/game/board.tsx`
 
 import React, {useEffect, useState} from "react";
-import {CellState, Grid, makeRandomGrid, rowsToGrid} from "./nonogram";
+import {CellState, Grid} from "./nonogram";
 import {geneticSolveSteps} from "./solvers/genetic-solver";
 
 let incorrectInput = false;

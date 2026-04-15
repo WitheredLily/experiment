@@ -7,7 +7,7 @@ import {BrowserRouter} from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 //localStorage.setItem("maxPage", "0");
-localStorage.clear();
+//localStorage.clear();
 root.render(
     <React.StrictMode>
         <BrowserRouter>

@@ -3,6 +3,7 @@ import {VisualGrid} from "../../../../src/game/board.tsx";
 import React, { useRef } from "react";
 import domtoimage from "dom-to-image";
 import {blankRow, leftRightMost} from "../../../../src/app/pages/util/page.tsx";
+import {BacktrackSolve} from "../../../../src/game/solvers/backtracking-solver.ts";
 
 export default function ExportGrid() {
     // Simple Square
@@ -72,6 +73,16 @@ export default function ExportGrid() {
     // Key
     const gridKey = new Grid([[1]],[[1],[0],[0]])
     gridKey.setStates([[CellState.Filled, CellState.Marked, CellState.Blank]])
+
+    //Heart
+    const heart = new Grid(
+        [[0],[3],[2,2],[2,1,2],[8],[8],[8],[8],[8],[7],[5],[3],[0]],
+        [[0],[2,2],[4,4],[2,8],[1,9],[2,8],[9],[7],[5],[3],[1]],
+        "gridA1"
+    );
+    const blankHeart = heart.clone();
+    BacktrackSolve(heart)
+    heart.blankMarked()
 
     const refs = useRef([]);
 
@@ -247,6 +258,22 @@ export default function ExportGrid() {
                 </>
             )
         },
+        {
+            id: "Heart",
+            content: (
+                <>
+                    <VisualGrid grid={heart} nonInteractive />
+                </>
+            )
+        },
+        {
+            id: "Blank Heart",
+            content: (
+                <>
+                    <VisualGrid grid={blankHeart} nonInteractive />
+                </>
+            )
+        }
     ];
 
     const handleExport = async () => {

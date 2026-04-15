@@ -1,15 +1,15 @@
-import { Grid, CellState, makeRandomGrid, rowsToGrid, boolToStates, makeGrid, checkSolvedAxis, loadGrid } from "./nonogram";
+import { Grid, CellState, makeRandomGrid, rowsToGrid, boolToStates, checkSolvedAxis, loadGrid } from "./nonogram";
 
 describe("Nonogram - Grid", () => {
-  const simpleBoolGrid = [[true, false], [true, true],]; // 2x2 (columns)
+  const simpleBoolGrid = [[true, false, true, true], [true, true,false, false],]; // 2x2 (columns)
 
   describe("Construction", () => {
     it("creates a grid with correct size", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
       const [cols, rows] = grid.getSize();
 
-      expect(cols).toBe(2);
-      expect(rows).toBe(2);
+      expect(rows).toBe(simpleBoolGrid[0].length);
+      expect(cols).toBe(simpleBoolGrid.length);
     });
 
     it("throws if provided invalid saved state shape", () => {
@@ -24,7 +24,7 @@ describe("Nonogram - Grid", () => {
 
   describe("Cell updates and solving", () => {
     it("marks grid solved when correct solution is filled", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
       const states = boolToStates(simpleBoolGrid);
 
       grid.setStates(states);
@@ -32,61 +32,56 @@ describe("Nonogram - Grid", () => {
     });
 
     it("is not solved if incorrect", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
 
       grid.updateCell(0, 0, CellState.Filled);
       expect(grid.isSolved()).toBe(false);
     });
 
     it("clear resets all cells to blank", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
       grid.clear();
 
       const states = grid.getCellStates();
       states.forEach(col =>
-        col.forEach(cell => expect(cell).toBe(CellState.Blank)),
-      );
+        col.forEach(cell => expect(cell).toBe(CellState.Blank)),);
     });
 
     it("markBlank marks all blank cells", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
       grid.clear();
       grid.markBlank();
 
       const states = grid.getCellStates();
       states.forEach(col =>
-        col.forEach(cell => expect(cell).toBe(CellState.Marked)),
-      );
+        col.forEach(cell => expect(cell).toBe(CellState.Marked)),);
     });
 
     it("blankMarked reverts marked cells to blank", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
       grid.markBlank();
       grid.blankMarked();
 
       const states = grid.getCellStates();
       states.forEach(col =>
-        col.forEach(cell => expect(cell).toBe(CellState.Blank)),
-      );
+        col.forEach(cell => expect(cell).toBe(CellState.Blank)),);
     });
   });
 
   describe("Clone", () => {
     it("clones grid deeply", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
       const clone = grid.clone("new-id");
 
       clone.updateCell(0, 0, CellState.Filled);
 
-      expect(grid.getCellStates()[0][0]).not.toBe(
-        clone.getCellStates()[0][0],
-      );
+      expect(grid.getCellStates()[0][0]).not.toBe(clone.getCellStates()[0][0],);
     });
   });
 
   describe("Serialization", () => {
     it("serializes and deserializes correctly", () => {
-      const grid = makeGrid(simpleBoolGrid);
+      const grid = rowsToGrid(simpleBoolGrid);
       const json = grid.toJSON();
       const restored = Grid.fromJSON(json);
 
@@ -125,7 +120,7 @@ describe("Nonogram - Grid", () => {
 
 describe("Clue + Axis solving", () => {
   it("checkSolvedAxis returns true if all correct", () => {
-    const grid = makeGrid([[true]]);
+    const grid = rowsToGrid([[true]]);
     grid.setStates([[CellState.Filled]]);
 
     const result = checkSolvedAxis(grid.getCluesX());
@@ -133,7 +128,7 @@ describe("Clue + Axis solving", () => {
   });
 
   it("checkSolvedAxis returns false if any wrong", () => {
-    const grid = makeGrid([[true]]);
+    const grid = rowsToGrid([[true]]);
     grid.setStates([[CellState.Blank]]);
 
     const result = checkSolvedAxis(grid.getCluesX());
@@ -174,7 +169,7 @@ describe("loadGrid", () => {
   });
 
   it("loads from localStorage if present", async () => {
-    const grid = makeGrid([[true]]);
+    const grid = rowsToGrid([[true]]);
     localStorage.setItem("test-id", JSON.stringify(grid.toJSON()));
 
     const loaded = await loadGrid("test-id", 1, 1);

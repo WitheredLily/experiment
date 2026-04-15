@@ -8,13 +8,11 @@ import { Grid, rowsToGrid } from "../game/nonogram"; // adjust path
  * @param id - unique id for the nonogram
  * @param threshold - grayscale threshold [0–255]
  */
-export async function imageToNonogram(
-  imageSrc: string,
+export async function imageToNonogram(imageSrc: string,
   width: number,
   height: number,
   id: string,
-  threshold: number = 150,
-): Promise<Grid> {
+  threshold: number = 150,): Promise<Grid> {
   const img = await loadImage(imageSrc);
 
   const canvas = document.createElement("canvas");

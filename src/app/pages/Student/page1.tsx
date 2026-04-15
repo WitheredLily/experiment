@@ -6,11 +6,7 @@ import { VisualGrid } from "../../../game/board";
 
 export function Page1({ createLink }: PageProps): JSX.Element {
   const heartGridSolution = useMemo(() => {
-    const g = new Grid(
-      [[0], [3], [2, 2], [2, 1, 2], [8], [8], [8], [8], [8], [7], [5], [3], [0]],
-      [[0], [2, 2], [4, 4], [2, 8], [1, 9], [2, 8], [9], [7], [5], [3], [1]],
-      "gridA1",
-    );
+    const g = new Grid([[0], [3], [2, 2], [2, 1, 2], [8], [8], [8], [8], [8], [7], [5], [3], [0]], [[0], [2, 2], [4, 4], [2, 8], [1, 9], [2, 8], [9], [7], [5], [3], [1]], "gridA1",);
     BacktrackSolve(g);
     return g;
   }, []);

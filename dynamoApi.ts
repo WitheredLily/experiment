@@ -25,17 +25,15 @@ app.post("/api/start", async (req, res) => {
       return res.status(400).json({ error: "Missing id" });
     }
 
-    await db.send(
-      new PutCommand({
-        TableName: TABLE_NAME,
-        Item: {
-          id: id,
-          name: name,
-          start: new Date().toISOString(),
-          end: "",
-        },
-      }),
-    );
+    await db.send(new PutCommand({
+      TableName: TABLE_NAME,
+      Item: {
+        id: id,
+        name: name,
+        start: new Date().toISOString(),
+        end: "",
+      },
+    }),);
 
     res.json({ success: true });
   }
@@ -68,16 +66,14 @@ app.patch("/api/Finish", async (req, res) => {
       ExpressionAttributeValues[`:${key}`] = updates[key];
     });
 
-    const result = await db.send(
-      new UpdateCommand({
-        TableName: TABLE_NAME,
-        Key: { id },
-        UpdateExpression,
-        ExpressionAttributeNames,
-        ExpressionAttributeValues,
-        ReturnValues: "ALL_NEW",
-      }),
-    );
+    const result = await db.send(new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { id },
+      UpdateExpression,
+      ExpressionAttributeNames,
+      ExpressionAttributeValues,
+      ReturnValues: "ALL_NEW",
+    }),);
 
     res.json({
       success: true,
@@ -95,12 +91,10 @@ app.get("/api/get/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await db.send(
-      new GetCommand({
-        TableName: TABLE_NAME,
-        Key: { id },
-      }),
-    );
+    const result = await db.send(new GetCommand({
+      TableName: TABLE_NAME,
+      Key: { id },
+    }),);
 
     if (!result.Item) {
       return res.status(404).json({ error: "Item not found" });

@@ -40,8 +40,7 @@ class Grid {
     }
     else {
       this.cellStates = Array.from({ length: cols }, () =>
-        Array.from({ length: rows }, () => CellState.Blank),
-      );
+        Array.from({ length: rows }, () => CellState.Blank),);
     }
 
     this.cluesArrayX = numbersToClue(numbersX);
@@ -63,13 +62,7 @@ class Grid {
   }
 
   public static fromJSON(data: any, id?: string): Grid {
-    return new Grid(
-      data.numbers[0],
-      data.numbers[1],
-      id,
-      data.cellStates,
-      data.alternateSolution,
-    );
+    return new Grid(data.numbers[0], data.numbers[1], id, data.cellStates, data.alternateSolution,);
   }
 
   public markBlank() {
@@ -163,13 +156,7 @@ class Grid {
 
     const cellStatesCopy = this.cellStates.map(col => col.slice());
 
-    return new Grid(
-      this.numbers[0],
-      this.numbers[1],
-      newId,
-      cellStatesCopy,
-      altSolCopy,
-    );
+    return new Grid(this.numbers[0], this.numbers[1], newId, cellStatesCopy, altSolCopy,);
   }
 
   public save(): void {
@@ -235,12 +222,10 @@ class Grid {
   }
 }
 
-async function loadGrid(
-  id: string,
+async function loadGrid(id: string,
   cols: number,
   rows: number,
-  image?: string,
-): Promise<Grid | null> {
+  image?: string,): Promise<Grid | null> {
   const stored = localStorage.getItem(id);
 
   if (stored) {
@@ -311,8 +296,7 @@ class Clues {
 
 export function makeRandomGrid(sizeX: number, sizeY: number, fillProbability: number): boolean[][] {
   return Array.from({ length: sizeX }, () =>
-    Array.from({ length: sizeY }, () => Math.random() < fillProbability),
-  );
+    Array.from({ length: sizeY }, () => Math.random() < fillProbability),);
 }
 
 export function rowsToGrid(grid: boolean[][], id?: string): Grid {

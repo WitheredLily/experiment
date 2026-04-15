@@ -117,41 +117,41 @@ function simpleSpace(grid: Grid, updateGrid: (grid: Grid, x: number, y: number, 
         switch (state) {
           case CellState.Blank:
             possible++;
-          if (filledFound && possible - firstFilled >= clues[clueNumber]) {
+            if (filledFound && possible - firstFilled >= clues[clueNumber]) {
               for (let i = lastFilled + 1; i < index; i++) {
                 solution[i] = CellState.Marked;
-            }
+              }
             }
             break;
           case CellState.Filled:
             possible++;
-          filledFound = true;
-          lastFilled = index;
-          if (firstFilled === -1) firstFilled = index;
-          break;
+            filledFound = true;
+            lastFilled = index;
+            if (firstFilled === -1) firstFilled = index;
+            break;
           case CellState.Marked:
             if (possible < clues[clueNumber]) {
               if (!filledFound) {
                 for (let i = lastMarked; i <= index; i++) {
                   solution[i] = CellState.Marked;
+                }
               }
-              }
-            else {
+              else {
                 console.log("Error in simple box solver, filled found but not possible");
                 return solution;
               }
             }
-          else if (filledFound) {
+            else if (filledFound) {
               for (let i = lastMarked; i <= index - clues[clueNumber]; i++) {
                 solution[i] = CellState.Marked;
+              }
             }
-            }
-          else {
+            else {
               return solution;
             }
             possible = 0;
-          lastMarked = index;
-          break;
+            lastMarked = index;
+            break;
         }
       });
       return solution;

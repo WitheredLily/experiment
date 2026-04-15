@@ -31,10 +31,8 @@ export function CreateQuestionProps(question: string, choices: string[], answers
   return { question, choices, answers, onSelect: onSelect };
 }
 
-function shuffleChoices(
-  choices: string[],
-  answers: number[],
-): { shuffledChoices: string[], shuffledAnswers: number[] } {
+function shuffleChoices(choices: string[],
+  answers: number[],): { shuffledChoices: string[], shuffledAnswers: number[] } {
   const indexed = choices.map((choice, index) => ({
     choice,
     originalIndex: index,
@@ -49,8 +47,7 @@ function shuffleChoices(
 
   const shuffledAnswers = indexed
     .map((item, newIndex) =>
-      answers.includes(item.originalIndex) ? newIndex : -1,
-    )
+      answers.includes(item.originalIndex) ? newIndex : -1,)
     .filter(i => i !== -1);
 
   return { shuffledChoices, shuffledAnswers };
@@ -63,9 +60,7 @@ export function QuestionSection({
   locks: ((locked: boolean) => void)[]
   questions: QuestionProps[]
 }) {
-  const [incorrect, setIncorrect] = useState<boolean[]>(
-    questions.map(() => true),
-  );
+  const [incorrect, setIncorrect] = useState<boolean[]>(questions.map(() => true),);
 
   const [shuffledQuestions] = useState(() =>
     questions.map((q) => {
@@ -77,8 +72,7 @@ export function QuestionSection({
         choices: shuffledChoices,
         answers: shuffledAnswers,
       };
-    }),
-  );
+    }),);
 
   const handleAnswerChange = (index: number, isCorrect: boolean) => {
     const newIncorrect = [...incorrect];

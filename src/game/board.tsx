@@ -70,9 +70,7 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
       return;
     }
 
-    const highlightedCellsSet = new Set(
-      highlightedCellsArray.map(cell => `${cell[0]}-${cell[1]}`),
-    );
+    const highlightedCellsSet = new Set(highlightedCellsArray.map(cell => `${cell[0]}-${cell[1]}`),);
 
     setHighlightedCells(highlightedCellsSet);
   }, [highlightedCellsArray]);

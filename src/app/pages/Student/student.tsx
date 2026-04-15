@@ -17,11 +17,9 @@ export default function Student() {
     navigate(`/student/page${num}`);
   }
 
-  function useLockableLink(
-    num: number,
+  function useLockableLink(num: number,
     text: string,
-    puzzleKeys: string[],
-  ): [JSX.Element, (key: string, solved: boolean) => void] {
+    puzzleKeys: string[],): [JSX.Element, (key: string, solved: boolean) => void] {
     const storageKey = `page-${num}-solved`;
 
     const [solvedStates, setSolvedStates] = React.useState<Record<string, boolean>>(() => {

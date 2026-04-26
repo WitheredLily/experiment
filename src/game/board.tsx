@@ -13,7 +13,7 @@ interface BoardProps {
   selfSolving?: (grid: Grid) => boolean
   nonInteractive?: boolean
   inputOrder?: [number, number, CellState][][]
-  inputGraphic?: [number, number, CellState][][]
+  inputGraphic?: [number, number, CellState][]
   geneticGraphic?: boolean
   graphicSpeed?: number
   hideClueColumn?: boolean
@@ -76,17 +76,21 @@ export const VisualGrid: React.FC<BoardProps> = ({ grid, onGridChange, selfSolvi
   }, [highlightedCellsArray]);
 
   const handlePlayGraphic = async () => {
-    if (!inputGraphic) return;
+    if (!inputGraphic || playing || loading) return;
+    setPlaying(true);
+    grid.clear();
     for (const input of inputGraphic) {
-      updateCell(input[0][0], input[0][1], input[0][2]);
+      updateCell(input[0], input[1], input[2]);
       await sleep(graphicSpeed * 1000);
     }
+    setPlaying(false);
   };
 
   const handlePlayGeneticGraphic = async () => {
     if (!geneticGraphic || playing || loading) return;
 
     setLoading(true);
+    grid.clear();
     await new Promise(resolve => setTimeout(resolve, 0));
 
     const grids = geneticSolveSteps(grid.clone());

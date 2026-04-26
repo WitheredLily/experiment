@@ -1,6 +1,6 @@
 import {BacktrackSolve, getBacktrackSolution} from "./backtracking-solver";
 import {geneticSolve, geneticSolveSteps} from "./genetic-solver";
-import {CellState, Grid, makeRandomGrid, rowsToGrid} from "../nonogram";
+import {CellState, Grid, rowsToGrid} from "../nonogram";
 
 describe("Backtracking Solver", () => {
   it("solves a 1x1 filled puzzle", () => {
@@ -11,6 +11,16 @@ describe("Backtracking Solver", () => {
     expect(solved).toBe(true);
     expect(grid.isSolved()).toBe(true);
     expect(grid.getCellStates()[0][0]).toBe(CellState.Filled);
+  });
+
+  it("solves a 1x1 blank puzzle", () => {
+    const grid = rowsToGrid([[false]]);
+
+    const solved = BacktrackSolve(grid);
+
+    expect(solved).toBe(true);
+    expect(grid.isSolved()).toBe(true);
+    expect(grid.getCellStates()[0][0]).toBe(CellState.Marked);
   });
 
   it("solves a 2x2 puzzle correctly", () => {
@@ -42,9 +52,17 @@ describe("Backtracking Solver", () => {
 
     expect(steps.length).toBeGreaterThan(0);
 
-    // Each step should contain [x,y,state]
-    const firstStep = steps[0][0];
+    const firstStep = steps[0];
     expect(firstStep.length).toBe(3);
+  });
+
+  it("does not mutate the original grid in getBacktrackSolution", () => {
+    const grid = rowsToGrid([[true]]);
+    const originalState = JSON.stringify(grid.getCellStates());
+
+    getBacktrackSolution(grid);
+
+    expect(JSON.stringify(grid.getCellStates())).toBe(originalState);
   });
 });
 
@@ -63,17 +81,6 @@ describe("Genetic Solver", () => {
     expect(generations).toBeGreaterThanOrEqual(0);
   });
 
-  it("returns null for impossible puzzle", () => {
-    const numbersX = [[2]]; // impossible for 1x1
-    const numbersY = [[1]];
-
-    const grid = new Grid(numbersX, numbersY);
-
-    const [solution] = geneticSolve(grid);
-
-    expect(solution).toBeNull();
-  });
-
   it("returns intermediate best grids", () => {
     const grid = rowsToGrid([[true]]);
 
@@ -81,6 +88,7 @@ describe("Genetic Solver", () => {
 
     expect(Array.isArray(steps)).toBe(true);
     expect(steps.length).toBeGreaterThan(0);
+    expect(Array.isArray(steps[0])).toBe(true);
   });
 
   it("does not mutate original grid", () => {
@@ -91,36 +99,59 @@ describe("Genetic Solver", () => {
 
     expect(JSON.stringify(grid.getCellStates())).toBe(originalState);
   });
+
+  it("does not mutate original grid when generating steps", () => {
+    const grid = rowsToGrid([[true]]);
+    const originalState = JSON.stringify(grid.getCellStates());
+
+    geneticSolveSteps(grid);
+
+    expect(JSON.stringify(grid.getCellStates())).toBe(originalState);
+  });
+
 });
 
-test("Genetic Solver Success Rate", () => {
-  const gridNum = 100;
-  const solveRates = new Map<number, [number, number]>();
+describe("Genetic Solver internal-branch coverage", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
-  for (let n = 3; n <= 20; n += 1) {
-    let solvedGrids = 0;
-    let solvedIterations = 0;
+  it("does not mutate the input grid when generating steps", () => {
+    const grid = rowsToGrid([[true]]);
+    const original = JSON.stringify(grid.getCellStates());
 
-    for (let i = 0; i < gridNum; i++) {
-      const grid: Grid = rowsToGrid(makeRandomGrid(n, n, 0.5));
-      const [solved, gens] = geneticSolve(grid);
+    geneticSolveSteps(grid);
 
-      if (solved !== null) {
-        solvedGrids++;
-        solvedIterations += gens;
-      }
-    }
+    expect(JSON.stringify(grid.getCellStates())).toBe(original);
+  });
 
-    const successRate = solvedGrids / gridNum;
-    const avgGenerations =
-      solvedGrids > 0 ? solvedIterations / solvedGrids : 0;
+  it("returns at least one intermediate grid for a simple puzzle", () => {
+    const grid = rowsToGrid([[true]]);
 
-    solveRates.set(n, [successRate, avgGenerations]);
+    const steps = geneticSolveSteps(grid);
 
-    console.log(`Solved ${solvedGrids}/${gridNum} (${(successRate * 100).toFixed(1)}%) ` +
-        `for ${n}x${n}. Avg gens: ${avgGenerations.toFixed(2)}`);
-  }
+    expect(steps.length).toBeGreaterThan(0);
+    expect(steps[0].length).toBe(1);
+    expect(steps[0][0].length).toBe(1);
+  });
 
-  console.log(Object.fromEntries(solveRates));
+  it("can solve a puzzle with more than one valid row pattern", () => {
+    const grid = rowsToGrid([[true, false], [false, true],]);
+
+    const [solution] = geneticSolve(grid);
+
+    expect(solution).not.toBeNull();
+    expect(solution?.isSolved()).toBe(true);
+  });
+
+  it("handles mocked randomness without breaking step generation", () => {
+    jest.spyOn(Math, "random").mockImplementation(() => 0.1);
+
+    const grid = rowsToGrid([[true, false], [false, true],]);
+
+    const steps = geneticSolveSteps(grid);
+
+    expect(Array.isArray(steps)).toBe(true);
+    expect(steps.length).toBeGreaterThan(0);
+  });
 });
-

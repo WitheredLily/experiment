@@ -1,27 +1,35 @@
 import { Grid, CellState } from "../nonogram";
 
-const POPULATION_SIZE = 200;
-const BASE_MUTATION_RATE = 0.02;
-let MUTATION_RATE = BASE_MUTATION_RATE;
-const NUM_GENERATIONS = 10000;
-const ELITE_COUNT = 1;
+const POPULATION_SIZE = 400;
+const MUTATION_RATE = 0.15;
+const NUM_GENERATIONS = 1000;
+const ELITE_COUNT = 3;
 const STAGNATION_LIMIT = 500;
 
 export type TestGrid = CellState[][];
 
 type Chromosome = number[];
 
-function generateValidPatterns(
-  clue: readonly number[],
-  length: number,
-): CellState[][] {
+function isSolved(chromosome: Chromosome,
+  rowOptions: CellState[][][],
+  colOptions: CellState[][][]): boolean {
+  for (let c = 0; c < colOptions.length; c++) {
+    const column = chromosome.map((gene, r) =>
+      rowOptions[r][gene][c]);
+    if (columnDistance(column, colOptions[c]) !== 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function generateValidPatterns(clue: readonly number[],
+  length: number,): CellState[][] {
   const results: CellState[][] = [];
 
-  function backtrack(
-    clueIndex: number,
+  function backtrack(clueIndex: number,
     position: number,
-    current: CellState[],
-  ) {
+    current: CellState[],) {
     // If all clues placed
     if (clueIndex === clue.length) {
       // Fill remainder with empty
@@ -81,19 +89,14 @@ function generateValidPatterns(
   return results;
 }
 
-function chromosomeToGrid(
-  chromosome: Chromosome,
-  rowOptions: CellState[][][],
-): CellState[][] {
+function chromosomeToGrid(chromosome: Chromosome,
+  rowOptions: CellState[][][],): CellState[][] {
   return chromosome.map((gene, r) =>
-    [...rowOptions[r][gene]],
-  );
+    [...rowOptions[r][gene]],);
 }
 
-function columnDistance(
-  column: CellState[],
-  validPatterns: CellState[][],
-): number {
+function columnDistance(column: CellState[],
+  validPatterns: CellState[][],): number {
   let best = Infinity;
 
   for (const pattern of validPatterns) {
@@ -108,16 +111,16 @@ function columnDistance(
 }
 
 function fitness(chromosome: Chromosome, rowOptions: CellState[][][],
-  colOptions: CellState[][][],
-): number {
+  colOptions: CellState[][][],): number {
   let totalPenalty = 0;
 
   // Columns
   for (let c = 0; c < colOptions.length; c++) {
-    const column = chromosome.map((gene, r) =>
-      rowOptions[r][gene][c],
-    );
-    totalPenalty += columnDistance(column, colOptions[c]);
+    const column = chromosome.map((gene, r) => rowOptions[r][gene][c],);
+    const dist = columnDistance(column, colOptions[c]);
+    let bonus = 0;
+    if (dist === 0) bonus += 5;
+    totalPenalty += dist * dist - bonus;
   }
 
   // // Rows
@@ -129,11 +132,9 @@ function fitness(chromosome: Chromosome, rowOptions: CellState[][][],
   return -totalPenalty;
 }
 
-function tournamentSelect(
-  population: Chromosome[],
+function tournamentSelect(population: Chromosome[],
   fitnesses: number[],
-  k = 3,
-): Chromosome {
+  k = 5,): Chromosome {
   let bestIndex = -1;
 
   for (let i = 0; i < k; i++) {
@@ -151,15 +152,12 @@ function crossover(p1: Chromosome, p2: Chromosome): Chromosome {
   return [...p1.slice(0, point), ...p2.slice(point),];
 }
 
-function rowsConflictingWithBestPattern(
-  chromosome: Chromosome,
+function rowsConflictingWithBestPattern(chromosome: Chromosome,
   rowOptions: CellState[][][],
   colOptions: CellState[][][],
-  columnIndex: number,
-): number[] {
+  columnIndex: number,): number[] {
   const column = chromosome.map((gene, r) =>
-    rowOptions[r][gene][columnIndex],
-  );
+    rowOptions[r][gene][columnIndex],);
 
   let bestPattern = colOptions[columnIndex][0];
   let bestDist = Infinity;
@@ -187,75 +185,63 @@ function rowsConflictingWithBestPattern(
   return conflictingRows;
 }
 
-function mutate(
-  chromosome: Chromosome,
+function mutate(chromosome: Chromosome,
   rowOptions: CellState[][][],
-  colOptions: CellState[][][],
-) {
-  const penalties = computeColumnPenalties(
-    chromosome,
-    rowOptions,
-    colOptions,
-  );
+  colOptions: CellState[][][]) {
+  if (Math.random() < 0.2) {
+    const r = Math.floor(Math.random() * chromosome.length);
+    chromosome[r] = Math.floor(Math.random() * rowOptions[r].length);
+    return;
+  }
 
-  const worstColumn
-    = penalties.indexOf(Math.max(...penalties));
+  const penalties = computeColumnPenalties(chromosome, rowOptions, colOptions);
 
+  const worstColumn = penalties.indexOf(Math.max(...penalties));
   if (penalties[worstColumn] === 0) return;
 
-  const conflictingRows
-    = rowsConflictingWithBestPattern(
-      chromosome,
-      rowOptions,
-      colOptions,
-      worstColumn,
-    );
+  const conflictingRows = rowsConflictingWithBestPattern(chromosome, rowOptions, colOptions, worstColumn);
 
   if (conflictingRows.length === 0) return;
 
-  // Mutate ONE conflicting row
-  const r
-    = conflictingRows[
-      Math.floor(Math.random() * conflictingRows.length)
-    ];
+  const mutations = 1 + Math.floor(Math.random() * 4);
 
-  let bestGene = chromosome[r];
-  let bestScore = penalties[worstColumn];
+  for (let m = 0; m < mutations; m++) {
+    const r =
+      conflictingRows[
+        Math.floor(Math.random() * conflictingRows.length)
+      ];
 
-  for (let i = 0; i < rowOptions[r].length; i++) {
-    if (i === chromosome[r]) continue;
+    let bestGene = chromosome[r];
+    let bestFitness = fitness(chromosome, rowOptions, colOptions);
 
-    chromosome[r] = i;
+    for (let i = 0; i < rowOptions[r].length; i++) {
+      if (i === chromosome[r]) continue;
 
-    const newColumn = chromosome.map((gene, rr) =>
-      rowOptions[rr][gene][worstColumn],
-    );
+      const oldGene = chromosome[r];
+      chromosome[r] = i;
 
-    const score = columnDistance(
-      newColumn,
-      colOptions[worstColumn],
-    );
+      const newFitness = fitness(chromosome, rowOptions, colOptions);
 
-    if (score < bestScore) {
-      bestScore = score;
-      bestGene = i;
+      if (newFitness > bestFitness) {
+        bestFitness = newFitness;
+        bestGene = i;
+      }
+
+      chromosome[r] = oldGene;
     }
-  }
 
-  chromosome[r] = bestGene;
+    chromosome[r] = bestGene;
+  }
 }
 
-function computeColumnPenalties(
-  chromosome: Chromosome,
+function computeColumnPenalties(chromosome: Chromosome,
   rowOptions: CellState[][][],
-  colOptions: CellState[][][],
-): number[] {
+  colOptions: CellState[][][],): number[] {
   const penalties: number[] = [];
 
   for (let c = 0; c < colOptions.length; c++) {
     const column = chromosome.map((gene, r) =>
-      rowOptions[r][gene][c],
-    );
+      rowOptions[r][gene][c],);
 
     penalties[c] = columnDistance(column, colOptions[c]);
   }
@@ -272,32 +258,25 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[], number] {
 
   // Precompute valid row/column patterns
   const rowOptions = cluesX.map(clue =>
-    generateValidPatterns(clue.getNumbers(), cols),
-  );
+    generateValidPatterns(clue.getNumbers(), cols),);
 
   const colOptions = cluesY.map(clue =>
-    generateValidPatterns(clue.getNumbers(), rows),
-  );
+    generateValidPatterns(clue.getNumbers(), rows),);
 
   // Initialize population
   let population: Chromosome[] = [];
 
   for (let i = 0; i < POPULATION_SIZE; i++) {
-    population.push(
-      rowOptions.map(options =>
-        Math.floor(Math.random() * options.length),
-      ),
-    );
+    population.push(rowOptions.map(options =>
+      Math.floor(Math.random() * options.length),),);
   }
 
   let bestEverFitness = -Infinity;
   let stagnationCounter = 0;
 
   for (let generation = 0; generation < NUM_GENERATIONS; generation++) {
-    MUTATION_RATE = BASE_MUTATION_RATE * (1 - generation / NUM_GENERATIONS);
     const fitnesses = population.map(ch =>
-      fitness(ch, rowOptions, colOptions),
-    );
+      fitness(ch, rowOptions, colOptions),);
 
     const bestFitness = Math.max(...fitnesses);
     const bestIndex = fitnesses.indexOf(bestFitness);
@@ -323,7 +302,7 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[], number] {
     if (JSON.stringify(bestGrids[bestGrids.length - 1]) != JSON.stringify(bestGrid)) {
       bestGrids.push(chromosomeToGrid(population[bestIndex], rowOptions));
     }
-    if (bestFitness === 0) {
+    if (isSolved(population[bestIndex], rowOptions, colOptions)) {
       // console.log("Solved at generation: ", generation, chromosomeToGrid(population[bestIndex], rowOptions), bestGrids);
       return [chromosomeToGrid(population[bestIndex], rowOptions), bestGrids, generation];
     }
@@ -337,11 +316,8 @@ function geneticAlgorithm(grid: Grid): [TestGrid | null, TestGrid[], number] {
 
     while (newPopulation.length < POPULATION_SIZE) {
       if (forceInjectDiversity && newPopulation.length > ELITE_COUNT) {
-        newPopulation.push(
-          rowOptions.map(options =>
-            Math.floor(Math.random() * options.length),
-          ),
-        );
+        newPopulation.push(rowOptions.map(options =>
+          Math.floor(Math.random() * options.length),),);
         continue;
       }
 

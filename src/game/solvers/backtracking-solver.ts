@@ -34,12 +34,12 @@ function BacktrackSolve(grid: Grid): boolean {
   return solved;
 }
 
-function getBacktrackSolution(inputGrid: Grid): [number, number, CellState][][] {
+function getBacktrackSolution(inputGrid: Grid): [number, number, CellState][] {
   const newGrid = inputGrid.clone();
-  const steps: [number, number, CellState][][] = [];
+  const steps: [number, number, CellState][] = [];
   const updateGrid = (grid: Grid, x: number, y: number, state: CellState) => {
     grid.updateCell(x, y, state);
-    steps.push([[x, y, state]]);
+    steps.push([x, y, state]);
   };
   const [x, y] = newGrid.getSize();
   const solved = recursiveSolve(newGrid, 0, x, y, updateGrid);

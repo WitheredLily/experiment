@@ -59,8 +59,9 @@ export function Page3({ createLink, useLockableLink }: PageProps) {
                 <input
                   type="number"
                   min={1}
+                  step={1}
                   value={customRows}
-                  onChange={e => setCustomRows(Number(e.target.value))}
+                  onChange={e => setCustomRows(Math.max(Number(e.target.value),1))}
                 />
               </label>
               {"  "}
@@ -70,8 +71,9 @@ export function Page3({ createLink, useLockableLink }: PageProps) {
                 <input
                   type="number"
                   min={1}
+                  step={1}
                   value={customCols}
-                  onChange={e => setCustomCols(Number(e.target.value))}
+                  onChange={e => setCustomCols(Math.max(Number(e.target.value),1))}
                 />
               </label>
               {"  "}

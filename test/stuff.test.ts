@@ -3,11 +3,11 @@
 // import * as Stuff from '../lib/stuff-stack';
 
 // example test. To run these tests, uncomment this file along with the
-// example resource in lib/stuff-stack.ts
+// example resource in lib/stack.ts
 test("SQS Queue Created", () => {
 //   const app = new cdk.App();
 //     // WHEN
-//   const stack = new Stuff.StuffStack(app, 'MyTestStack');
+//   const stack = new Stuff.Stack(app, 'MyTestStack');
 //     // THEN
 //   const template = Template.fromStack(stack);
 

@@ -122,6 +122,11 @@ export default function Student() {
           ))}
         </Routes>
       </div>
+      <button className="logout-btn" onClick={() => {
+        navigate("/login", { replace: true });
+      }}>
+        Logout
+      </button>
     </div>
   );
 }

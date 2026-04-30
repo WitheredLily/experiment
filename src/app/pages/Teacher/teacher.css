@@ -1,0 +1,62 @@
+.teacher-container {
+    min-height: 100vh;
+    background: #f5f7fb;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3rem 1rem;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.teacher-card {
+    background: white;
+    width: 700px;
+    border-radius: 14px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.logout-btn {
+    background: #e74a3b;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+}
+
+.classroom-box {
+    background: #eef2ff;
+    padding: 1.2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.classroom-code {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #4e73df;
+}
+
+.students-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.students-section li {
+    padding: 0.6rem;
+    border-bottom: 1px solid #eee;
+}

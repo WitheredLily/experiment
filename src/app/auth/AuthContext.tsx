@@ -8,10 +8,11 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null
-  login: (username: string, role: Role) => void
-  logout: () => void
-  loading: boolean
+  user: User | null;
+  token: string | null;
+  login: (token: string, user: User) => void;
+  logout: () => void;
+  loading: boolean;
 }
 
 interface AuthProviderProps {
@@ -22,29 +23,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      setUser(JSON.parse(stored));
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
+
     setLoading(false);
   }, []);
 
-  const login = (username: string, role: Role) => {
-    const newUser = { username, role };
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+  const login = (token: string, user: User) => {
+    setUser(user);
+    setToken(token);
+
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
+
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

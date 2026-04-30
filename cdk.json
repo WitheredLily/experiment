@@ -1,5 +1,5 @@
 {
-  "app": "npx tsx src/bin/stuff.ts",
+  "app": "npx tsx src/bin/cdk-app.ts",
   "watch": {
     "include": [
       "**"
